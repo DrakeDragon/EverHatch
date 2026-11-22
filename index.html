@@ -423,6 +423,73 @@ html[data-large-text] .san-card{grid-template-columns:minmax(0,1fr)}html[data-la
 @media(max-width:380px){html[data-large-text] .grid2{grid-template-columns:1fr}}@media(orientation:landscape) and (max-height:520px){#app{max-width:none}#tabs button{min-height:44px;flex-direction:row;gap:4px}#tabs .nav-icon{font-size:1rem}#hud{padding-bottom:5px}html[data-large-text] #tabs button{min-height:42px}html[data-large-text] .grid2{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.btn{transition:none}#bars .bar i{transition:none}}
 
+/* v21 · Companion Life & Spectacular Tricks */
+.nature-focus{border:1px solid #b99a61;border-radius:14px;padding:10px;margin:0 0 11px;background:linear-gradient(145deg,#2b2d52,#101a35);box-shadow:inset 0 1px 0 #ffe0a130,0 5px 15px #05091548}
+.nature-focus header{display:flex;justify-content:space-between;flex-wrap:wrap;align-items:center;gap:5px;margin-bottom:8px}
+.nature-focus strong{color:#ffdea1;font-size:1rem}.nature-focus .nature-title{font-size:.875rem;color:#e9d6b0}
+.nature-focus .nature-bars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px}
+.nature-focus .nature-line{min-width:0}.nature-focus .nature-line b{font-size:.79rem;color:#f4ead4}.nature-focus .nature-line small{font-size:.75rem;color:#b9c7e0;float:right}
+.nature-focus .nature-line .track{height:7px;margin-top:3px;background:#0a1025;border:1px solid #ffffff30;border-radius:8px;overflow:hidden}
+.nature-focus .nature-line i{display:block;height:100%;border-radius:8px;transition:width .4s}
+.nature-focus p{font-size:.8rem;line-height:1.45;color:#c6cbe4;margin:7px 0 0}
+.care-section-heading{color:#f0d59b;font-size:.9rem;letter-spacing:.05em;margin:12px 0 6px}
+.care-action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.care-action-grid button{padding:10px 8px;min-width:0;text-align:left;min-height:65px;display:flex;flex-direction:column;justify-content:center;gap:3px;overflow-wrap:anywhere}
+.care-action-grid b{font-size:.91rem;line-height:1.28}.care-action-grid small{font-size:.76rem;line-height:1.3;color:#c2d0e6}
+.care-action-grid button:disabled{opacity:.55;cursor:not-allowed}
+.care-action-grid .act-glyph{color:#efcd86;margin-right:5px;font-size:1rem}
+.care-note{font-size:.78rem;color:#bdc5e0;margin:9px 1px;line-height:1.4}
+.care-pantry{padding:7px 10px;background:#101831;border:1px solid #716b62;border-radius:10px;margin:10px 0;color:#dcd7bf;font-size:.8rem;line-height:1.55}
+.food-group{font-size:1rem;color:#f1d6a3;margin:12px 0 6px}.food-list{display:grid;grid-template-columns:1fr;gap:7px}
+.food-choice{color:#f8ead4;text-align:left;width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:62px;background:linear-gradient(145deg,#243453,#101a37);border:1px solid #736b64;border-radius:10px;padding:9px 12px;font:inherit;cursor:pointer}
+.food-choice:disabled{opacity:.5;cursor:not-allowed}.food-choice b{display:block;font-size:.95rem}.food-choice small{display:block;color:#bdc8e4;font-size:.75rem;line-height:1.35;margin-top:4px}.food-choice .pill{flex:0 0 auto}
+.trick-card{align-items:flex-start}.trick-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;max-width:150px}.trick-actions button{padding:8px 9px;font-size:.79rem}
+#trick-stage .v21-fxcanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen}
+#trick-stage .wyvern-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 9px #0008)}
+#trick-stage .trick-banner{background:linear-gradient(135deg,#122348ec,#52386ad9);box-shadow:0 5px 18px #0009;border-color:#efd48f;font-size:.95rem;padding:7px}
+#scene.trick-active #gwrap .growth-body,#scene.trick-active #gwrap .newborn-body{visibility:hidden}
+.care-play .growth-body,.care-play .newborn-body{animation:v21play 1.1s ease-in-out both}
+.care-cuddle .growth-body,.care-cuddle .newborn-body{animation:v21cuddle 1.15s ease-in-out both}
+.care-stretch .growth-body,.care-stretch .newborn-body{animation:v21stretch 1.1s ease-in-out both}
+@keyframes v21play{0%,100%{transform:none}25%{transform:translateX(-9px) translateY(-7px) rotate(-4deg)}55%{transform:translateX(9px) translateY(-14px) rotate(5deg)}80%{transform:translateX(-2px) translateY(-4px)}}
+@keyframes v21cuddle{0%,100%{transform:none}40%,65%{transform:translateX(9px) rotate(5deg) scale(1.03)}}
+@keyframes v21stretch{0%,100%{transform:none}38%{transform:translateY(-13px) scale(1.05)}75%{transform:translateY(1px) scale(.985)}}
+@media(min-width:800px){#app:not(.reading) #panel{max-height:49%}}
+@media(max-width:380px){.care-action-grid button{min-height:70px}}
+@media(prefers-reduced-motion:reduce){.care-play .growth-body,.care-play .newborn-body,.care-cuddle .growth-body,.care-cuddle .newborn-body,.care-stretch .growth-body,.care-stretch .newborn-body{animation:none!important}}
+
+html[data-large-text] .focus-open-care{font-size:.875rem;min-height:50px;padding:8px}
+html[data-large-text] .focus-open-care small{display:none}
+/* v21.1 — Reading comfort must never shrink the companion out of reach. */
+#companionOpen{position:absolute;right:9px;top:9px;z-index:12;min-height:44px;max-width:min(54vw,210px);border:1px solid #f0d497;background:#111b37e8;color:#fff1d3;padding:8px 12px;border-radius:13px;font:600 .875rem/1.15 Georgia,serif;box-shadow:0 3px 14px #0009;cursor:pointer}
+#companionOpen[hidden]{display:none!important}
+#companionOpen:focus-visible,#focusControls button:focus-visible,.focus-open-care:focus-visible{outline:3px solid #ffe9a2;outline-offset:2px}
+.focus-open-care{display:block;width:100%;min-height:54px;margin:0 0 10px;border:1px solid #edcf8d;border-radius:13px;background:linear-gradient(135deg,#b17e36,#f1d99a);color:#1b223e;padding:11px 14px;font:700 1rem/1.25 Georgia,serif;cursor:pointer;text-align:center}
+.focus-open-care small{display:block;font-weight:400;font-size:.78rem;margin-top:3px;color:#39425a}
+#focusControls[hidden]{display:none!important}
+#focusControls{position:absolute;inset:0;z-index:16;pointer-events:none;color:#f8e8c9}
+#focusControls .focus-head{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+#focusControls .focus-head strong{font-size:clamp(16px,1rem,24px);text-shadow:0 2px 10px #000}
+#focusControls button{pointer-events:auto;cursor:pointer;border:1px solid #f2d493;background:#102043ed;color:#fff2cd;border-radius:12px;padding:9px 12px;min-height:50px;font:700 .875rem/1.2 Georgia,serif;box-shadow:0 4px 12px #0008}
+#focusControls .focus-bottom{position:absolute;bottom:max(8px,env(safe-area-inset-bottom));left:8px;right:8px;background:#111d3aeb;border:1px solid #d0ad67;border-radius:14px;padding:9px 10px;box-shadow:0 5px 22px #000a}
+#focusControls .focus-bottom p{font-size:.75rem;text-align:center;margin:0 0 7px;line-height:1.25}
+#focusControls .focus-spot-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+#focusControls .focus-spot-grid button{min-width:0;overflow-wrap:anywhere;text-align:center;padding:7px 3px}
+#app.creature-focus{display:flex!important;flex-direction:column!important;max-width:none!important}
+#app.creature-focus #hud,#app.creature-focus #panel,#app.creature-focus #tabs,#app.creature-focus #cog{display:none!important}
+#app.creature-focus #scene{display:block!important;flex:1 1 100%!important;position:relative!important;grid-column:1/-1!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+#app.creature-focus #gwrap{width:min(100%,540px);aspect-ratio:320/300;max-height:calc(100% - 182px);bottom:145px;z-index:4}
+#app.creature-focus #companionOpen,#app.creature-focus #hint{display:none!important}
+#app.creature-focus #speech{top:58px;left:12%;right:12%;z-index:15;max-height:65px;overflow-y:auto;overscroll-behavior:contain;pointer-events:auto;font-size:clamp(14px,.67rem,20px);line-height:1.15;padding:4px 8px}
+#app.creature-focus #sanctuary{display:block!important}
+@media(orientation:portrait){
+ html[data-large-text] #app:not(.reading):not(.creature-focus) #panel{max-height:34dvh;min-height:94px}
+ html[data-large-text] #app:not(.reading):not(.creature-focus) #scene{min-height:min(29dvh,235px)}
+}
+@media(max-width:420px){#focusControls .focus-spot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#app.creature-focus #gwrap{bottom:171px;max-height:calc(100% - 203px)}}
+@media(orientation:landscape) and (max-height:530px){#app.creature-focus #gwrap{bottom:68px;max-height:calc(100% - 108px)}#focusControls .focus-bottom{width:min(70%,390px);left:auto;right:6px;padding:5px 8px}#focusControls .focus-spot-grid{grid-template-columns:repeat(4,minmax(0,1fr))}#focusControls .focus-bottom p{display:none}#focusControls button{min-height:42px;padding:6px}}
+@media(prefers-reduced-motion:reduce){#app.creature-focus #gwrap{transition:none!important}}
+
 </style>
 </head>
 <body>
@@ -441,6 +508,13 @@ html[data-large-text] .san-card{grid-template-columns:minmax(0,1fr)}html[data-la
   <div id="scene">
     <div id="sanctuary" aria-hidden="true"><img id="sanctuary-photo" alt="" decoding="async"><div id="sanctuary-light"></div><div id="sanctuary-mist"></div><div id="sanctuary-particles"></div></div>
     <div id="sleepveil"></div>
+    <button id="companionOpen" type="button" aria-label="View and pet your companion in a larger play area">↗ View &amp; Pet</button>
+    <div id="focusControls" hidden>
+      <div class="focus-head"><button id="focusBack" type="button">← Back to care</button><strong id="focusName"></strong></div>
+      <div class="focus-bottom"><p>Tap your companion, or pick a spot to pet.</p><div class="focus-spot-grid" aria-label="Choose a petting spot">
+        <button type="button" data-focus-spot="0">Head</button><button type="button" data-focus-spot="1">Neck</button><button type="button" data-focus-spot="2">Wing</button><button type="button" data-focus-spot="3">Flank</button>
+      </div></div>
+    </div>
     <div id="speech"></div>
     <div id="hint"></div>
     <div id="gwrap"></div>
@@ -472,6 +546,10 @@ html[data-large-text] .san-card{grid-template-columns:minmax(0,1fr)}html[data-la
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="flash"></div>
 
+<script src="assets/rig/manifest.js"></script>
+<script src="assets/rig/rig-runtime.js"></script>
+<script src="assets/expressions/expression-runtime.js"></script>
+<script src="assets/faces-v33/manifest.js"></script><script src="assets/faces-v33/facial-runtime.js"></script>
 <script>
 (()=>{'use strict';
 /* ============================ helpers ============================ */
@@ -2837,6 +2915,1275 @@ let releaseFocus=null;
 {const old=closeModal;closeModal=function(noNext){const prev=releaseFocus;old(noNext);if(!modalOpen&&prev?.isConnected&&prev!==document.body)prev.focus({preventScroll:true});};}
 document.addEventListener('keydown',e=>{if(!modalOpen||e.key!=='Tab')return;const card=$('#modal .card');if(!card)return;const f=Array.from(card.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href],summary,[tabindex="0"]')).filter(x=>x.getClientRects().length);if(!f.length){e.preventDefault();return}const i=f.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();f.at(-1).focus()}else if(!e.shiftKey&&(i<0||i===f.length-1)){e.preventDefault();f[0].focus()}});
 {const old=openSettings;openSettings=function(){old();for(const id of ['stCard','stCode','stNew','stShelf']){const el=document.getElementById(id);if(!el)continue;el.tabIndex=0;el.setAttribute('role','button');el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click()}});}};}
+
+/* v21 · Companion Life Update. Retains the v2 save format and all v20 progression. */
+const v21FreeFoods=[
+ {id:'herbs',n:'Tender Meadow Herbs',cost:0,h:13,joy:4,f:2,g:1,tr:'gentle',d:'Free • Soft greens from the sanctuary garden.'},
+ {id:'beetles',n:'Crunchy Glow Beetles',cost:0,h:16,joy:5,f:0,g:1,tr:'mischief',d:'Free • A lively, crackling little snack.'},
+ {id:'minnows',n:'Little River Minnows',cost:0,h:18,joy:3,f:1,g:1,tr:'bold',d:'Free • Caught in the shallows near home.'},
+ {id:'roots',n:'Sweet Wild Roots',cost:0,h:15,joy:4,f:0,g:1,tr:'fierce',d:'Free • Something satisfying to crunch.'},
+ {id:'sunseeds',n:'Golden Sunseeds',cost:0,h:12,joy:6,f:0,g:1,tr:'gentle',d:'Free • A bright treat for curious companions.'},
+ {id:'mushrooms',n:'Mooncap Mushrooms',cost:0,h:11,joy:8,f:1,g:1,tr:'mischief',d:'Free • Little silver mushrooms from the ledge.'}
+];
+FOODS.splice(1,0,...v21FreeFoods);
+FOODS.push(
+ {id:'catch',n:'Fresh Foraged Fish',pantry:'catch',cost:0,h:31,joy:6,f:3,g:2,tr:'bold',d:'Gather by the stream • A real meal.'},
+ {id:'nectar',n:'Golden Honeycomb',pantry:'nectar',cost:0,h:22,joy:15,f:2,g:2,tr:'gentle',d:'Gather near the flower terraces • A special sweet.'},
+ {id:'glowfruit',n:'Glowfruit',pantry:'glowfruit',cost:0,h:24,joy:12,f:1,g:2,tr:'mischief',d:'Gather in the shaded grove • Rare and delicious.'}
+);
+function v21State(){if(!S)return;S.pantry??={};S.careCd??={};for(const k of ['catch','nectar','glowfruit'])S.pantry[k]=Math.max(0,Number(S.pantry[k])||0);}
+{const before=migrate;migrate=function(o){const out=before(o);out.pantry??={};out.careCd??={};return out};}
+{const before=fresh;fresh=function(k){const out=before(k);out.pantry={};out.careCd={};return out};}
+const v21TraitColors={gentle:'#9ad2b4',fierce:'#ef9c75',bold:'#a7c7f7',mischief:'#d4afea'};
+function v21Nature(){v21State();const personality=domTrait();const top=personality?TRAIT_ADJ[personality]:'Still discovering itself';const values=Object.keys(TRAIT_ADJ).map(k=>Math.max(0,S.tr[k]||0));const max=Math.max(12,...values);return `<section class="nature-focus" aria-label="Companion personality"><header><strong>✧ ${S.name}'s Nature</strong><span class="nature-title">${top}</span></header><div class="nature-bars">${Object.entries(TRAIT_ADJ).map(([k,n])=>{const v=Math.max(0,S.tr[k]||0),p=clamp(v/max*100,0,100);return `<div class="nature-line"><b>${n}</b><small>${v.toFixed(1)}</small><div class="track" role="progressbar" aria-label="${n} nature" aria-valuemin="0" aria-valuemax="${max.toFixed(1)}" aria-valuenow="${v.toFixed(1)}"><i style="width:${p}%;background:${v21TraitColors[k]}"></i></div></div>`}).join('')}</div><p>Every choice shapes your companion. Gentle, Fierce, Bold, and Mischievous can all grow together.</p></section>`;}
+function v21Remaining(k){v21State();return Math.max(0,(S.careCd[k]||0)-Date.now());}
+function v21Ready(k){return !v21Remaining(k)}
+function v21Button(id,title,desc,symbol,disabled=false){const remain=v21Remaining(id);return `<button class="btn ${id==='feed'?'gold':''}" data-act="${id}" ${disabled?'disabled':''}><b><span class="act-glyph" aria-hidden="true">${symbol}</span>${title}</b><small>${remain?Math.ceil(remain/1000)+'s until ready':desc}</small></button>`;}
+function v21Care(){v21State();const l=lvl(),gr=Date.now()<S.cd.greet,off=S.sleeping,feathers=SPEC.id==='wyvern'?'scales':'feathers';return `<section class="care-polish"><button type="button" class="focus-open-care" data-act="focusCreature">↗ View & Pet<small>See ${S.name} up close without shrinking text</small></button>${v21Nature()}<div class="care-pantry"><b>Free everyday food</b> is always available. Forage to collect more filling treats without flying.<div>Gathered: 🐟 ${S.pantry.catch} fish · 🍯 ${S.pantry.nectar} honeycomb · ✨ ${S.pantry.glowfruit} glowfruit · <b>${S.prov}</b> provisions</div></div><h3 class="care-section-heading">Everyday care</h3><div class="care-action-grid">${v21Button('feed','Feed','Many free foods + gathered treats','✦',off)}${v21Button('forageCare','Forage','Find fresh food near your nest','❀',off)}${v21Button('washCare',SPEC.id==='wyvern'?'Polish Scales':'Freshen Up',`Gently clean ${feathers}`,'❧',off||!v21Ready('washCare'))}${v21Button('rest',off?'Wake Up':'Let Rest',off?'Wake your companion':'Curl up and sleep','☾')}
+</div><h3 class="care-section-heading">Play, connect & grow</h3><div class="care-action-grid">${v21Button('playCare','Play Together','Chase a glowing feather','★',off||!v21Ready('playCare'))}${v21Button('talkCare','Talk Together','Shape your companion’s nature','♬',off||!v21Ready('talkCare'))}${v21Button('cuddleCare','Cuddle','A quiet moment of trust','♥',off||!v21Ready('cuddleCare'))}${v21Button('drinkCare','Offer Water','A cool drink from the spring','◈',off||!v21Ready('drinkCare'))}${v21Button('stretchCare','Wing Stretches','Practice growing stronger','➶',off||!v21Ready('stretchCare'))}${v21Button('discoverCare','Explore the Nest','Find something interesting','⌕',off||!v21Ready('discoverCare'))}${v21Button('preen',SPEC.id==='wyvern'?'Deep Scale Care':'Deep Preening',l<2?'Trusting bond needed':'Swipe across your companion','✧',off||l<2)}${v21Button('greet','Greeting',l<3?'Nuzzling bond needed':gr?'Cooling down':'Nuzzle and bond','♡',off||l<3||gr)}${v21Button('trickshow','Magic Theater','Watch spectacular trick previews','✹',off)}</div><p class="care-note">Tap ${S.name} directly to pet its favorite spot. Forage and play work before the first flight. Free foods restore less than premium meals, so provisions still matter.</p></section>`;}
+pCare=v21Care;
+function v21CareGuard(id){if(!guard())return false;if(S.sleeping){say(`${S.name} is sleeping. Wake your companion first.`);return false}if(!v21Ready(id)){say(`Ready again in ${Math.ceil(v21Remaining(id)/1000)} seconds.`);return false}return true;}
+function v21FinishCare(id,cooldown,feedback,fx){S.careCd[id]=Date.now()+cooldown*1000;S.growth+=fx.growth||0;stat('joy',fx.joy||0);stat('rest',fx.rest||0);stat('feathers',fx.feathers||0);if(fx.trait)S.tr[fx.trait]+=fx.traitGain||.45;addBond(fx.bond||1);if(fx.prov)S.prov+=fx.prov;const oldStage=stageOf(S.growth-(fx.growth||0));if(stage()>oldStage)onStageUp();if(fx.anim)careVisual(fx.anim,1150);burst(...gcenter(.15,-.18),fx.heart?'heart':'spark',fx.heart?6:8);sfx('chime');say(feedback,7000);save();renderAll();checkEvents();}
+ACTS.forageCare=()=>{if(!v21CareGuard('forageCare'))return;const places=[['The sparkling stream','catch','🐟 Fresh Foraged Fish','bold'],['The flower terrace','nectar','🍯 Golden Honeycomb','gentle'],['The shaded grove','glowfruit','✨ Glowfruit','mischief']];showModal({title:'Forage near home',html:`<p>Choose where to gather free treats for ${S.name}. No wings or provisions required.</p><p class="note">Each trip takes a little time to recover from. You can keep caring for your companion while foraging cools down.</p>`,buttons:[...places.map(([place,key,label,trait])=>({t:`${place} · ${label}`,fn:()=>{v21State();const count=1+(Math.random()<.3?1:0);S.pantry[key]=Math.min(12,S.pantry[key]+count);v21FinishCare('forageCare',70,`${S.name} explores with you. You gather ${count} ${key==='catch'?'fresh fish':key==='nectar'?'honeycomb pieces':'glowfruit'}!`,{joy:4,bond:1,rest:-2,growth:.6,trait,traitGain:.3,anim:'care-play'});}})),{t:'Not right now'}]});};
+ACTS.playCare=()=>{if(!v21CareGuard('playCare'))return;v21FinishCare('playCare',75,pick([`${S.name} chases a golden ribbon, spins around and begs to do it again.`,`${S.name} plays until it is breathless, then bumps your hand for another round.`,`${S.name} leaps at the drifting feathers and lands looking deeply pleased.`]),{joy:12,rest:-4,growth:1.2,bond:2,trait:'mischief',traitGain:.7,anim:'care-play'});};
+ACTS.cuddleCare=()=>{if(!v21CareGuard('cuddleCare'))return;v21FinishCare('cuddleCare',110,`${S.name} settles close, warm and trusting. This is what home feels like.`,{joy:8,rest:4,bond:2.4,trait:'gentle',traitGain:.7,anim:'care-cuddle',heart:true});};
+ACTS.drinkCare=()=>{if(!v21CareGuard('drinkCare'))return;v21FinishCare('drinkCare',90,`${S.name} drinks from the spring, shakes off the droplets and looks refreshed.`,{joy:3,rest:5,bond:1,feathers:1,growth:.3,anim:'care-cuddle'});};
+ACTS.washCare=()=>{if(!v21CareGuard('washCare'))return;v21FinishCare('washCare',120,`${S.name}'s ${SPEC.id==='wyvern'?'scales gleam like polished copper':'plumage shines in the sunlight'}.`,{joy:5,feathers:10,bond:1.8,trait:'gentle',traitGain:.45,anim:'care-cuddle'});};
+ACTS.stretchCare=()=>{if(!v21CareGuard('stretchCare'))return;v21FinishCare('stretchCare',110,`${S.name} stretches its wings as far as they will go. One day, the sky will be waiting.`,{joy:5,rest:-4,growth:2,bond:1,trait:'bold',traitGain:.65,anim:'care-stretch'});};
+ACTS.discoverCare=()=>{if(!v21CareGuard('discoverCare'))return;const surprise=Math.random()<.3?1:0;v21FinishCare('discoverCare',100,`${S.name} noses beneath the nesting stones. ${surprise?'You find a provision tucked away!':'You uncover a curious old pebble and a very happy companion.'}`,{joy:7,rest:-2,growth:.7,bond:1,prov:surprise,trait:'mischief',traitGain:.4,anim:'care-play'});};
+ACTS.talkCare=()=>{if(!v21CareGuard('talkCare'))return;const opts=[['Tell a gentle story','gentle',`${S.name} listens with soft eyes, then leans close.`],['Dream of adventure','bold',`${S.name} spreads its wings as if the horizon just called.`],['Talk about courage','fierce',`${S.name} lets out a fearless little cry.`],['Make a silly joke','mischief',`${S.name} makes a sound suspiciously like a giggle.`]];showModal({title:`Talk with ${S.name}`,html:`<p>What you say matters. These moments gently shape personality.</p>`,buttons:[...opts.map(([n,trait,line])=>({t:n,fn:()=>v21FinishCare('talkCare',90,line,{joy:6,bond:2,trait,traitGain:1,anim:'care-cuddle',heart:trait==='gentle'})})),{t:'Maybe later'}]});};
+const originalV21Feed=feed;
+feed=function(id){const f=FOODS.find(x=>x.id===id);if(!f)return;v21State();if(f.pantry){if(S.pantry[f.pantry]<1){say('Forage nearby to gather more of that treat.');return}if(S.st.hunger>=92||S.sleeping){say(`${S.name} is not ready to eat.`);return}S.pantry[f.pantry]-=1;}originalV21Feed(id);};
+doFeedMenu=function(){if(S.sleeping){say(`${S.name} is sleeping. Wake your companion first.`);return}v21State();const groups=[['Free · Always Available',FOODS.filter(f=>!f.cost&&!f.pantry)],['Foraged · Find Before Flying',FOODS.filter(f=>f.pantry)],['Provisions · Heartier Meals',FOODS.filter(f=>f.cost)]];const html=groups.map(([title,foods])=>`<h3 class="food-group">${title}</h3><div class="food-list">${foods.map(f=>{const qty=f.pantry?S.pantry[f.pantry]:null;const disabled=S.st.hunger>=92||(f.pantry&&qty<1)||(f.cost>S.prov);return `<button class="food-choice" type="button" data-food="${f.id}" ${disabled?'disabled':''}><span><b>${f.n}</b><small>${f.d} · +${f.h} food · +${f.joy} joy</small></span><span class="pill">${f.pantry?'×'+qty:f.cost?f.cost+' provisions':'FREE'}</span></button>`}).join('')}</div>`).join('')+`<p class="note">Forage from the Care tab to gather special treats without flying. Expeditions, daily moments and quests also provide provisions. Full companions prefer to play instead of eating.</p>`;showModal({title:'A Feast of Choices',html,buttons:[{t:'Close'}],onShow:m=>{$$('[data-food]',m).forEach(b=>b.onclick=()=>{if(b.disabled)return;closeModal(true);feed(b.dataset.food)})}});};
+/* More impressive illustrated trick performances, including a 12-frame wyvern fire-breath animation. */
+function v21PreviewTrick(t){if(!guard())return;if(S.sleeping){say('Wake your companion to watch the trick.');return}tab='care';renderPanel();const ms=t.ms||2850;if(!startTrickStage(t,ms)){animG(t.anim,ms)}say(`${S.name} demonstrates ${t.n}! This is a preview; mastery and rewards are earned through training.`,ms+1300);}
+ACTS.trickshow=()=>{if(!v21CareGuard('trickshow'))return;const arr=TRICKS.filter(t=>!t.sp||t.sp===SPEC.id);showModal({title:'Magic Theater',html:`<p class="note">Watch the animations for ${SPEC.w} tricks. Previewing is free; unlocking performance rewards still requires practice.</p><div class="food-list">${arr.map(t=>`<button type="button" class="food-choice" data-preview="${t.id}"><span><b>✦ ${t.n}</b><small>${t.d}</small></span><span class="pill">Preview</span></button>`).join('')}</div>`,buttons:[{t:'Close'}],onShow:m=>{$$('[data-preview]',m).forEach(b=>b.onclick=()=>{const t=TRICK_BY_ID[b.dataset.preview];closeModal(true);v21PreviewTrick(t)})}});};
+ACTS.tpreview=el=>{const t=TRICK_BY_ID[el.dataset.id];if(t)v21PreviewTrick(t)};
+pTricks=function(){let h=`<p class="note">Practice to earn mastery. Tap <b>Preview</b> to watch the special move without using resources or a cooldown.</p>`;TRICKS.filter(t=>!t.sp||t.sp===SPEC.id).forEach(t=>{const ok=trickOk(t),m=Math.round(S.tricks[t.id]||0),cd=(S.trickCd[t.id]||0)-Date.now(),match=domTrait()===t.aff;h+=`<div class="row trick-card ${ok?'':'lock'}"><div class="grow"><b>${t.n}</b> ${m>=100?'<span class="pill">Mastered</span>':''}<small>${ok?t.d+(match?' · suits its nature':''):`Needs ${STAGES[t.req.st].n} and bond level ${t.req.lvl+1}`}</small>${ok?`<div class="bar" style="margin-top:5px"><i style="width:${m}%;background:var(--gold)"></i></div>`:''}</div><div class="trick-actions"><button class="btn" data-act="tpreview" data-id="${t.id}">Preview ✨</button>${ok?`<button class="btn" data-act="tpractice" data-id="${t.id}">Practice</button><button class="btn ${m>=50&&cd<=0?'gold':'dis'}" data-act="tperform" data-id="${t.id}">${cd>0?Math.ceil(cd/60000)+'m':'Perform'}</button>`:''}</div></div>`});return h};
+let v21FxRAF=0,v21FrameInterval=0;
+const v21StopTrick=stopTrickStage;
+stopTrickStage=function(){cancelAnimationFrame(v21FxRAF);clearInterval(v21FrameInterval);v21FxRAF=0;v21FrameInterval=0;v21StopTrick();};
+function v21Vfx(t,ms,r){const canvas=document.createElement('canvas');canvas.className='v21-fxcanvas';canvas.width=640;canvas.height=600;trickStage.appendChild(canvas);const ctx=canvas.getContext('2d');if(!ctx)return;
+ const kind=TRICK_CHOREO[t.id]?.[1]||'gold',color=trickColors[kind]||'#ffe4a0',start=performance.now(),reduced=newbornMotion.matches;
+ function frame(now){if(trickRun!==r)return;const p=clamp((now-start)/ms,0,1);const glow=Math.sin(p*Math.PI);ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,320,300);const drawStar=(x,y,rad,opacity)=>{ctx.globalAlpha=opacity;ctx.fillStyle=color;ctx.beginPath();for(let q=0;q<8;q++){const a=q*Math.PI/4,rr=q%2?rad*.3:rad,px=x+Math.cos(a)*rr,py=y+Math.sin(a)*rr;q?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill()};
+ ctx.save();ctx.globalCompositeOperation='screen';
+ if(['wave','bolt','dust','shield','pillar','sun','fire','smoke'].includes(kind)){for(let i=0;i<4;i++){const rr=24+((p*1.2+i*.24)%1)*140;ctx.strokeStyle=color;ctx.globalAlpha=glow*.55*(1-rr/200);ctx.lineWidth=i%2?3:5;ctx.beginPath();if(kind==='dust')ctx.ellipse(160,250,rr,rr*.17,0,0,Math.PI*2);else ctx.arc(170,158,rr,0,Math.PI*2);ctx.stroke()}}
+ if(['bolt','fire','embers','sun','pillar','stars','trail','gold','smoke','notes','petal','cloud'].includes(kind)){for(let i=0;i<32;i++){const a=i*2.399+Math.floor(i/5)*.2;const dist=20+((p*.75+i*.07)%1)*145;const x=162+Math.cos(a+p*3)*dist,y=164+Math.sin(a-p*2)*dist*.68;drawStar(x,y,(i%5+3)*(kind==='fire'?1.7:1),glow*.62)}}
+ if(kind==='shield'){ctx.globalAlpha=glow*.85;ctx.strokeStyle='#8bd9ff';ctx.lineWidth=4;ctx.beginPath();for(let i=0;i<7;i++){const a=(i/6)*Math.PI*2-Math.PI/2;const x=160+95*Math.cos(a),y=162+105*Math.sin(a);i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath();ctx.stroke()}
+ if(kind==='bolt'){ctx.strokeStyle='#bde8ff';ctx.globalAlpha=glow;ctx.lineWidth=5;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(90+i*70,40);ctx.lineTo(80+i*70,110);ctx.lineTo(96+i*70,120);ctx.lineTo(75+i*70,192);ctx.stroke()}}
+ if(kind==='notes'){ctx.globalAlpha=glow*.9;ctx.fillStyle=color;ctx.font='bold 36px serif';['♪','♫','♬'].forEach((x,i)=>ctx.fillText(x,215+i*20,145-i*43-p*32))}
+ if(kind==='sun'||kind==='pillar'){const g=ctx.createRadialGradient(160,115,15,160,115,120);g.addColorStop(0,'#fff9d9a8');g.addColorStop(1,'#ffaf2300');ctx.globalAlpha=glow*.45;ctx.fillStyle=g;ctx.fillRect(0,0,320,250)}
+ if(kind==='smoke'||t.id==='puff'){for(let i=0;i<15;i++){ctx.globalAlpha=glow*.35;ctx.fillStyle=i%2?'#f9ad58':'#aaa2b6';ctx.beginPath();ctx.arc(245+i*3,154+Math.sin(i*1.7+p*7)*17-p*25,8+i%4*3,0,Math.PI*2);ctx.fill()}}
+ if(kind==='dust'||t.id==='slam'){ctx.strokeStyle='#e5c790';ctx.globalAlpha=glow*.9;ctx.lineWidth=3;for(let i=0;i<8;i++){const a=i*Math.PI/4;ctx.beginPath();ctx.moveTo(160+Math.cos(a)*25,255+Math.sin(a)*13);ctx.lineTo(160+Math.cos(a)*(35+p*100),255+Math.sin(a)*(10+p*40));ctx.stroke()}}
+ if(kind==='trail'||kind==='stars'||kind==='cloud'){ctx.lineWidth=5;for(let i=0;i<7;i++){ctx.strokeStyle=i%2?'#f2dc9e':'#b7e2ff';ctx.globalAlpha=glow*.65;ctx.beginPath();ctx.arc(160,170,30+i*15,-Math.PI*.95+p*6,-Math.PI*.5+p*6);ctx.stroke()}}
+ ctx.restore();if(!reduced&&p<1)v21FxRAF=requestAnimationFrame(frame);else if(reduced){ctx.clearRect(0,0,320,300)}}
+ v21FxRAF=requestAnimationFrame(frame);
+}
+const v21StartTrick=startTrickStage;
+startTrickStage=function(t,ms){const ok=v21StartTrick(t,ms);if(!ok)return false;const r=trickRun;v21Vfx(t,ms,r);if(t.id==='puff'&&SPEC.id==='wyvern'){const originalBody=trickStage.querySelector('.trick-body');if(originalBody)originalBody.style.visibility='hidden';const im=document.createElement('img');im.className='wyvern-frame';im.alt='';trickStage.appendChild(im);const coat=S.coat;let k=0;const frames=Array.from({length:12},(_,i)=>{const src=`assets/tricks/wyvern-puff-${coat}-${i}.webp`;const image=new Image();image.src=src;return src;});im.src=frames[0];v21FrameInterval=setInterval(()=>{if(trickRun!==r){clearInterval(v21FrameInterval);return}k=Math.min(11,k+1);im.src=frames[k];if(k===11)clearInterval(v21FrameInterval)},Math.max(95,Math.floor(ms/12)));}
+ return true;};
+
+/* v21.1 Companion View: text settings and pet interaction are independent. */
+let creatureViewOpen=false;
+function setCreatureView(next){
+ if(next&&(!S||titleUp||S.phase!=='alive'||modalOpen))return;
+ creatureViewOpen=!!next;
+ const app=$('#app');app.classList.toggle('creature-focus',creatureViewOpen);
+ $('#focusControls').hidden=!creatureViewOpen;
+ $('#focusName').textContent=creatureViewOpen?(S.name||'Your companion'):'';
+ $('#companionOpen').setAttribute('aria-expanded',String(creatureViewOpen));
+ if(creatureViewOpen){$('#focusBack').focus({preventScroll:true});}
+ else{if(tab==='care'&&!$('#app').classList.contains('reading')){const b=$('#panel .focus-open-care');if(b)b.focus({preventScroll:true});}}
+}
+{const previous=renderPanel;renderPanel=function(){const result=previous();$('#companionOpen').hidden=!(S&&S.phase==='alive');return result;};}
+ACTS.focusCreature=()=>setCreatureView(true);
+$('#companionOpen').addEventListener('click',()=>setCreatureView(true));
+$('#focusBack').addEventListener('click',()=>setCreatureView(false));
+$$('[data-focus-spot]').forEach(b=>b.addEventListener('click',()=>{
+ if(!creatureViewOpen||!S||S.sleeping){say(S?.sleeping?'Wake your companion before petting.':'Your companion is not available.',3500);return}
+ const sc=$('#scene').getBoundingClientRect(),c=gcenter(0,-.1);
+ pet(Number(b.dataset.focusSpot),{clientX:sc.left+c[0],clientY:sc.top+c[1]});
+}));
+$('#gwrap').addEventListener('pointerdown',e=>{
+ // The sprite artwork often has no SVG hotspot: make the whole visible companion tappable.
+ if(!creatureViewOpen||!S||S.phase!=='alive'||S.sleeping||preen||modalOpen)return;
+ if(e.target.dataset&&e.target.dataset.spot!==undefined)return;
+ const r=$('#gwrap').getBoundingClientRect();
+ if(!r.width||!r.height)return;
+ const px=(e.clientX-r.left)/r.width,py=(e.clientY-r.top)/r.height;
+ const spot=py<.34?0:px<.44?2:py<.62?1:3;
+ pet(spot,e);
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!modalOpen){e.preventDefault();setCreatureView(false)}});
+{const prev=textSizeControls;textSizeControls=function(){return prev().replace('Your saved companion is unchanged.','Your saved companion is unchanged. The View & Pet button keeps your creature large without changing this setting.');};}
+
+
+
+/* v22 — cinematic trick overhaul: richer choreography for every trick. */
+(function(){
+ const style=document.createElement('style');
+ style.textContent=`
+ #trick-stage.v22-cinematic{background:radial-gradient(circle at 50% 68%, color-mix(in srgb,var(--v22a,#ffdd96) 20%, transparent), transparent 42%),linear-gradient(180deg,var(--v22bg1,#0a1229f2),var(--v22bg2,#070b18f2));border-radius:20px;overflow:hidden;box-shadow:0 18px 42px #000c,inset 0 0 0 1px #ffffff12}
+ #trick-stage.v22-cinematic .cinematic-bg{position:absolute;inset:0;background:radial-gradient(circle at 50% 72%, color-mix(in srgb,var(--v22a,#ffdd96) 24%, transparent), transparent 33%),radial-gradient(circle at 18% 18%, color-mix(in srgb,var(--v22b,#9dd4ff) 20%, transparent), transparent 32%),linear-gradient(180deg,var(--v22bg1,#10192f) 0%,var(--v22bg2,#090d1f) 100%);opacity:.98}
+ #trick-stage.v22-cinematic svg{position:relative;z-index:1;filter:drop-shadow(0 10px 26px #0007)}
+ #trick-stage .trick-body,#trick-stage .trick-ghost{transform-box:view-box;transform-origin:160px 255px;will-change:transform,opacity,filter}
+ #trick-stage .trick-ghost{opacity:.16;mix-blend-mode:screen}
+ #trick-stage .trick-shadow ellipse{fill:#05070b7a;filter:blur(3px)}
+ #trick-stage .trick-banner{z-index:3;backdrop-filter:blur(4px)}
+ `;
+ document.head.appendChild(style);
+ function mixv(a,b,t){return a+(b-a)*t}
+ function s01(t){t=clamp(t,0,1);return t*t*(3-2*t)}
+ function slice(p,a,b){return s01((p-a)/(b-a))}
+ function tri(p){return 1-Math.abs(p*2-1)}
+ function lerpPose(A,B,t){return {x:mixv(A.x,B.x,t),y:mixv(A.y,B.y,t),r:mixv(A.r,B.r,t),s:mixv(A.s,B.s,t),o:mixv(A.o,B.o,t)}}
+ function pose(x=0,y=0,r=0,s=1,o=1){return {x,y,r,s,o}}
+ function trickPose(id,p){
+   let P=pose();
+   switch(id){
+    case 'bow':{
+      if(p<.32)P=lerpPose(pose(0,0,0,1,1),pose(0,18,-13,.97,1),slice(p,0,.32));
+      else if(p<.56)P=pose(0,18,-13,.97,1);
+      else P=lerpPose(pose(0,18,-13,.97,1),pose(0,0,0,1,1),slice(p,.56,1));
+      break;}
+    case 'dance': case 'flamedance':{
+      const k=Math.sin(p*Math.PI*4); P=pose(k*18,-Math.abs(k)*20,k*9,1+.02*Math.sin(p*Math.PI*8),1); break;}
+    case 'roar':{
+      const q=tri(p); P=pose(0,-8*q,-10*q,1+.1*q,1); break;}
+    case 'hover':{
+      const q=Math.sin(p*Math.PI); P=pose(0,-55*q,-5*q,1,1); break;}
+    case 'fetch':{
+      if(p<.28)P=lerpPose(pose(0,0,0,1,1),pose(92,-82,-16,.72,1),slice(p,0,.28));
+      else if(p<.55)P=lerpPose(pose(92,-82,-16,.72,1),pose(135,-38,4,.56,1),slice(p,.28,.55));
+      else if(p<.82)P=lerpPose(pose(-126,-56,8,.6,1),pose(-30,-28,4,.86,1),slice(p,.55,.82));
+      else P=lerpPose(pose(-30,-28,4,.86,1),pose(0,0,0,1,1),slice(p,.82,1));
+      break;}
+    case 'roll':{
+      const a=p*Math.PI*2; P=pose(Math.sin(a)*18,-85*Math.sin(p*Math.PI),360*p,.84+.08*Math.cos(a),1); break;}
+    case 'spin':{
+      const a=p*Math.PI*2; P=pose(Math.cos(a)*38,-20-78*Math.sin(p*Math.PI),540*p,.82+.05*Math.sin(a*2),1); break;}
+    case 'sing': case 'dawnsong':{
+      const k=Math.sin(p*Math.PI*3); P=pose(k*5,-10*tri(p),k*4,1+.02*tri(p),1); break;}
+    case 'guard':{
+      const q=tri(p); P=pose(0,-3*q,0,1+.09*q,1); break;}
+    case 'loop':{
+      const ang=p*Math.PI*4; P=pose(Math.sin(ang)*52,-55*(1-Math.cos(ang)),-720*p,.75+.12*Math.cos(ang),1); break;}
+    case 'salute':{
+      const q=tri(p); P=pose(0,-6*q,-8*q,1+.02*q,1); break;}
+    case 'thunder':{
+      if(p<.34)P=lerpPose(pose(0,0,0,1,1),pose(0,-34,-12,1.04,1),slice(p,0,.34));
+      else if(p<.58)P=lerpPose(pose(0,-34,-12,1.04,1),pose(0,10,6,1.06,1),slice(p,.34,.58));
+      else P=lerpPose(pose(0,10,6,1.06,1),pose(0,0,0,1,1),slice(p,.58,1));
+      break;}
+    case 'ascend':{
+      if(p<.52)P=lerpPose(pose(0,0,0,1,1),pose(0,-118,0,.84,.35),slice(p,0,.52));
+      else P=lerpPose(pose(0,-118,0,.84,.35),pose(0,0,0,1,1),slice(p,.52,1));
+      break;}
+    case 'starfall':{
+      if(p<.35)P=lerpPose(pose(0,0,0,1,1),pose(-18,-110,-18,.72,.15),slice(p,0,.35));
+      else if(p<.55)P=pose(10,-128,0,.7,0);
+      else if(p<.78)P=lerpPose(pose(30,-140,35,.62,.2),pose(50,8,10,1.02,1),slice(p,.55,.78));
+      else P=lerpPose(pose(50,8,10,1.02,1),pose(0,0,0,1,1),slice(p,.78,1));
+      break;}
+    case 'rear':{
+      const q=tri(Math.min(1,p/.8)); P=pose(0,-15*q,-20*q,1+.03*q,1); break;}
+    case 'canter': case 'cloudtrot': case 'stargallop':{
+      const q=s01(p), hop=Math.abs(Math.sin(p*Math.PI*4));
+      P=pose(mixv(-56,62,q),-18-hop*(id==='stargallop'?38:28),mixv(-4,5,q),.9+.06*hop,1);
+      break;}
+    case 'cinder':{
+      const q=tri(p); P=pose(0,-28*q,3*Math.sin(p*Math.PI*8),.98+.03*q,1); break;}
+    case 'puff':{
+      const q=tri(p); P=pose(0,-5*q,-4*q,.98+.08*q,1); break;}
+    case 'slam':{
+      if(p<.38)P=lerpPose(pose(0,0,0,1,1),pose(0,-82,-10,1.02,1),slice(p,0,.38));
+      else if(p<.62)P=lerpPose(pose(0,-82,-10,1.02,1),pose(0,14,10,1.07,1),slice(p,.38,.62));
+      else P=lerpPose(pose(0,14,10,1.07,1),pose(0,0,0,1,1),slice(p,.62,1));
+      break;}
+    default:{ const q=tri(p); P=pose(0,-10*q,0,1+.02*q,1); }
+   }
+   return P;
+ }
+ function palette(kind,id){
+   const base={gold:['#1a2344','#09101f','#f1d28b','#fff3c2'],petal:['#2d1630','#12091a','#ffbfd8','#ffe7f0'],wave:['#1b223f','#090d18','#ffdba0','#fff5d5'],trail:['#10263f','#09101f','#a9e2ff','#eefbff'],notes:['#25203f','#100c1e','#ffd987','#fff4cd'],shield:['#13263f','#080f18','#9bd9ff','#effbff'],bolt:['#121a39','#070c17','#b5d3ff','#f4fbff'],pillar:['#28223f','#0a1020','#fff0b3','#fff9e8'],stars:['#251d45','#090d1a','#ddd0ff','#fff7ff'],sun:['#341f27','#0d0911','#ffd27f','#fff8dd'],fire:['#3b1b19','#120808','#ff9d4d','#ffd9a8'],embers:['#352216','#120907','#ffc06a','#fff0bf'],cloud:['#17273b','#09111f','#cfe5ff','#f4fbff'],smoke:['#262235','#0b0b14','#bcb2cb','#f1edf8'],dust:['#34281a','#0e0b07','#d4bb8d','#f7f0dd']}[kind]||['#17223d','#080e19','#f1d28b','#fff3c2'];
+   if(id==='starfall'||id==='stargallop') return ['#211546','#090617','#d8c7ff','#fff8ff'];
+   if(id==='puff') return ['#2c1520','#090507','#ffae68','#ffd9b1'];
+   return base;
+ }
+ function runFrameSequence(img,frames,ms,r){
+   clearInterval(v21FrameInterval); let k=0; img.src=frames[0];
+   v21FrameInterval=setInterval(()=>{ if(trickRun!==r){clearInterval(v21FrameInterval); return;} k=(k+1)%frames.length; img.src=frames[k]; }, Math.max(80,Math.floor(ms/Math.max(frames.length,4))));
+ }
+ const prevStop=stopTrickStage;
+ stopTrickStage=function(){ cancelAnimationFrame(v22RAF); v22RAF=0; prevStop(); };
+ const prevStart=startTrickStage;
+ let v22RAF=0;
+ startTrickStage=function(t,ms){
+   const cfg=TRICK_CHOREO[t.id], w=$('#gwrap'), src=w&&w.querySelector('.growth-frame,.newborn-frame');
+   if(!cfg||!src||!S||S.sleeping||S.exp||Object.values(S.eq||{}).some(Boolean)) return false;
+   stopTrickStage();
+   const st=stage(), width=[188,208,246,284,310][st], height=width*310/370, href=src.getAttribute('href');
+   const [mode,kind]=cfg, r={state:S,species:SPEC.id,coat:S.coat,stage:st,timer:0,frames:0,id:t.id}; trickRun=r;
+   const pal=palette(kind,t.id); trickStage.style.setProperty('--v22bg1',pal[0]); trickStage.style.setProperty('--v22bg2',pal[1]); trickStage.style.setProperty('--v22a',pal[2]); trickStage.style.setProperty('--v22b',pal[3]);
+   trickStage.classList.add('on','v22-cinematic'); $('#scene').classList.add('trick-active');
+   trickStage.innerHTML=`<div class="cinematic-bg"></div><svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg"><g class="trick-shadow"><ellipse cx="160" cy="255" rx="74" ry="18"/></g><g class="trick-ghost ghost-a"><image href="${href}" x="${(320-width)/2}" y="${267-height}" width="${width}" height="${height}" opacity="0" preserveAspectRatio="xMidYMax meet"/></g><g class="trick-ghost ghost-b"><image href="${href}" x="${(320-width)/2}" y="${267-height}" width="${width}" height="${height}" opacity="0" preserveAspectRatio="xMidYMax meet"/></g><g class="trick-body"><image href="${href}" x="${(320-width)/2}" y="${267-height}" width="${width}" height="${height}" preserveAspectRatio="xMidYMax meet"/></g></svg><div class="trick-banner"></div>`;
+   trickStage.querySelector('.trick-banner').textContent=t.n;
+   const reduced=newbornMotion.matches, svg=trickStage.querySelector('svg'), body=trickStage.querySelector('.trick-body'), im=body.querySelector('image'), shadow=trickStage.querySelector('.trick-shadow ellipse');
+   const ghosts=[...trickStage.querySelectorAll('.trick-ghost')];
+   v21Vfx(t,ms,r);
+   if(t.id==='puff'&&SPEC.id==='wyvern'){
+     body.style.visibility='hidden';
+     const im2=document.createElement('img'); im2.className='wyvern-frame'; im2.alt=''; trickStage.appendChild(im2);
+     const frames=Array.from({length:12},(_,i)=>`assets/tricks/wyvern-puff-${S.coat}-${i}.webp`); runFrameSequence(im2,frames,ms,r);
+   } else if(mode==='air') {
+     const frames=Array.from({length:4},(_,i)=>`assets/flight/${r.species}-${r.coat}-${i}.webp`);
+     runFrameSequence(im,frames,ms,r); ghosts.forEach(g=>runFrameSequence(g.querySelector('image'),frames,ms,r));
+   }
+   const history=[]; const start=performance.now();
+   function step(now){
+     if(trickRun!==r) return;
+     const p=clamp((now-start)/ms,0,1), q=tri(p), ps=trickPose(t.id,p);
+     body.style.transform=`translate(${ps.x}px,${ps.y}px) rotate(${ps.r}deg) scale(${ps.s})`;
+     body.style.opacity=String(ps.o);
+     const blur=(mode==='air'?6:3)*q;
+     body.style.filter=`drop-shadow(0 8px 16px #0008) drop-shadow(0 0 ${10+blur}px color-mix(in srgb,var(--v22a) 55%, transparent))`;
+     history.unshift(ps); if(history.length>10) history.pop();
+     ghosts.forEach((g,i)=>{const h=history[Math.min(history.length-1,(i+1)*3)]||ps; g.style.transform=`translate(${h.x-(i+1)*8}px,${h.y-(i+1)*4}px) rotate(${h.r}deg) scale(${Math.max(.68,h.s-(i+1)*.07)})`; g.style.opacity=String((mode==='air'?0.18:0.1)*q);});
+     const sh=1-Math.min(0.7,Math.max(0,-ps.y)/165), sw=1+Math.min(.42,Math.abs(ps.x)/180); shadow.setAttribute('transform',`translate(0 0) scale(${sw} ${Math.max(.36,sh)})`); shadow.setAttribute('opacity', String(.4*sh));
+     const shake=(t.id==='slam'||t.id==='thunder'||t.id==='roar'||t.id==='puff') ? q : 0; svg.style.transform=shake?`translate(${Math.sin(p*80)*4*shake}px,${Math.cos(p*67)*2*shake}px)`:'translate(0,0)';
+     trickStage.querySelector('.cinematic-bg').style.opacity=String(.92+.08*q);
+     if(!reduced && p<1){v22RAF=requestAnimationFrame(step)} else {svg.style.transform='translate(0,0)';}
+   }
+   if(!reduced) v22RAF=requestAnimationFrame(step);
+   r.timer=setTimeout(()=>{ if(trickRun===r) stopTrickStage(); }, ms+60);
+   return true;
+ };
+ const prevPreview=v21PreviewTrick;
+ v21PreviewTrick=function(t){ return prevPreview(t) };
+ const prevPTricks=pTricks;
+ pTricks=function(){ return prevPTricks().replace('watch the special move','watch the fully staged special move'); };
+})();
+
+
+
+/* v23 — species-by-species signature animation passes. */
+(function(){
+ const style=document.createElement('style');
+ style.textContent=`
+ #trick-stage.signature-pass .signature-sub{position:absolute;left:9%;right:9%;top:18%;text-align:center;color:#f7e6b4;font-size:.74rem;letter-spacing:.04em;text-transform:uppercase;text-shadow:0 2px 5px #000b;z-index:3;pointer-events:none}
+ #trick-stage .signature-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen;z-index:2}
+ #trick-stage.signature-pass .trick-banner{top:4%;font-size:1rem;background:linear-gradient(135deg,#0c1735ea,#482c62e6)}
+ `;
+ document.head.appendChild(style);
+ const SIG_META={
+  roar:{sub:'Griffin Signature',a:'#ffd27f',b:'#fff2c6'},
+  guard:{sub:'Griffin Signature',a:'#9ddcff',b:'#eefcff'},
+  ascend:{sub:'Griffin Signature',a:'#ffe694',b:'#fff8de'},
+  dawnsong:{sub:'Griffin Signature',a:'#ffca77',b:'#fff0be'},
+  rear:{sub:'Hippogriff Signature',a:'#ffd58f',b:'#fff0d4'},
+  canter:{sub:'Hippogriff Signature',a:'#c6ecff',b:'#fff0cf'},
+  flamedance:{sub:'Phoenix Signature',a:'#ff9755',b:'#ffe0a0'},
+  cinder:{sub:'Phoenix Signature',a:'#ffb362',b:'#fff0c3'},
+  cloudtrot:{sub:'Pegasus Signature',a:'#c5ddff',b:'#fff8ff'},
+  stargallop:{sub:'Pegasus Signature',a:'#d4c1ff',b:'#fff5ff'},
+  puff:{sub:'Wyvern Signature',a:'#ff9b54',b:'#ffd7b5'},
+  slam:{sub:'Wyvern Signature',a:'#d8b682',b:'#fff0d8'}
+ };
+ let sigRAF=0;
+ const prevStop=stopTrickStage;
+ stopTrickStage=function(){ cancelAnimationFrame(sigRAF); sigRAF=0; prevStop(); };
+ function drawStar(ctx,x,y,r,c,o){ctx.globalAlpha=o;ctx.fillStyle=c;ctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,rr=i%2?r*.35:r,px=x+Math.cos(a)*rr,py=y+Math.sin(a)*rr;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill();}
+ function signatureFX(t,ms,r){
+   const meta=SIG_META[t.id]; if(!meta) return;
+   trickStage.classList.add('signature-pass');
+   const sub=document.createElement('div'); sub.className='signature-sub'; sub.textContent=meta.sub; trickStage.appendChild(sub);
+   const canvas=document.createElement('canvas'); canvas.className='signature-canvas'; canvas.width=640; canvas.height=600; trickStage.appendChild(canvas);
+   const ctx=canvas.getContext('2d'); if(!ctx) return;
+   const start=performance.now(), reduced=newbornMotion.matches;
+   function frame(now){
+     if(trickRun!==r) return;
+     const p=clamp((now-start)/ms,0,1), q=Math.sin(p*Math.PI), t2=p*p*(3-2*p);
+     ctx.setTransform(2,0,0,2,0,0); ctx.clearRect(0,0,320,300); ctx.save(); ctx.globalCompositeOperation='screen';
+     if(t.id==='roar'){
+       for(let i=0;i<4;i++){const rr=18+((p*1.2+i*.18)%1)*150; ctx.strokeStyle=meta.a; ctx.globalAlpha=q*.6*(1-rr/185); ctx.lineWidth=3+i%2; ctx.beginPath(); ctx.ellipse(198,154,rr,rr*.36,0,-.25,.25); ctx.stroke();}
+       for(let i=0;i<18;i++){const a=-.2+Math.sin(i*2.4)*.22, d=48+((p+i*.03)%1)*110; drawStar(ctx,175+Math.cos(a)*d,150+Math.sin(a)*d,3+i%3,meta.b,q*.5);}
+     } else if(t.id==='guard'){
+       ctx.globalAlpha=.75*q; ctx.strokeStyle=meta.a; ctx.lineWidth=4; ctx.beginPath(); for(let i=0;i<7;i++){const a=(i/6)*Math.PI*2-Math.PI/2,x=160+92*Math.cos(a),y=160+105*Math.sin(a); i?ctx.lineTo(x,y):ctx.moveTo(x,y)} ctx.closePath(); ctx.stroke();
+       for(let i=0;i<14;i++){const a=i*Math.PI/7+p*2.8, rr=78+Math.sin(p*7+i)*10; drawStar(ctx,160+Math.cos(a)*rr,160+Math.sin(a)*rr,4,meta.b,q*.5)}
+     } else if(t.id==='ascend'){
+       const g=ctx.createLinearGradient(160,255,160,35); g.addColorStop(0,'#ffcf6a00'); g.addColorStop(.25,meta.a+'bb'); g.addColorStop(.6,meta.b+'cc'); g.addColorStop(1,'#ffffff00'); ctx.globalAlpha=.9; ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(120,255); ctx.lineTo(145,38); ctx.lineTo(175,38); ctx.lineTo(200,255); ctx.closePath(); ctx.fill();
+       for(let i=0;i<18;i++){const y=248-(p*1.2+i*.07)%1*205; drawStar(ctx,160+Math.sin(i+p*10)*28,y,4+(i%3),meta.b,.5+.3*q)}
+     } else if(t.id==='dawnsong'){
+       const sunY=122-18*(1-q); ctx.globalAlpha=.38+.28*q; ctx.fillStyle=meta.a; ctx.beginPath(); ctx.arc(160,sunY,50+8*q,0,Math.PI*2); ctx.fill();
+       ctx.globalAlpha=.65*q; ctx.fillStyle=meta.b; ctx.font='bold 30px serif'; ['♪','♫','♬','♪'].forEach((s,i)=>ctx.fillText(s,204+i*18,165-i*28-p*32));
+     } else if(t.id==='rear'){
+       for(let i=0;i<10;i++){const x=105+i*12+p*75; ctx.strokeStyle=i%2?meta.b:meta.a; ctx.globalAlpha=q*.55; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x,215+Math.sin(i)*4); ctx.lineTo(x+22,200+Math.sin(i+p*7)*8); ctx.stroke();}
+       for(let i=0;i<16;i++){drawStar(ctx,150+Math.sin(i*1.7+p*8)*38,225-Math.abs(Math.cos(i+p*4))*34,3+i%2,meta.a,q*.45)}
+     } else if(t.id==='canter'){
+       for(let i=0;i<5;i++){const x=70+(p*1.2+i*.18)%1*220; ctx.globalAlpha=q*.55*(1-i*.1); ctx.fillStyle=i%2?meta.a:meta.b; ctx.beginPath(); ctx.ellipse(x,228-i*7,24-i*2,8,0,0,Math.PI*2); ctx.fill();}
+       for(let i=0;i<12;i++){drawStar(ctx,100+(p*1.1+i*.08)%1*170,120+Math.sin(i*1.2+p*9)*14,3,meta.b,q*.35)}
+     } else if(t.id==='flamedance'){
+       for(let i=0;i<4;i++){ctx.strokeStyle=i%2?meta.a:meta.b; ctx.globalAlpha=q*.7; ctx.lineWidth=5-i; ctx.beginPath(); for(let s=0;s<36;s++){const a=s/35*Math.PI*2+p*4+i*.8, rr=26+s*2.4, x=160+Math.cos(a)*rr*.65, y=170+Math.sin(a)*rr*.45; s?ctx.lineTo(x,y):ctx.moveTo(x,y)} ctx.stroke();}
+     } else if(t.id==='cinder'){
+       for(let i=0;i<40;i++){const x=80+(i*11%160)+Math.sin(i+p*6)*6, y=((p*1.4+i*.05)%1)*240; drawStar(ctx,x+70,70+y,2+i%3,i%3?meta.a:meta.b,.18+.5*(1-y/250));}
+     } else if(t.id==='cloudtrot'){
+       for(let i=0;i<5;i++){const x=82+(p+i*.16)%1*160, y=195-(i%2)*20; ctx.globalAlpha=q*.5; ctx.fillStyle=meta.b; ctx.beginPath(); ctx.ellipse(x,y,28,11,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(x-14,y+2,14,8,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(x+16,y+1,15,9,0,0,Math.PI*2); ctx.fill();}
+       for(let i=0;i<14;i++){drawStar(ctx,115+(p*1.1+i*.07)%1*130,118+Math.sin(i+p*7)*10,3,meta.a,q*.25)}
+     } else if(t.id==='stargallop'){
+       for(let i=0;i<18;i++){const x=65+(p*1.35+i*.05)%1*210, y=205-Math.sin(i+p*10)*18; drawStar(ctx,x,y,4+i%2,i%2?meta.a:meta.b,q*.55);}
+       ctx.strokeStyle=meta.a; ctx.globalAlpha=q*.35; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(70,212); ctx.bezierCurveTo(130,140,195,145,255,105); ctx.stroke();
+     } else if(t.id==='puff'){
+       const cone=ctx.createRadialGradient(224,150,8,266,144,70); cone.addColorStop(0,meta.a+'dd'); cone.addColorStop(.55,meta.b+'88'); cone.addColorStop(1,'#ffffff00'); ctx.globalAlpha=.7*q; ctx.fillStyle=cone; ctx.beginPath(); ctx.moveTo(194,152); ctx.quadraticCurveTo(240,130,284,152); ctx.quadraticCurveTo(236,170,194,158); ctx.closePath(); ctx.fill();
+       for(let i=0;i<18;i++){ctx.globalAlpha=q*.32; ctx.fillStyle=i%2?meta.a:'#b3a7b8'; ctx.beginPath(); ctx.arc(214+i*5,154+Math.sin(i+p*8)*16-p*25,7+i%4*2,0,Math.PI*2); ctx.fill();}
+     } else if(t.id==='slam'){
+       for(let i=0;i<5;i++){const rr=18+((p*1.2+i*.18)%1)*120; ctx.strokeStyle=i%2?meta.a:meta.b; ctx.globalAlpha=q*.65*(1-rr/150); ctx.lineWidth=3; ctx.beginPath(); ctx.ellipse(160,252,rr,rr*.2,0,0,Math.PI*2); ctx.stroke();}
+       for(let i=0;i<10;i++){const a=(i/9-0.5)*Math.PI; ctx.strokeStyle=meta.b; ctx.globalAlpha=q*.6; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(160+Math.cos(a)*24,247+Math.sin(a)*8); ctx.lineTo(160+Math.cos(a)*(44+p*95),247+Math.sin(a)*(8+p*40)); ctx.stroke();}
+     }
+     ctx.restore(); if(!reduced&&p<1) sigRAF=requestAnimationFrame(frame);
+   }
+   if(!reduced) sigRAF=requestAnimationFrame(frame);
+ }
+ const prevStart=startTrickStage;
+ startTrickStage=function(t,ms){
+   const ok=prevStart(t,ms); if(!ok) return false; const r=trickRun; signatureFX(t,ms,r); return true;
+ };
+ const prevPTricks=pTricks;
+ pTricks=function(){ return prevPTricks().replace('fully staged special move','fully staged special move, including species signature passes'); };
+})();
+
+
+/* v24 — unified age+coat action-pose runtime; existing gameplay/save mechanics unchanged. */
+(function(){
+ const motionURL=(sp,st,coat,pose)=>`assets/motion/${sp}-${st}-${coat}-${pose}.webp`;
+ let careMotion=null,careTimer=0,trickPoseInterval=0;
+ function clearCareMotion(restore=true){
+   clearInterval(careTimer);careTimer=0;
+   if(!careMotion)return;
+   const r=careMotion;careMotion=null;
+   if(restore&&r.img.isConnected){
+     r.img.setAttribute('href',r.href);
+     r.img.dataset.pose='idle';
+   }
+ }
+ function canMotion(){return S&&S.phase==='alive'&&!S.sleeping&&!S.exp&&!titleUp&&!Object.values(S.eq||{}).some(Boolean)}
+ function motionSequence(action){
+   const sp=(SPEC&&SPEC.id)||'griffin', st=stage();
+   const base={
+     griffin:{feed:[0,1,3,1,0],drink:[0,1,0],play:[0,2,3,2,0],stretch:[0,2,3,2,0],cuddle:[0,1,3,0],pet:[0,3,0],groom:[0,1,2,1,0],call:[0,3,3,1,0],explore:[0,1,2,3,0],idle:[0,3,0]},
+     hippogriff:{feed:[0,1,0,3,0],drink:[0,1,0],play:[0,2,0,3,2,0],stretch:[0,2,3,2,0],cuddle:[0,1,0],pet:[0,1,3,0],groom:[0,1,2,0],call:[0,3,2,3,0],explore:[0,1,2,3,0],idle:[0,3,0]},
+     phoenix:{feed:[0,1,3,1,0],drink:[0,1,3,0],play:[0,2,3,2,3,0],stretch:[0,2,3,2,0],cuddle:[0,1,0],pet:[0,3,0],groom:[0,3,2,3,0],call:[0,3,3,2,0],explore:[0,1,2,3,0],idle:[0,3,0]},
+     pegasus:{feed:[0,1,0,3,0],drink:[0,1,0],play:[0,2,0,2,3,0],stretch:[0,2,3,2,0],cuddle:[0,1,0],pet:[0,3,0],groom:[0,1,2,0],call:[0,3,2,3,0],explore:[0,1,2,3,0],idle:[0,3,0]},
+     wyvern:{feed:[0,1,1,3,0],drink:[0,1,3,0],play:[0,2,3,2,3,0],stretch:[0,2,3,2,0],cuddle:[0,1,3,0],pet:[0,3,0],groom:[0,1,2,1,0],call:[0,3,3,2,0],explore:[0,1,2,3,0],idle:[0,3,0]}
+   };
+   let seq=((base[sp]||base.griffin)[action]||[0,3,0]).slice();
+   if(st===0 && seq.length>4) seq=seq.slice(0,4);
+   if(st===1 && action==='play' && seq.length>5) seq=seq.slice(0,5);
+   if(st>=3 && !seq.includes(3)) seq=seq.concat([3,0]);
+   if(st===4 && action!=='idle' && seq[seq.length-1]!==3) seq.splice(Math.max(1,seq.length-1),0,3);
+   return seq;
+ }
+ function trickPoseSequence(tid, species, st){
+   const air=(TRICK_CHOREO[tid]?.[0]==='air');
+   const adultish=st>=2;
+   if(air){
+     return adultish ? [0,2,3,2,0,3,2,0] : [0,2,0,3,2,0];
+   }
+   const map={
+     bow:[0,1,0],
+     guard:[0,3,2,3,0],
+     roar:[0,3,3,1,0],
+     puff:[0,1,3,1,0],
+     slam:[0,2,3,2,0],
+     rear:[0,2,3,2,0],
+     canter:[0,2,3,2,3,0],
+     cloudtrot:[0,2,3,2,3,0],
+     stargallop:[0,2,3,2,3,2,0],
+     flamedance:[0,3,2,3,2,0],
+     cinder:[0,3,2,3,0],
+     sing:[0,3,0,3,0],
+     dawnsong:[0,3,0,3,0],
+     ascend:[0,2,3,2,0],
+     thunder:[0,2,3,1,0],
+     salute:[0,1,3,0],
+     spin:[0,2,3,2,0],
+     fetch:[0,2,3,2,0],
+     roll:[0,2,3,2,0],
+     hover:[0,2,3,2,0],
+     dance:[0,2,3,2,0],
+     starfall:[0,2,3,2,0]
+   };
+   let seq=(map[tid]||[0,2,3,2,0]).slice();
+   if(st===0 && seq.length>5) seq=seq.slice(0,5);
+   if(species==='wyvern' && tid==='slam') seq=[0,1,2,3,2,1,0];
+   if(species==='griffin' && tid==='roar') seq=[0,1,3,3,1,0];
+   return seq;
+ }
+ function startCareMotion(action='idle',duration=1200){
+   if(!canMotion()||newbornMotion.matches)return;
+   const img=$('#gwrap').querySelector('.growth-frame,.newborn-frame');if(!img)return;
+   clearCareMotion();
+   const st=stage(),sp=SPEC.id,coat=Number(S.coat),seq=motionSequence(action);
+   const src=seq.map(i=>motionURL(sp,st,coat,i));
+   const old=img.getAttribute('href');
+   const r={img,href:old,sp,st,coat,state:S,end:performance.now()+duration};careMotion=r;
+   let ready=0,failed=false;const cache=[];
+   for(const file of [...new Set(src)]){
+     const image=new Image();cache.push(image);
+     image.onload=()=>{ready++;if(ready===cache.length&&!failed&&careMotion===r)start()};
+     image.onerror=()=>{failed=true;if(careMotion===r)clearCareMotion()};
+     image.src=file;
+   }
+   function start(){
+     if(!canMotion()||careMotion!==r)return;
+     let i=0;
+     const step=()=>{
+       if(careMotion!==r)return;
+       if(!r.img.isConnected||S!==r.state||stage()!==r.st||S.coat!==r.coat||SPEC.id!==r.sp||!canMotion()){clearCareMotion(false);return}
+       r.img.setAttribute('href',src[seq.length?i%seq.length:0]);
+       r.img.dataset.pose='motion';
+       i++;
+       if(i>=seq.length){clearCareMotion();return}
+     };
+     step();careTimer=setInterval(step,Math.max(105,Math.min(255,Math.floor(duration/Math.max(1,seq.length)))));
+   }
+ }
+ const prevSetPose=newbornSetPose;
+ newbornSetPose=function(p){if(careMotion&&careMotion.img.isConnected)return;return prevSetPose(p)};
+ const prevRender=renderGriffin;
+ renderGriffin=function(force){const a=prevRender(force);if(careMotion&&(!canMotion()||!careMotion.img.isConnected))clearCareMotion(false);return a};
+ const prevCare=v21FinishCare;
+ v21FinishCare=function(id,cooldown,text,fx){const r=prevCare(id,cooldown,text,fx);const action=id==='playCare'?'play':id==='stretchCare'?'stretch':id==='drinkCare'?'drink':id==='washCare'?'groom':id==='cuddleCare'?'cuddle':id==='talkCare'?'call':'explore';requestAnimationFrame(()=>startCareMotion(action,1450));return r;};
+ const prevFeed=feed;
+ feed=function(id){const was=S&&S.st.hunger, r=prevFeed(id);if(S&&S.st.hunger>was)requestAnimationFrame(()=>startCareMotion('feed',1320));return r};
+ const prevPet=pet;
+ pet=function(spot,e){const old=lastPet;const r=prevPet(spot,e);if(old!==lastPet)requestAnimationFrame(()=>startCareMotion('pet',950));return r};
+ const prevCareVisual=careVisual;
+ careVisual=function(cls,ms){const r=prevCareVisual(cls,ms);if(cls==='care-play')requestAnimationFrame(()=>startCareMotion('play',ms));else if(cls==='care-cuddle')requestAnimationFrame(()=>startCareMotion('cuddle',ms));else if(cls==='care-stretch')requestAnimationFrame(()=>startCareMotion('stretch',ms));return r};
+ const prevStop=stopTrickStage;
+ stopTrickStage=function(){clearInterval(trickPoseInterval);trickPoseInterval=0;return prevStop()};
+ const prevTrick=startTrickStage;
+ startTrickStage=function(t,ms){
+   const ok=prevTrick(t,ms);if(!ok||newbornMotion.matches)return ok;
+   const r=trickRun;
+   // The legacy Ember Puff sprite is based on one mature body and ignores life stage.
+   // Replace it with our growth-specific pose sequence; the fire FX remains active.
+   trickStage.querySelectorAll('.wyvern-frame').forEach(el=>el.remove());
+   const body=trickStage.querySelector('.trick-body'); if(body)body.style.visibility='visible';
+   const im=body?.querySelector('image');if(!im)return ok;
+   const images=[0,1,2,3].map(i=>motionURL(r.species,r.stage,r.coat,i));
+   const seq=trickPoseSequence(t.id,r.species,r.stage);
+   let ready=0,failed=false;const cache=images.map(url=>{const k=new Image();k.onload=()=>{ready++;if(ready===4&&!failed&&trickRun===r)begin()};k.onerror=()=>{failed=true};k.src=url;return k});
+   function begin(){
+     const oldImage=im.getAttribute('href');
+     // Use a fixed presentation stage; source artwork already carries the age silhouette.
+     im.setAttribute('x','12');im.setAttribute('y','20');im.setAttribute('width','296');im.setAttribute('height','250');
+     let j=0;
+     clearInterval(trickPoseInterval);
+     const step=()=>{if(trickRun!==r)return;im.setAttribute('href',images[seq[j%seq.length]]);j++;};
+     step();trickPoseInterval=setInterval(step,Math.max(100,Math.min(265,Math.floor(ms/seq.length))));
+   }
+   return ok;
+ };
+ const prevLore=pLore;
+ pLore=function(){return prevLore().replace('<details open><summary>Field guide','<details class="expression-plate"><summary>Motion studies <span class="pill">4 poses · each age and coat</span></summary><p class="note">This edition adds an age-and-coat-aware pose library. All animals retain their original sleeping and flying assets. Wyvern hatchlings and fledglings have newly drawn action poses; other forms use painterly mesh adaptations awaiting final hand-animated sequences.</p></details><details open><summary>Field guide')};
+ window.EVERHATCH_MOTION={url:motionURL,source:'art/mesh pose collection',poseCount:4,stop:()=>clearCareMotion(),preview:startCareMotion,sequence:motionSequence,trickSequence:trickPoseSequence,version:'v25'};
+
+/* v26 — premium species pass I: griffin + wyvern */
+(function(){
+ const style=document.createElement('style');
+ style.textContent=`
+ #gwrap.premium-care-pass{position:relative;overflow:visible}
+ #gwrap .premium-care-overlay{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:0;animation:premiumCareFade 1.6s ease forwards}
+ #gwrap .premium-care-label{position:absolute;left:10px;top:10px;z-index:7;padding:6px 10px;border-radius:999px;background:linear-gradient(135deg,#0b1837ee,#56366eee);color:#f6e8be;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 6px 18px #0007;pointer-events:none;opacity:0;animation:premiumCareFade 1.6s ease forwards}
+ #trick-stage .premium-pass-tag{position:absolute;right:10px;top:10px;z-index:4;padding:6px 10px;border-radius:999px;background:linear-gradient(135deg,#101a3aea,#5f3648ea);color:#fff0c8;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 6px 18px #0008}
+ #trick-stage .premium-stage-note{position:absolute;left:12px;bottom:12px;z-index:4;padding:6px 10px;border-radius:12px;background:#081224d8;color:#d9e8ff;font-size:.72rem;box-shadow:0 6px 18px #0007}
+ @keyframes premiumCareFade{0%{opacity:0;transform:translateY(4px)}15%{opacity:1;transform:translateY(0)}82%{opacity:1}100%{opacity:0}}
+ `;
+ document.head.appendChild(style);
+ let premiumCareRAF=0;
+ function speciesLabel(sp){return sp==='griffin'?'Griffin':sp==='wyvern'?'Wyvern':sp.charAt(0).toUpperCase()+sp.slice(1)}
+ function stageLabel(st){return ['Hatchling','Fledgling','Youngling','Mature','Ascendant'][st]||'Companion'}
+ function premiumSpecies(sp){return sp==='griffin'||sp==='wyvern'}
+ function cleanupPremiumCare(){cancelAnimationFrame(premiumCareRAF);premiumCareRAF=0;const old=$('#gwrap .premium-care-overlay'); if(old)old.remove(); const lbl=$('#gwrap .premium-care-label'); if(lbl)lbl.remove(); $('#gwrap')?.classList.remove('premium-care-pass');}
+ const prevMotionSequence=motionSequence;
+ motionSequence=function(action){
+   const seq=prevMotionSequence(action).slice();
+   const sp=(SPEC&&SPEC.id)||'griffin', st=stage();
+   if(sp==='griffin'){
+     if(action==='feed') return st<=1?[0,1,3,1,0]:[0,1,3,2,3,1,0];
+     if(action==='groom') return st<=1?[0,1,2,1,0]:[0,1,2,3,2,1,0];
+     if(action==='play') return st<=1?[0,2,3,2,0]:[0,2,3,2,3,2,0];
+     if(action==='call') return [0,3,1,3,0];
+   }
+   if(sp==='wyvern'){
+     if(action==='feed') return st<=1?[0,1,3,1,0]:[0,1,2,3,2,1,0];
+     if(action==='groom') return [0,1,2,1,3,1,0];
+     if(action==='play') return st<=1?[0,2,3,2,0]:[0,2,3,2,3,2,3,0];
+     if(action==='call') return [0,3,3,2,3,0];
+   }
+   return seq;
+ };
+ const prevTrickSequence=trickPoseSequence;
+ trickPoseSequence=function(tid,species,st){
+   let seq=prevTrickSequence(tid,species,st).slice();
+   if(species==='griffin'){
+     if(tid==='roar') seq=st<=1?[0,1,3,1,0]:[0,1,3,3,2,3,1,0];
+     else if(tid==='guard') seq=[0,3,2,3,2,3,0];
+     else if(tid==='ascend') seq=st<=1?[0,2,3,2,0]:[0,2,3,2,3,2,0];
+     else if(tid==='dawnsong') seq=[0,3,0,3,2,3,0];
+   }
+   if(species==='wyvern'){
+     if(tid==='puff') seq=st<=1?[0,1,3,1,0]:[0,1,3,2,3,1,0];
+     else if(tid==='slam') seq=st<=1?[0,1,2,3,2,1,0]:[0,2,3,2,1,3,2,0];
+   }
+   return seq;
+ };
+ function launchPremiumCare(action,duration){
+   const wrap=$('#gwrap'); if(!wrap||!S||!premiumSpecies(SPEC.id)||newbornMotion.matches) return;
+   cleanupPremiumCare(); wrap.classList.add('premium-care-pass');
+   const ov=document.createElement('canvas'); ov.className='premium-care-overlay'; ov.width=420; ov.height=360; wrap.appendChild(ov);
+   const label=document.createElement('div'); label.className='premium-care-label'; label.textContent=`${speciesLabel(SPEC.id)} ${stageLabel(stage())} · ${action}`; wrap.appendChild(label);
+   const ctx=ov.getContext('2d'); if(!ctx) return;
+   const start=performance.now();
+   function frame(now){
+     const p=Math.min(1,(now-start)/Math.max(850,duration)), q=Math.sin(p*Math.PI); ctx.clearRect(0,0,ov.width,ov.height); ctx.save();
+     if(SPEC.id==='griffin'){
+       const c1='#ffd285', c2='#fff5cf';
+       for(let i=0;i<18;i++){const ang=(i/18)*Math.PI*2+p*2.2, rr=40+Math.sin(p*6+i)*8+(action==='play'?36:20)*q, x=210+Math.cos(ang)*rr, y=172+Math.sin(ang)*rr*.55; ctx.globalAlpha=.14+.18*q; ctx.fillStyle=i%2?c1:c2; ctx.beginPath(); ctx.arc(x,y,2+(i%3),0,Math.PI*2); ctx.fill();}
+       if(action==='call'||action==='feed'){ctx.globalAlpha=.16+.16*q; ctx.strokeStyle=c1; ctx.lineWidth=3; ctx.beginPath(); ctx.ellipse(230,150,26+q*58,14+q*22,0,-.25,.25); ctx.stroke();}
+     } else if(SPEC.id==='wyvern'){
+       const c1='#ff9558', c2='#ffd8b6';
+       for(let i=0;i<20;i++){const x=160+((i*23)%140)+Math.sin(i+p*9)*6, y=240-((p*1.2+i*.07)%1)*160; ctx.globalAlpha=.12+.16*(1-y/240); ctx.fillStyle=i%2?c1:c2; ctx.beginPath(); ctx.arc(x,y,2+(i%4),0,Math.PI*2); ctx.fill();}
+       if(action==='play'||action==='call'){ctx.globalAlpha=.12+.2*q; ctx.fillStyle=c1; ctx.beginPath(); ctx.moveTo(225,165); ctx.quadraticCurveTo(265,145,300,165); ctx.quadraticCurveTo(268,182,225,172); ctx.closePath(); ctx.fill();}
+     }
+     ctx.restore(); if(p<1) premiumCareRAF=requestAnimationFrame(frame); else cleanupPremiumCare();
+   }
+   premiumCareRAF=requestAnimationFrame(frame);
+ }
+ const prevStartCare=startCareMotion;
+ startCareMotion=function(action='idle',duration=1200){
+   const r=prevStartCare(action,duration); if(S&&premiumSpecies(SPEC.id)) requestAnimationFrame(()=>launchPremiumCare(action,duration)); return r;
+ };
+ let premiumTrickRAF=0;
+ const prevStop=stopTrickStage;
+ stopTrickStage=function(){cancelAnimationFrame(premiumTrickRAF); premiumTrickRAF=0; trickStage?.querySelectorAll('.premium-pass-tag,.premium-stage-note,.premium-trick-canvas').forEach(n=>n.remove()); return prevStop()};
+ function premiumTrickFX(t,ms,r){
+   if(!premiumSpecies(r.species)||!trickStage) return;
+   const tag=document.createElement('div'); tag.className='premium-pass-tag'; tag.textContent='Premium Species Pass'; trickStage.appendChild(tag);
+   const note=document.createElement('div'); note.className='premium-stage-note'; note.textContent=`${speciesLabel(r.species)} · ${stageLabel(r.stage)} · Coat ${r.coat+1}`; trickStage.appendChild(note);
+   const cv=document.createElement('canvas'); cv.className='premium-trick-canvas signature-canvas'; cv.width=640; cv.height=600; trickStage.appendChild(cv);
+   const ctx=cv.getContext('2d'); if(!ctx) return;
+   const start=performance.now();
+   function frame(now){
+     if(trickRun!==r) return;
+     const p=Math.min(1,(now-start)/ms), q=Math.sin(p*Math.PI); ctx.setTransform(2,0,0,2,0,0); ctx.clearRect(0,0,320,300); ctx.save(); ctx.globalCompositeOperation='screen';
+     if(r.species==='griffin'){
+       const a='#ffd27f', b='#fff4cf';
+       if(['roar','dawnsong','ascend','guard'].includes(t.id)){
+         for(let i=0;i<14;i++){const ang=(i/14)*Math.PI*2 + p*1.8, rr=54 + (t.id==='ascend'?56:24)*q; const x=160+Math.cos(ang)*rr, y=150+Math.sin(ang)*rr*.55; ctx.globalAlpha=.15+.18*q; ctx.fillStyle=i%2?a:b; ctx.beginPath(); ctx.arc(x,y,2+(i%3),0,Math.PI*2); ctx.fill();}
+       }
+       if(t.id==='ascend'){ctx.globalAlpha=.18+.24*q; const g=ctx.createLinearGradient(160,255,160,20); g.addColorStop(0,'#ffcb6600'); g.addColorStop(.35,a+'aa'); g.addColorStop(.7,b+'cc'); g.addColorStop(1,'#ffffff00'); ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(122,255); ctx.lineTo(146,30); ctx.lineTo(174,30); ctx.lineTo(198,255); ctx.closePath(); ctx.fill();}
+       if(t.id==='roar'){for(let i=0;i<4;i++){const rr=18+((p*1.2+i*.16)%1)*132; ctx.strokeStyle=i%2?a:b; ctx.globalAlpha=.55*q*(1-rr/170); ctx.lineWidth=3; ctx.beginPath(); ctx.ellipse(208,150,rr,rr*.34,0,-.2,.2); ctx.stroke();}}
+     }
+     if(r.species==='wyvern'){
+       const a='#ff9857', b='#ffd8ba';
+       for(let i=0;i<18;i++){const x=92+((i*13)%140)+Math.sin(i+p*7)*8, y=235-((p*1.4+i*.06)%1)*170; ctx.globalAlpha=.1+.16*(1-y/235); ctx.fillStyle=i%2?a:b; ctx.beginPath(); ctx.arc(x+84,y,2+(i%4),0,Math.PI*2); ctx.fill();}
+       if(t.id==='puff'){ctx.globalAlpha=.2+.28*q; const g=ctx.createRadialGradient(228,150,4,278,145,82); g.addColorStop(0,a+'cc'); g.addColorStop(.6,b+'66'); g.addColorStop(1,'#ffffff00'); ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(198,151); ctx.quadraticCurveTo(250,128,294,150); ctx.quadraticCurveTo(246,176,198,160); ctx.closePath(); ctx.fill();}
+       if(t.id==='slam'){for(let i=0;i<6;i++){const rr=20+((p*1.15+i*.14)%1)*124; ctx.strokeStyle=i%2?a:b; ctx.globalAlpha=.55*q*(1-rr/150); ctx.lineWidth=3; ctx.beginPath(); ctx.ellipse(160,252,rr,rr*.22,0,0,Math.PI*2); ctx.stroke();}}
+     }
+     ctx.restore(); if(p<1) premiumTrickRAF=requestAnimationFrame(frame);
+   }
+   premiumTrickRAF=requestAnimationFrame(frame);
+ }
+ const prevTrick=startTrickStage;
+ startTrickStage=function(t,ms){ const ok=prevTrick(t,ms); if(ok&&trickRun) premiumTrickFX(t,ms,trickRun); return ok; };
+ const prevLore=pLore;
+ pLore=function(){ return prevLore().replace('Motion studies <span class="pill">4 poses · each age and coat</span>','Motion studies <span class="pill">4 poses · each age and coat</span><span class="pill">v26 griffin+wyvern premium pass</span>'); };
+ if(window.EVERHATCH_MOTION){ window.EVERHATCH_MOTION.version='v26'; window.EVERHATCH_MOTION.premiumSpecies=['griffin','wyvern']; }
+})();
+
+/* v27 — premium species pass II: Hippogriff, Phoenix, Pegasus.
+   The premium effects use the age-and-coat-aware v24 pose library. A newly drawn,
+   curated young-hippogriff atlas replaces seven clean key poses across six coats.
+   Phoenix and Pegasus action silhouettes remain the intact original illustrated
+   source poses until dedicated clean sprite sheets are commissioned.
+*/
+(function(){
+ const GROUP=['hippogriff','phoenix','pegasus'];
+ const COLORS={
+   hippogriff:['#ffd18a','#fff3d8','#a9daef'],
+   phoenix:['#ff9b48','#fff1b5','#ff5e38'],
+   pegasus:['#bebdff','#f2efff','#9de5ff']
+ };
+ const mod=document.createElement('style');
+ mod.textContent=`
+ #gwrap .v27-care-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:6;pointer-events:none;mix-blend-mode:screen;animation:v27-pop 1.6s ease forwards}
+ #trick-stage .v27-cinematic-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;mix-blend-mode:screen}
+ #trick-stage .v27-signature-card{position:absolute;bottom:11px;left:11px;right:11px;z-index:5;pointer-events:none;font-size:.72rem;color:#fff4d5;text-align:center;letter-spacing:.04em;text-shadow:0 2px 3px #000a}
+ @keyframes v27-pop{0%{opacity:0}12%{opacity:1}84%{opacity:1}100%{opacity:0}}
+ `;document.head.appendChild(mod);
+ let careRAF=0,trickRAF=0;
+ const previousMotion=motionSequence;
+ motionSequence=function(action){
+   const sp=SPEC.id, st=stage(), q=previousMotion(action);
+   if(sp==='hippogriff'){
+     if(action==='feed')return st<2?[0,1,1,0]:[0,1,2,1,0];
+     if(action==='play')return st<2?[0,2,3,2,0]:[0,2,3,2,3,0];
+     if(action==='call')return [0,3,2,3,0];
+     if(action==='groom')return [0,1,2,3,0];
+   }else if(sp==='phoenix'){
+     if(action==='play')return [0,3,2,3,2,3,0];
+     if(action==='groom')return [0,1,3,2,3,0];
+     if(action==='call')return [0,3,3,2,3,0];
+   }else if(sp==='pegasus'){
+     if(action==='play')return st<2?[0,2,0,3,0]:[0,2,3,2,3,0];
+     if(action==='stretch')return [0,2,3,2,0];
+     if(action==='call')return [0,3,2,3,0];
+   }
+   return q;
+ };
+ const previousTrickSequence=trickPoseSequence;
+ trickPoseSequence=function(tid,sp,st){
+   if(sp==='hippogriff'){
+     if(tid==='rear')return st<2?[0,2,3,2,0]:[0,1,3,2,3,0];
+     if(tid==='canter')return st<2?[0,2,3,0]:[0,2,3,2,3,2,0];
+   }
+   if(sp==='phoenix'){
+     if(tid==='flamedance')return [0,3,2,3,2,3,0];
+     if(tid==='cinder')return [0,2,3,2,3,0];
+   }
+   if(sp==='pegasus'){
+     if(tid==='cloudtrot')return [0,2,3,2,0,2,3,0];
+     if(tid==='stargallop')return [0,2,3,2,3,2,3,0];
+   }
+   return previousTrickSequence(tid,sp,st);
+ };
+ function star(ctx,x,y,r,color,a){
+   ctx.globalAlpha=a;ctx.fillStyle=color;ctx.beginPath();
+   for(let i=0;i<8;i++){const ang=i*Math.PI/4,rad=i%2?r*.35:r; i?ctx.lineTo(x+Math.cos(ang)*rad,y+Math.sin(ang)*rad):ctx.moveTo(x+Math.cos(ang)*rad,y+Math.sin(ang)*rad)}ctx.closePath();ctx.fill();
+ }
+ function drawSpecies(ctx,sp,kind,p,st){
+   const [a,b,c]=COLORS[sp], intensity=Math.sin(Math.PI*p),tier=.75+st*.12;
+   if(sp==='hippogriff'){
+     // Forewing gusts and warm running dust, tuned to rearing and cantering.
+     for(let i=0;i<13;i++){
+       const v=(p*.88+i*.083)%1, x=40+v*245, y=222+Math.sin(i*1.5+p*11)*14;
+       ctx.globalAlpha=(1-v)*intensity*.43; ctx.fillStyle=i%2?a:b;
+       ctx.beginPath();ctx.ellipse(x,y,Math.max(2,7-v*5),2.5,-.3,0,Math.PI*2);ctx.fill();
+     }
+     for(let i=0;i<5;i++){
+       const y=105+i*17+p*16;
+       ctx.beginPath();ctx.strokeStyle=i%2?c:a;ctx.globalAlpha=intensity*.31;ctx.lineWidth=2.5;
+       ctx.moveTo(60,y);ctx.bezierCurveTo(118,y-35,202,y+25,284,y-12);ctx.stroke();
+     }
+   }else if(sp==='phoenix'){
+     // Fire arcs bend and flicker as separate animated ribbons, not a rigid halo.
+     const r=(50+st*7)*tier;
+     for(let j=0;j<5;j++){
+       ctx.beginPath();ctx.strokeStyle=j%2?a:b;ctx.lineWidth=2.5+j*.5;ctx.globalAlpha=intensity*.39;
+       for(let i=0;i<=48;i++){
+         const th=i/48*Math.PI*1.7+p*5.8+j*.43, rad=r+(Math.sin(i*.65+j*3+p*20)*11)*intensity;
+         const x=160+Math.cos(th)*rad,y=158+Math.sin(th)*rad*.68;
+         i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+       }ctx.stroke();
+     }
+     for(let i=0;i<28;i++){
+       const x=62+((i*31)%200)+Math.sin(p*8+i)*7,y=245-((p*1.2+i*.058)%1)*215;
+       star(ctx,x,y,2+i%3,i%3?b:c,(1-(245-y)/265)*.45*intensity);
+     }
+   }else if(sp==='pegasus'){
+     // A chain of soft cloud footholds, a flowing mane trail, and starlight.
+     for(let j=0;j<5;j++){
+       const v=(p*.95+j*.2)%1, x=45+v*228,y=219-Math.sin(j*1.3+p*6)*12;
+       ctx.globalAlpha=(1-v)*intensity*.29;ctx.fillStyle=j%2?b:c;
+       ctx.beginPath();ctx.ellipse(x,y,27,9,0,0,Math.PI*2);ctx.fill();
+       ctx.beginPath();ctx.ellipse(x-10,y-3,14,12,0,0,Math.PI*2);ctx.fill();
+     }
+     ctx.beginPath();ctx.strokeStyle=a;ctx.globalAlpha=intensity*.28;ctx.lineWidth=4;
+     ctx.moveTo(75,138);ctx.bezierCurveTo(134,122+Math.sin(p*8)*13,189,99,261,129);ctx.stroke();
+     for(let i=0;i<16;i++){
+       star(ctx,65+(i*19+p*152)%205,65+(i*31)%145,2+i%2,i%3?c:b,intensity*.42);
+     }
+   }
+ }
+ function cleanCare(){cancelAnimationFrame(careRAF);careRAF=0;$('#gwrap .v27-care-canvas')?.remove();}
+ const previousCare=startCareMotion;
+ startCareMotion=function(action='idle',duration=1300){
+   const result=previousCare(action,duration);
+   if(!S||!GROUP.includes(SPEC.id)||newbornMotion.matches||S.sleeping||S.exp)return result;
+   const wrap=$('#gwrap');if(!wrap)return result;
+   cleanCare();const canvas=document.createElement('canvas');canvas.className='v27-care-canvas';canvas.width=420;canvas.height=360;wrap.appendChild(canvas);
+   const ctx=canvas.getContext('2d');if(!ctx)return result;
+   const state=S,sp=SPEC.id,coat=S.coat,st=stage(),beg=performance.now();
+   function frame(now){
+     if(!canvas.isConnected||S!==state||SPEC.id!==sp||S.coat!==coat||stage()!==st||S.sleeping||S.exp){cleanCare();return;}
+     const p=Math.min(1,(now-beg)/Math.max(duration,800));ctx.setTransform(420/320,0,0,360/300,0,0);ctx.clearRect(0,0,320,300);ctx.save();ctx.globalCompositeOperation='screen';drawSpecies(ctx,sp,action,p,st);ctx.restore();
+     if(p<1)careRAF=requestAnimationFrame(frame);else cleanCare();
+   }
+   careRAF=requestAnimationFrame(frame);return result;
+ };
+ function cleanTrick(){cancelAnimationFrame(trickRAF);trickRAF=0;trickStage?.querySelectorAll('.v27-cinematic-canvas,.v27-signature-card').forEach(el=>el.remove())}
+ const previousStop=stopTrickStage;
+ stopTrickStage=function(){cleanCare();cleanTrick();return previousStop()};
+ const previousTrick=startTrickStage;
+ startTrickStage=function(t,ms){
+   const ok=previousTrick(t,ms);if(!ok||!trickRun||!GROUP.includes(trickRun.species)||newbornMotion.matches)return ok;
+   const r=trickRun,sp=r.species,st=r.stage;cleanTrick();
+   const cvs=document.createElement('canvas');cvs.className='v27-cinematic-canvas';cvs.width=640;cvs.height=600;trickStage.appendChild(cvs);
+   const ctx=cvs.getContext('2d');if(!ctx)return ok;
+   const sig=({hippogriff:['rear','canter'],phoenix:['flamedance','cinder'],pegasus:['cloudtrot','stargallop']})[sp].includes(t.id);
+   if(sig){const label=document.createElement('div');label.className='v27-signature-card';
+     label.textContent=sp==='hippogriff'?'Heart of the Wind':sp==='phoenix'?'Eternal Flame':'Child of Starlight';trickStage.appendChild(label)}
+   const start=performance.now();
+   function frame(now){
+     if(trickRun!==r)return;
+     const p=Math.min(1,(now-start)/ms);
+     ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,320,300);ctx.save();ctx.globalCompositeOperation='screen';
+     drawSpecies(ctx,sp,t.id,p,st);
+     // Dedicated climaxes for species' authored signature tricks.
+     if(sig&&p>.38&&p<.78){
+       const q=Math.sin((p-.38)/.40*Math.PI);ctx.strokeStyle=COLORS[sp][0];ctx.globalAlpha=q*.60;ctx.lineWidth=4;
+       ctx.beginPath();if(sp==='phoenix')ctx.arc(160,158,55+45*q,0,Math.PI*2);
+       else if(sp==='pegasus')ctx.ellipse(161,198,85+35*q,19+7*q,-.22,0,Math.PI*2);
+       else ctx.ellipse(190,172,65+60*q,28+12*q,-.15,0,Math.PI*2);
+       ctx.stroke();
+     }
+     ctx.restore();if(p<1)trickRAF=requestAnimationFrame(frame);
+   }
+   trickRAF=requestAnimationFrame(frame);return ok;
+ };
+ // Ensure the production inspector reports the CURRENT public behavior, not the older closure.
+ if(window.EVERHATCH_MOTION){
+   window.EVERHATCH_MOTION.version='v27';window.EVERHATCH_MOTION.premiumSpecies=['griffin','wyvern','hippogriff','phoenix','pegasus'];
+   window.EVERHATCH_MOTION.sequence=motionSequence;window.EVERHATCH_MOTION.trickSequence=trickPoseSequence;
+   window.EVERHATCH_MOTION.preview=startCareMotion;
+ }
+})();
+
+})(); /* close v24 motion scope after v26 and v27 premium species extensions */
+
+
+
+
+/* v28 — corrected bond / rest polish retained in v29. */
+(function(){
+ const css=document.createElement('style');
+ css.textContent=`
+ #gwrap .v28-response{position:absolute;left:7%;right:7%;bottom:4%;z-index:8;text-align:center;padding:7px 12px;border-radius:14px;background:#142348e8;color:#ffe2a2;border:1px solid #a88958;font-size:.78rem;pointer-events:none;animation:v28fade 1.65s ease forwards}
+ @keyframes v28fade{0%{opacity:0;transform:translateY(8px)}14%,79%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-8px)}}
+ `;
+ document.head.appendChild(css);
+ const lines={griffin:['A contented, royal rumble.','A patient golden-eyed glance.'],hippogriff:['A happy snort and a feathered nuzzle.','A curious flick of the ears.'],phoenix:['A soft, comforting warmth.','A flicker of curious flame.'],pegasus:['A gentle sigh like passing cloud-mist.','A bright and graceful look.'],wyvern:['An affectionate, rumbling growl.','A mischievous sideways glance.']};
+ function message(t){const w=$('#gwrap');if(!w)return;w.querySelector('.v28-response')?.remove();const n=document.createElement('div');n.className='v28-response';n.textContent=t;w.appendChild(n);setTimeout(()=>n.remove(),1700)}
+ const oldPet=pet;
+ pet=function(spot,e){const before=lastPet;oldPet(spot,e);if(!S||lastPet===before)return;const t=lines[SPEC.id]||lines.griffin;message(t[spot===S.fav?0:1]);};
+ const oldRest=doRest;
+ doRest=function(){const sleeping=!!(S&&!S.sleeping);const result=oldRest();if(S)message(sleeping?'Dreaming beneath the stars…':'Awake and ready for another adventure!');return result};
+ if(window.EVERHATCH_MOTION){window.EVERHATCH_MOTION.version='v28';window.EVERHATCH_MOTION.bondPass=true;}
+})();
+
+
+/* v29 — anatomically localized illustrated mesh motion.
+   Draws the real selected species/stage/coat source art through a deformable
+   triangle mesh; does not pretend these are newly hand-drawn frame sequences. */
+(function(){
+ 'use strict';
+ const ROOT='#gwrap', SPECIES=['griffin','hippogriff','phoenix','pegasus','wyvern'];
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+ const webpCache=new Map();
+ const meshCols=9,meshRows=8,srcW=370,srcH=310;
+ const sourceVerts=[];
+ const sourceTris=[];
+ for(let y=0;y<=meshRows;y++)for(let x=0;x<=meshCols;x++)sourceVerts.push({x:x*srcW/meshCols,y:y*srcH/meshRows});
+ for(let y=0;y<meshRows;y++)for(let x=0;x<meshCols;x++){
+   const a=y*(meshCols+1)+x,b=a+1,c=a+meshCols+1,d=c+1;
+   sourceTris.push([a,b,d],[a,d,c]);
+ }
+ const stats={careStarts:0,trickStarts:0,sleepStarts:0,renderedFrames:0,frameDraws:0,assetFailures:0};
+ let currentCare=null,currentTrick=null,currentRest=null;
+ let careRequest=0,trickRequest=0,restRequest=0;
+ function imageFor(src){
+   let p=webpCache.get(src);
+   if(!p){p=new Promise((resolve,reject)=>{const img=new Image(); img.onload=()=>resolve(img); img.onerror=()=>reject(new Error('Animation asset missing: '+src)); img.src=src;});webpCache.set(src,p)}
+   return p;
+ }
+ function validCare(){return !!(S&&!titleUp&&S.phase==='alive'&&!S.sleeping&&!S.exp&&SPECIES.includes(SPEC.id)&&!Object.values(S.eq||{}).some(Boolean));}
+ function srcOf(s,st,coat){return `assets/motion/${s}-${st}-${coat}-0.webp`;}
+ function fitRect(imageEl){
+   if(!imageEl)return null;
+   return {x:Number(imageEl.getAttribute('x')||0),y:Number(imageEl.getAttribute('y')||0),w:Number(imageEl.getAttribute('width')||320),h:Number(imageEl.getAttribute('height')||300)};
+ }
+ const anatomyBounds={"griffin":[[75,38,218,246],[73,111,223,189],[51,88,267,212],[43,68,284,232],[38,65,294,235]],"hippogriff":[[72,113,225,177],[56,75,258,215],[63,71,244,229],[47,64,275,236],[40,57,290,243]],"phoenix":[[73,40,223,244],[90,115,190,185],[62,85,245,215],[45,66,279,234],[28,60,313,240]],"pegasus":[[76,36,216,248],[92,83,185,217],[69,70,232,230],[52,67,266,233],[38,61,293,239]],"wyvern":[[91,158,188,140],[78,144,214,156],[56,56,257,244],[39,53,292,247],[30,39,310,261]]};
+ function getBounds(img,sp,st){const [x,y,w,h]=(anatomyBounds[sp]||anatomyBounds.griffin)[st];return {x,y,w,h};}
+
+ function params(action,progress,stage,species){
+   const p=Math.max(0,Math.min(1,progress)), bell=Math.sin(p*Math.PI), wobble=Math.sin(p*Math.PI*4), slow=Math.sin(p*Math.PI*2);
+   const child=1.14-stage*.075;
+   let head=0,wing=0,tail=0,fore=0,rear=0,chest=0,neck=0;
+   switch(action){
+     case 'feed':head=.24*bell+.06*wobble;neck=10*bell;wing=-.065*bell;tail=.09*slow;chest=.016*bell;break;
+     case 'drink':head=.29*bell;neck=12*bell;wing=-.04*bell;tail=.05*slow;break;
+     case 'pet':case 'cuddle':head=-.10*bell+.035*slow;neck=-7*bell;tail=.11*slow;wing=.04*bell;chest=.018*bell;break;
+     case 'groom':head=.18*bell;wing=.21*bell+.05*wobble;tail=.09*slow;fore=5*bell;break;
+     case 'play':head=.10*wobble;wing=.25*bell+.07*wobble;tail=.15*wobble;fore=-15*bell;rear=-7*bell;chest=.015*bell;break;
+     case 'stretch':head=-.13*bell;neck=-9*bell;wing=.38*bell;tail=.13*slow;fore=-9*bell;chest=.033*bell;break;
+     case 'call':case 'roar':head=-.21*bell;neck=-8*bell;wing=.21*bell;tail=.05*wobble;chest=.048*bell;break;
+     case 'flight':wing=.46*slow;head=-.055*bell;tail=.16*slow;fore=-14*bell;rear=-7*bell;chest=.025*bell;break;
+     case 'impact':wing=.15*bell;head=.13*bell;neck=3*bell;tail=-.16*bell;fore=17*bell;chest=-.02*bell;break;
+     case 'sing':head=-.16*bell;neck=-3*bell;wing=.2*bell;tail=.14*slow;chest=.027*bell;break;
+     case 'rearing':head=-.12*bell;wing=.31*bell;fore=-24*bell;rear=3*bell;tail=.12*bell;chest=.022*bell;break;
+     case 'magic':head=-.12*bell;wing=.36*bell;tail=.19*slow;fore=-8*bell;chest=.03*bell;break;
+     case 'sleep':head=.20*bell;neck=8*bell;wing=-.16*bell;tail=.07*bell;chest=-.013*bell;break;
+     case 'wake':head=-.17*bell;neck=-9*bell;wing=.3*bell;tail=.15*slow;fore=-8*bell;break;
+     default:head=.05*slow;wing=.08*slow;tail=.05*slow;chest=.01*slow;
+   }
+   // Anatomical personality, not just a different particle palette.
+   const sf={griffin:[1.06,1.05,.8,.9],hippogriff:[1.14,1.12,.92,1.28],phoenix:[.85,1.32,1.42,.75],pegasus:[1.18,1.1,1.23,1.38],wyvern:[1.26,1.25,1.55,1.0]}[species]||[1,1,1,1];
+   head*=sf[0]*child;wing*=sf[1]*(1.03-stage*.035);tail*=sf[2]*child;fore*=sf[3]*child;rear*=sf[3]*child;
+   return {head,wing,tail,fore,rear,chest,neck};
+ }
+ function deform(vertex,bounds,params,species){
+   const x=vertex.x,y=vertex.y,b=bounds, W=b.w,H=b.h;
+   const p=(u,v)=>({x:b.x+u*W,y:b.y+v*H});
+   const neck=p(species==='wyvern'?.66:.68,.43),head=p(.78,.25),wing=p(.39,.41),wingRoot=p(.56,.56),tail=p(.17,.72),tailRoot=p(.36,.68),fore=p(.73,.83),rear=p(.38,.83),chest=p(.61,.58);
+   let dx=0,dy=0;
+   function bend(center,pivot,rads,radiusX,radiusY,amount=1){
+     const nx=(x-center.x)/radiusX,ny=(y-center.y)/radiusY;
+     const w=Math.exp(-2.1*(nx*nx+ny*ny))*amount;
+     const cs=Math.cos(rads),sn=Math.sin(rads),rx=x-pivot.x,ry=y-pivot.y;
+     dx+=((cs*rx-sn*ry+pivot.x)-x)*w;
+     dy+=((sn*rx+cs*ry+pivot.y)-y)*w;
+   }
+   bend(head,neck,params.head,W*.34,H*.37);
+   bend(wing,wingRoot,-params.wing,W*.53,H*.48);
+   bend(tail,tailRoot,params.tail,W*.36,H*.40);
+   const fwx=(x-fore.x)/(W*.23),fwy=(y-fore.y)/(H*.34);
+   const wf=Math.exp(-2.3*(fwx*fwx+fwy*fwy));dy+=params.fore*wf;dx-=params.fore*.3*wf;
+   const rwx=(x-rear.x)/(W*.21),rwy=(y-rear.y)/(H*.26);
+   const wr=Math.exp(-2.2*(rwx*rwx+rwy*rwy));dy+=params.rear*wr;
+   const cwx=(x-chest.x)/(W*.37),cwy=(y-chest.y)/(H*.45);
+   const wc=Math.exp(-2.2*(cwx*cwx+cwy*cwy));dy-=params.chest*H*wc;
+   const nhx=(x-head.x)/(W*.29),nhy=(y-head.y)/(H*.3);
+   const wh=Math.exp(-2*(nhx*nhx+nhy*nhy));dy+=params.neck*wh;
+   return {x:x+dx,y:y+dy};
+ }
+ function paintTriangle(ctx,img,a,b,c,A,B,C){
+   const det=(b.x-a.x)*(c.y-a.y)-(c.x-a.x)*(b.y-a.y);
+   if(Math.abs(det)<1e-6)return;
+   const aa=((B.x-A.x)*(c.y-a.y)-(C.x-A.x)*(b.y-a.y))/det;
+   const bb=((B.y-A.y)*(c.y-a.y)-(C.y-A.y)*(b.y-a.y))/det;
+   const cc=((C.x-A.x)*(b.x-a.x)-(B.x-A.x)*(c.x-a.x))/det;
+   const dd=((C.y-A.y)*(b.x-a.x)-(B.y-A.y)*(c.x-a.x))/det;
+   const ee=A.x-aa*a.x-cc*a.y,ff=A.y-bb*a.x-dd*a.y;
+   const mx=(A.x+B.x+C.x)/3,my=(A.y+B.y+C.y)/3;
+   const infl=v=>{const vx=v.x-mx,vy=v.y-my,len=Math.max(.001,Math.hypot(vx,vy));return {x:v.x+vx/len*1.05,y:v.y+vy/len*1.05}};
+   const AX=infl(A),BX=infl(B),CX=infl(C);
+   ctx.save();ctx.beginPath();ctx.moveTo(AX.x,AX.y);ctx.lineTo(BX.x,BX.y);ctx.lineTo(CX.x,CX.y);ctx.closePath();ctx.clip();ctx.transform(aa,bb,cc,dd,ee,ff);ctx.drawImage(img,0,0,srcW,srcH);ctx.restore();
+ }
+ function paintMesh(ctx,img,action,progress,sp,st,rect,opacity=1){
+   const bounds=getBounds(img,sp,st), pa=params(action,progress,st,sp);
+   ctx.save();ctx.globalAlpha=opacity;ctx.translate(rect.x,rect.y);ctx.scale(rect.w/srcW,rect.h/srcH);
+   const dest=sourceVerts.map(v=>deform(v,bounds,pa,sp));
+   const boundX=bounds.x-28,boundY=bounds.y-28,right=bounds.x+bounds.w+28,bottom=bounds.y+bounds.h+28;
+   for(let i=0;i<sourceTris.length;i++){
+     const [ia,ib,ic]=sourceTris[i],a=sourceVerts[ia],b=sourceVerts[ib],c=sourceVerts[ic];
+     if(Math.max(a.x,b.x,c.x)<boundX||Math.min(a.x,b.x,c.x)>right||Math.max(a.y,b.y,c.y)<boundY||Math.min(a.y,b.y,c.y)>bottom)continue;
+     paintTriangle(ctx,img,a,b,c,dest[ia],dest[ib],dest[ic]);
+   }
+   ctx.restore();stats.frameDraws++;
+ }
+ function newCanvas(parent,cls){const c=document.createElement('canvas');c.className=cls;c.width=640;c.height=600;c.dataset.anatomical='v29';c.setAttribute('aria-hidden','true');parent.appendChild(c);return c;}
+ function cancel(v){if(!v)return;cancelAnimationFrame(v.raf);if(v.original&&v.original.isConnected){v.original.style.opacity=v.opacity||'';if(v.oldVisibility!==undefined)v.original.style.visibility=v.oldVisibility;}v.canvas.remove();}
+ function cleanupCare(){cancel(currentCare);currentCare=null;}
+ function cleanupTrick(){cancel(currentTrick);currentTrick=null;}
+ function cleanupRest(){cancel(currentRest);currentRest=null;}
+ function layoutCare(){return $('#gwrap .growth-frame,#gwrap .newborn-frame');}
+ function beginCare(action,duration=1400){
+   const request=++careRequest;cleanupCare();
+   if(window.EVERHATCH_RIG?.supports(SPEC?.id)&&!window.EVERHATCH_RIG.suspended)return false;
+   if(reduced.matches||!validCare())return false;
+   const orig=layoutCare();if(!orig)return false;
+   const sp=SPEC.id,st=stage(),coat=Number(S.coat),state=S,rect=fitRect(orig);
+   const path=srcOf(sp,st,coat),config={sp,st,coat,state,action};
+   imageFor(path).then(img=>{
+     if(request!==careRequest||!validCare()||S!==state||SPEC.id!==sp||stage()!==st||Number(S.coat)!==coat||!orig.isConnected)return;
+     cleanupCare();const canvas=newCanvas($(ROOT),'v29-mesh-canvas v29-mesh-care'),ctx=canvas.getContext('2d');if(!ctx){canvas.remove();return}
+     const current={canvas,original:orig,opacity:orig.style.opacity,raf:0,config};currentCare=current;
+     ctx.setTransform(2,0,0,2,0,0);paintMesh(ctx,img,action,0,sp,st,rect);
+     orig.style.opacity='0';const begin=performance.now();let lastPaint=0;stats.careStarts++;
+     function frame(now){if(currentCare!==current)return;if(document.hidden||!validCare()||S!==state||stage()!==st||S.coat!==coat||!orig.isConnected){cleanupCare();return}
+       if(now-lastPaint<32){current.raf=requestAnimationFrame(frame);return}lastPaint=now;
+       const p=Math.min(1,(now-begin)/duration),ease=p*p*(3-2*p);
+       ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,320,300);
+       paintMesh(ctx,img,action,ease,sp,st,rect);stats.renderedFrames++;
+       if(p<1)current.raf=requestAnimationFrame(frame);else cleanupCare();
+     }
+     current.raf=requestAnimationFrame(frame);
+   }).catch(()=>stats.assetFailures++);
+   return true;
+ }
+ function trickAction(id){
+   if(['hover','fetch','roll','spin','loop','canter','cloudtrot','stargallop','starfall'].includes(id))return 'flight';
+   if(['puff','roar','rear','thunder'].includes(id))return 'roar';
+   if(['guard','salute'].includes(id))return 'stretch';
+   if(['slam'].includes(id))return 'impact';
+   if(['sing','dawnsong','cinder'].includes(id))return 'sing';
+   if(['ascend','flamedance'].includes(id))return 'magic';
+   return ['bow'].includes(id)?'feed':'play';
+ }
+ function movement(id,p){
+   const cfg=TRICK_CHOREO[id], k=cfg&&cfg[2];
+   if(!k||k.length<2)return {x:0,y:0,a:0,s:1};
+   const at=p*(k.length-1),i=Math.min(k.length-2,Math.floor(at)),q=at-i, f=q*q*(3-2*q),A=k[i],B=k[i+1];
+   return {x:A[0]+(B[0]-A[0])*f,y:A[1]+(B[1]-A[1])*f,a:(A[2]+(B[2]-A[2])*f)*Math.PI/180,s:A[3]+(B[3]-A[3])*f};
+ }
+ function beginTrick(id,duration){
+   const request=++trickRequest;cleanupTrick();if(window.EVERHATCH_RIG?.supports(SPEC?.id)&&!window.EVERHATCH_RIG.suspended)return; if(reduced.matches||!trickRun||!SPEC||S.sleeping)return;
+   const r=trickRun,state=S,sp=SPEC.id,st=stage(),coat=S.coat;
+   const body=trickStage.querySelector('.trick-body'),orig=body&&body.querySelector('image');if(!orig)return;
+   const rect=fitRect(orig),source=srcOf(sp,st,coat);
+   imageFor(source).then(img=>{
+     if(request!==trickRequest||trickRun!==r||S!==state||SPEC.id!==sp||S.coat!==coat||stage()!==st||!orig.isConnected)return;
+     cleanupTrick();const cv=newCanvas(trickStage,'v29-mesh-canvas v29-mesh-trick'),ctx=cv.getContext('2d');if(!ctx){cv.remove();return}
+     const session={canvas:cv,original:body,opacity:body.style.opacity,raf:0};currentTrick=session;
+     const old=body.style.visibility;session.oldVisibility=old;
+     ctx.setTransform(2,0,0,2,0,0);paintMesh(ctx,img,trickAction(id),0,sp,st,rect);body.style.visibility='hidden';
+     const begin=performance.now(),action=trickAction(id);let lastPaint=0;stats.trickStarts++;
+     function frame(now){
+       if(currentTrick!==session)return;
+       if(document.hidden||trickRun!==r||S!==state||SPEC.id!==sp||stage()!==st||S.coat!==coat){cleanupTrick();return}
+       if(now-lastPaint<32){session.raf=requestAnimationFrame(frame);return}lastPaint=now;
+       const p=Math.min(1,(now-begin)/duration),m=movement(id,p),fx=ctx;
+       fx.setTransform(2,0,0,2,0,0);fx.clearRect(0,0,320,300);
+       fx.save();fx.translate(160,255);fx.translate(m.x,m.y);fx.rotate(m.a);fx.scale(m.s,m.s);fx.translate(-160,-255);
+       paintMesh(fx,img,action,p,sp,st,rect);fx.restore();stats.renderedFrames++;
+       if(p<1)session.raf=requestAnimationFrame(frame);else cleanupTrick();
+     }
+     session.raf=requestAnimationFrame(frame);
+   }).catch(()=>stats.assetFailures++);
+ }
+ // When sleeping, the game already has a dedicated curled-up illustration.
+ // Animate its transition rather than replacing it with a fabricated adult pose.
+ function beginRest(waking){
+   const request=++restRequest;cleanupRest();if(reduced.matches||!S||S.phase!=='alive')return;
+   const sp=SPEC.id,st=stage(),coat=S.coat,state=S;
+   const orig=waking?$('#gwrap .growth-frame,#gwrap .newborn-frame'):$('#gwrap .care-sleep-frame');
+   // Sleep artwork may still be loading when the player taps Rest.
+   // Use the age-correct awake proportions until the dedicated sleep sprite arrives.
+   const width=[188,208,246,284,310][st],height=width*310/370;
+   const rect=orig?fitRect(orig):{x:(320-width)/2,y:267-height,w:width,h:height};
+   const src=srcOf(sp,st,coat),duration=1100;
+   imageFor(src).then(img=>{
+     if(request!==restRequest||S!==state||SPEC.id!==sp||stage()!==st||S.coat!==coat)return;
+     cleanupRest();const cv=newCanvas($('#scene'),'v29-mesh-canvas v29-mesh-rest'),ctx=cv.getContext('2d');if(!ctx){cv.remove();return}
+     const session={canvas:cv,raf:0};currentRest=session;stats.sleepStarts++;
+     const begin=performance.now();let lastPaint=0;
+     function frame(now){
+       if(currentRest!==session)return;
+       if(document.hidden||S!==state||SPEC.id!==sp||stage()!==st||S.coat!==coat){cleanupRest();return}
+       const wr=$(ROOT).getBoundingClientRect(),sr=$('#scene').getBoundingClientRect();
+       cv.style.left=(wr.left-sr.left)+'px';cv.style.top=(wr.top-sr.top)+'px';cv.style.width=wr.width+'px';cv.style.height=wr.height+'px';
+       if(now-lastPaint<32){session.raf=requestAnimationFrame(frame);return}lastPaint=now;
+       const p=Math.min(1,(now-begin)/duration),q=p*p*(3-2*p);
+       ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,320,300);
+       paintMesh(ctx,img,waking?'wake':'sleep',q,sp,st,rect,waking?1-q:1-q);stats.renderedFrames++;
+       if(p<1)session.raf=requestAnimationFrame(frame);else cleanupRest();
+     }
+     session.raf=requestAnimationFrame(frame);
+   }).catch(()=>stats.assetFailures++);
+ }
+ const css=document.createElement('style');css.textContent=`
+ #gwrap .v29-mesh-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+ #trick-stage .v29-mesh-trick{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;filter:drop-shadow(0 6px 10px #0008)}
+ #scene .v29-mesh-rest{z-index:6}
+ @media(prefers-reduced-motion:reduce){.v29-mesh-canvas{display:none!important}}
+ `;document.head.appendChild(css);
+ // Each wrapper keeps the original mechanics, progression, rewards and saves.
+ const oldFinish=v21FinishCare;
+ v21FinishCare=function(id,cooldown,text,fx){const result=oldFinish(id,cooldown,text,fx);const actions={playCare:'play',talkCare:'call',cuddleCare:'cuddle',drinkCare:'drink',stretchCare:'stretch',washCare:'groom',discoverCare:'play',forageCare:'play'};requestAnimationFrame(()=>beginCare(actions[id]||'play',1550));return result;};
+ const oldFeed=feed;
+ feed=function(id){const before=S&&S.st.hunger||0;const result=oldFeed(id);if(S&&S.st.hunger>before)requestAnimationFrame(()=>beginCare('feed',1550));return result;};
+ const oldPet=pet;
+ pet=function(spot,e){const before=lastPet;const result=oldPet(spot,e);if(lastPet!==before)requestAnimationFrame(()=>beginCare('pet',1150));return result;};
+ const oldPreen=startPreen;
+ startPreen=function(){const result=oldPreen();if(preen)requestAnimationFrame(()=>beginCare('groom',1500));return result;};
+ const oldRest=doRest;
+ doRest=function(){const waking=!!(S&&S.sleeping);const result=oldRest();requestAnimationFrame(()=>beginRest(waking));return result;};
+ const oldTrick=startTrickStage;
+ startTrickStage=function(t,ms){const result=oldTrick(t,ms);if(result){requestAnimationFrame(()=>beginTrick(t.id,ms));}return result;};
+ const oldStop=stopTrickStage;
+ stopTrickStage=function(){cleanupTrick();return oldStop();};
+ // Prevent stale canvases from lingering after growth, outfit changes or tabs.
+ const oldRender=renderGriffin;
+ renderGriffin=function(force){const result=oldRender(force);if(currentCare&&(!currentCare.original.isConnected||!validCare()))cleanupCare();return result;};
+ const oldRenderPanel=renderPanel;
+ renderPanel=function(){const result=oldRenderPanel();if(tab!=='care'){cleanupCare();cleanupRest()}return result;};
+ window.EVERHATCH_ANATOMY={version:'v29',kind:'localized 2D illustrated mesh deformation',getStats:()=>({...stats}),previewCare:(act,d=1600)=>beginCare(act,d),previewTrick:(id,d=3200)=>{const t=TRICK_BY_ID[id];return t?startTrickStage(t,d):false;},reduceMotion:()=>reduced.matches,stages:5,coats:6,species:SPECIES.slice(),stop:()=>{cleanupCare();cleanupTrick();cleanupRest()}};
+})();
+
+
+/* v31 — full five-family layered cutout rigs (all five ages and six coats).
+ * Accessories still retain their original renderer until custom equipment layers are painted.
+ * All gameplay values and save IDs are unchanged. */
+(function(){
+  'use strict';
+  const rig=window.EVERHATCH_RIG;
+  if(!rig)return;
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
+  const style=document.createElement('style');
+  style.textContent=`
+  #gwrap .v30-rig-care{position:absolute;inset:0;width:100%;height:100%;z-index:7;pointer-events:none}
+  #trick-stage .v30-rig-trick{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;filter:drop-shadow(0 7px 12px #0009)}
+  #gwrap.v30-active .growth-frame,#gwrap.v30-active .newborn-frame{opacity:0!important}
+  #trick-stage.v30-active .trick-body,#trick-stage.v30-active .trick-ghost,#trick-stage.v30-active .wyvern-frame{visibility:hidden!important}
+  @media(prefers-reduced-motion:reduce){.v30-rig-care,.v30-rig-trick{display:none!important}}
+  `;
+  document.head.appendChild(style);
+  const stats={care:0,tricks:0,failures:0,frames:0,firstFrames:0};
+  let activeCare=null,activeTrick=null;
+  let careRequest=0,trickRequest=0;
+  function safe(){return !!(S&&SPEC&&rig.supports(SPEC.id)&&S.phase==='alive'&&!titleUp&&!S.sleeping&&!S.exp&&!reduce.matches&&!Object.values(S.eq||{}).some(Boolean))}
+  function rectOf(el){return {x:Number(el.getAttribute('x')||0),y:Number(el.getAttribute('y')||0),w:Number(el.getAttribute('width')||296),h:Number(el.getAttribute('height')||245)}}
+  function makeCanvas(parent,cls){const c=document.createElement('canvas');c.className=cls;c.width=640;c.height=600;c.setAttribute('aria-hidden','true');parent.appendChild(c);return c}
+  function dispose(item){if(!item)return;cancelAnimationFrame(item.raf);item.canvas.remove();const root=item.root;if(root)root.classList.remove('v30-active')}
+  function stopCare(){careRequest++;dispose(activeCare);activeCare=null;}
+  function stopTrick(){trickRequest++;dispose(activeTrick);activeTrick=null;}
+  function paintFrame(ctx,model,action,progress,rect,mode){ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,320,300);rig.draw(ctx,model,action,progress,rect,{mode});stats.frames++}
+  function beginCare(action='play',duration=1550){
+    const request=++careRequest;dispose(activeCare);activeCare=null;
+    if(!safe())return false;
+    const orig=$('#gwrap .growth-frame,#gwrap .newborn-frame');if(!orig)return false;
+    const state=S,sp=SPEC.id,st=stage(),coat=Number(S.coat),rect=rectOf(orig);
+    rig.load(sp,st,coat).then(model=>{
+      if(request!==careRequest||!safe()||S!==state||SPEC.id!==sp||stage()!==st||S.coat!==coat||!orig.isConnected)return;
+      const parent=$('#gwrap'),canvas=makeCanvas(parent,'v30-rig-care'),ctx=canvas.getContext('2d');
+      if(!ctx){canvas.remove();return;}
+      const item={canvas,root:parent,raf:0,state,sp,st,coat};activeCare=item;
+      paintFrame(ctx,model,action,0,rect,'care');stats.firstFrames++;
+      parent.classList.add('v30-active');stats.care++;
+      const start=performance.now();let last=0;
+      function frame(now){
+        if(activeCare!==item)return;
+        if(document.hidden||!safe()||S!==state||SPEC.id!==sp||stage()!==st||S.coat!==coat||!orig.isConnected){stopCare();return;}
+        if(now-last<32){item.raf=requestAnimationFrame(frame);return;}last=now;
+        const p=Math.min(1,(now-start)/duration);paintFrame(ctx,model,action,p,rect,'care');
+        if(p<1)item.raf=requestAnimationFrame(frame);else stopCare();
+      }
+      item.raf=requestAnimationFrame(frame);
+    }).catch(err=>{stats.failures++;if(request===careRequest){rig.suspended=true;try{window.EVERHATCH_ANATOMY?.previewCare(action,duration);}finally{rig.suspended=false;}}});
+    return true;
+  }
+  function actionForTrick(id){
+    if(['hover','fetch','roll','spin','loop','canter','cloudtrot','stargallop','starfall'].includes(id))return 'flight';
+    if(['puff','roar','rear','thunder'].includes(id))return 'roar';
+    if(['guard','salute'].includes(id))return 'stretch';
+    if(id==='slam')return 'impact';
+    if(['sing','dawnsong','cinder'].includes(id))return 'sing';
+    if(['ascend','flamedance'].includes(id))return 'magic';
+    if(id==='bow')return 'feed';return 'play';
+  }
+  function positionForTrick(id,p){
+    const steps=TRICK_CHOREO[id]?.[2];
+    if(!steps||steps.length<2)return {x:0,y:0,r:0,s:1};
+    const at=Math.max(0,Math.min(1,p))*(steps.length-1),i=Math.min(steps.length-2,Math.floor(at)),q=at-i;
+    const a=steps[i],b=steps[i+1],e=q*q*(3-2*q);
+    return {x:a[0]+(b[0]-a[0])*e,y:a[1]+(b[1]-a[1])*e,r:(a[2]+(b[2]-a[2])*e)*Math.PI/180,s:a[3]+(b[3]-a[3])*e};
+  }
+  function beginTrick(id,duration){
+    const request=++trickRequest;dispose(activeTrick);activeTrick=null;
+    if(!safe()||!trickRun)return false;
+    const body=trickStage.querySelector('.trick-body'),im=body?.querySelector('image');if(!im)return false;
+    const state=S,run=trickRun,sp=SPEC.id,st=stage(),coat=Number(S.coat),rect=rectOf(im);
+    rig.load(sp,st,coat).then(model=>{
+      if(request!==trickRequest||!safe()||S!==state||trickRun!==run||SPEC.id!==sp||stage()!==st||S.coat!==coat)return;
+      const cv=makeCanvas(trickStage,'v30-rig-trick'),ctx=cv.getContext('2d');if(!ctx){cv.remove();return;}
+      const item={canvas:cv,root:trickStage,raf:0};activeTrick=item;
+      paintFrame(ctx,model,actionForTrick(id),0,rect,'trick');stats.firstFrames++;
+      trickStage.classList.add('v30-active');stats.tricks++;
+      const start=performance.now();let last=0;
+      function frame(now){
+        if(activeTrick!==item)return;
+        if(document.hidden||!safe()||S!==state||trickRun!==run||SPEC.id!==sp||stage()!==st||S.coat!==coat){stopTrick();return;}
+        if(now-last<32){item.raf=requestAnimationFrame(frame);return;}last=now;
+        const p=Math.min(1,(now-start)/duration),q=positionForTrick(id,p);
+        ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,320,300);
+        ctx.save();ctx.translate(160,255);ctx.translate(q.x,q.y);ctx.rotate(q.r);ctx.scale(q.s,q.s);ctx.translate(-160,-255);
+        rig.draw(ctx,model,actionForTrick(id),p,rect,{mode:'trick'});ctx.restore();stats.frames++;
+        if(p<1)item.raf=requestAnimationFrame(frame);else stopTrick();
+      }
+      item.raf=requestAnimationFrame(frame);
+    }).catch(()=>{stats.failures++});
+    return true;
+  }
+  const oldCare=v21FinishCare;
+  v21FinishCare=function(id,cd,msg,fx){const r=oldCare(id,cd,msg,fx);const actions={playCare:'play',talkCare:'call',cuddleCare:'cuddle',drinkCare:'drink',stretchCare:'stretch',washCare:'groom',discoverCare:'play',forageCare:'play'};requestAnimationFrame(()=>beginCare(actions[id]||'play',1550));return r};
+  const oldFeed=feed;
+  feed=function(id){const was=S?.st.hunger??0;const r=oldFeed(id);if(S?.st.hunger>was)requestAnimationFrame(()=>beginCare('feed',1550));return r};
+  const oldPet=pet;
+  pet=function(spot,event){const was=lastPet,r=oldPet(spot,event);if(lastPet!==was)requestAnimationFrame(()=>beginCare('pet',1150));return r};
+  const oldPreen=startPreen;
+  startPreen=function(){const r=oldPreen();if(preen)requestAnimationFrame(()=>beginCare('groom',1500));return r};
+  const oldStage=startTrickStage;
+  startTrickStage=function(t,ms){const r=oldStage(t,ms);if(r)requestAnimationFrame(()=>beginTrick(t.id,ms));return r};
+  const oldStop=stopTrickStage;
+  stopTrickStage=function(){stopTrick();return oldStop()};
+  const oldRender=renderGriffin;
+  renderGriffin=function(force){const r=oldRender(force);if(activeCare&&(!safe()||S!==activeCare.state||stage()!==activeCare.st||S.coat!==activeCare.coat))stopCare();return r};
+  const oldPanel=renderPanel;
+  renderPanel=function(){const r=oldPanel();if(tab!=='care')stopCare();return r};
+  window.EVERHATCH_RIG_TEST={version:'v34',beginCare,beginTrick,metrics:()=>({...stats,...rig.metrics()}),stop:()=>{stopCare();stopTrick()}};
+})();
+
+
+/* v33 register facial articulation below the existing blink overlay. */
+(function(){
+ const f=window.EVERHATCH_FACE33;
+ if(!f)return;
+ f.start(()=>S&&S.phase==='alive'&&SPEC?{
+  state:S,species:SPEC.id,stage:stage(),coat:Number(S.coat),alive:true,
+  sleeping:!!S.sleeping,away:!!S.exp,title:!!titleUp,
+  equipped:Object.values(S.eq||{}).some(Boolean)}:null);
+})();
+
+/* v32 — facial expression coordination and mood display. All changes are visual-only. */
+(function(){
+ const style=document.createElement('style');
+ style.textContent=`
+ #gwrap .v32-eye-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:10}
+ .v32-mood{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 11px;margin:0 0 9px;border:1px solid #d9b97755;background:linear-gradient(95deg,#172c48,#1d2443);border-radius:12px;color:#f6e8c8;font-size:.9em;line-height:1.4}
+ .v32-mood strong{color:#f8d88d}.v32-mood small{flex-basis:100%;color:#cdd6e7;font-size:.86em}
+ @media(prefers-reduced-motion:reduce){#gwrap .v32-eye-layer{display:none}}
+ `;
+ document.head.appendChild(style);
+ const face=window.EVERHATCH_FACE;
+ if(!face)return;
+ function reading(){return S&&S.phase==='alive'&&SPEC?{
+   state:S,species:SPEC.id,stage:stage(),coat:Number(S.coat),alive:true,sleeping:!!S.sleeping,away:!!S.exp,title:!!titleUp,
+   equipped:Object.values(S.eq||{}).some(Boolean)}:null;
+ }
+ function mood(){
+   if(!S)return {name:'Curious',text:'A new bond is beginning.'};
+   const st=S.st||{};
+   if(S.sleeping||st.rest<28)return {name:'Sleepy',text:'A little quiet time sounds lovely.'};
+   if(st.hunger<30)return {name:'Hungry',text:'Looking for a favorite snack.'};
+   if(st.joy<30)return {name:'Lonely',text:'Some company would help.'};
+   const traits=S.tr||{},sorted=['gentle','fierce','bold','mischief'].sort((a,b)=>(traits[b]||0)-(traits[a]||0));
+   const top=sorted[0];
+   if(Math.max(...sorted.map(k=>Number(traits[k]||0)))<1)return {name:'Curious',text:'Still discovering its own personality.'};
+   return ({gentle:{name:'Affectionate',text:'Calm, trusting and ready to bond.'},fierce:{name:'Alert',text:'Watching the sanctuary with determination.'},bold:{name:'Adventurous',text:'Looking for something new to discover.'},mischief:{name:'Playful',text:'Almost certainly planning something.'}})[top];
+ }
+ function moodHtml(){const m=mood();return `<section class="v32-mood" aria-label="Current companion mood"><strong>✦ Current mood: ${m.name}</strong><small>${m.text}</small></section>`;}
+ const oldCare=pCare;
+ pCare=function(){return oldCare().replace('<div class="care-pantry">',moodHtml()+'<div class="care-pantry">');};
+ const prevPet=pet;
+ pet=function(spot,event){
+   const was=lastPet;const fav=Boolean(S&&spot===S.fav);
+   const result=prevPet(spot,event);
+   if(was!==lastPet)face.react(fav?'pleased':(domTrait()==='fierce'?'wary':'curious'),1400);
+   return result;
+ };
+ const prevFeed=feed;
+ feed=function(id){const was=S?.st.hunger||0;const result=prevFeed(id);if(S&&S.st.hunger>was)face.react('pleased',1250);return result;};
+ const prevFinish=v21FinishCare;
+ v21FinishCare=function(id,cd,msg,fx){const result=prevFinish(id,cd,msg,fx);
+   face.react(['cuddleCare','washCare','drinkCare'].includes(id)?'pleased':id==='talkCare'?'curious':'curious',1450);
+   return result;
+ };
+ const prevRest=doRest;
+ doRest=function(){const was=S?.sleeping;const result=prevRest();if(was&&!S.sleeping)face.react('curious',1250);return result;};
+ const prevStart=startTrickStage;
+ startTrickStage=function(t,ms){const result=prevStart(t,ms);if(result)face.react((t?.aff==='fierce'?'wary':'curious'),Math.min(ms||2600,1600));return result;};
+ face.start(reading);
+ window.EVERHATCH_FACE_GAME={version:'v32',mood,reading};
+})();
+
+/* v33: connect real companion interactions to facial gestures. */
+(function(){
+ const f=window.EVERHATCH_FACE33;
+ if(!f)return;
+ const oldFeed=feed;
+ feed=function(id){const was=S?.st?.hunger??0;const r=oldFeed(id);if(S?.st?.hunger>was)f.react('chew',1150);return r;};
+ const oldPet=pet;
+ pet=function(spot,e){const prev=lastPet;const r=oldPet(spot,e);if(prev!==lastPet){f.look(e?.clientX||null,e?.clientY||null);f.react(spot===S?.fav?'pleased':'curious',1350);}return r;};
+ const oldFinish=v21FinishCare;
+ v21FinishCare=function(id,cd,msg,fx){const r=oldFinish(id,cd,msg,fx);const kind=({playCare:'play',talkCare:'chatter',washCare:'curious',cuddleCare:'pleased',stretchCare:'stretch',drinkCare:'chew',discoverCare:'curious',forageCare:'curious'})[id]||'curious';f.react(kind,1300);return r;};
+ const oldRest=doRest;
+ doRest=function(){const was=S?.sleeping;const r=oldRest();if(was&&!S?.sleeping)f.react('yawn',1750);return r;};
+ const oldTrick=startTrickStage;
+ startTrickStage=function(t,ms){const r=oldTrick(t,ms);if(r)f.react(['roar','rear','puff','slam','thunder'].includes(t.id)?'roar':(['sing','dawnsong','cinder'].includes(t.id)?'chatter':'alert'),Math.min(ms||2800,2600));return r;};
+ window.EVERHATCH_FACE33_GAME={version:'v33',status:()=>f.status(),react:kind=>f.react(kind,1600)};
+})();
+
+/* v34 — animation finish director: gentle recoveries following feeding, play and waking. */
+(function(){
+ 'use strict';
+ const f=window.EVERHATCH_FACE33;
+ let generation=0,lastAction='idle',recoveries=0;
+ const reduce=window.matchMedia('(prefers-reduced-motion:reduce)');
+ // Preload only the current species/stage/coat; avoid 150 full rigs at startup.
+ let warmKey='';
+ const oldRender=renderGriffin;
+ renderGriffin=function(force){
+   const result=oldRender(force);
+   if(S&&SPEC&&S.phase==='alive'&&!S.exp&&!titleUp&&!Object.values(S.eq||{}).some(Boolean)){
+     const sp=SPEC.id,st=stage(),coat=Number(S.coat),key=sp+'-'+st+'-'+coat;
+     if(warmKey!==key){
+       warmKey=key;
+       window.EVERHATCH_RIG?.load(sp,st,coat).catch(()=>{if(warmKey===key)warmKey='';});
+       window.EVERHATCH_FACE33?.load(sp,st,coat).catch(()=>{});
+     }
+   }
+   return result;
+ };
+ function scheduleRecovery(action, delay, tone){
+   const ticket=++generation,companion=S,sp=SPEC?.id,st=companion?stage():0,coat=companion?.coat;
+   lastAction=action;
+   if(!companion||reduce.matches)return;
+   setTimeout(()=>{
+     if(ticket!==generation||S!==companion||SPEC.id!==sp||stage()!==st||S.coat!==coat||S.sleeping||S.exp||titleUp)return;
+     if(f)f.react(tone,660);
+     recoveries++;
+   },delay);
+ }
+ // A final, contented look follows the chewing movement instead of a sudden neutral face.
+ const originalFeed=feed;
+ feed=function(id){
+   const old=S?.st?.hunger??0;
+   const r=originalFeed(id);
+   if(S&&S.st.hunger>old)scheduleRecovery('feed',1250,'pleased');
+   return r;
+ };
+ // During play/cuddling, the expression settles back toward contentment.
+ const originalFinish=v21FinishCare;
+ v21FinishCare=function(id,cooldown,msg,fx){
+   const r=originalFinish(id,cooldown,msg,fx);
+   if(['playCare','cuddleCare','washCare','drinkCare'].includes(id))scheduleRecovery(id,1340,'pleased');
+   return r;
+ };
+ const originalPet=pet;
+ pet=function(spot,e){
+   const old=lastPet,r=originalPet(spot,e);
+   if(lastPet!==old&&S&&spot===S.fav)scheduleRecovery('pet',900,'pleased');
+   return r;
+ };
+ // Waking receives a full-body recovery stretch after the original sleep transition.
+ const originalRest=doRest;
+ doRest=function(){
+   const wasSleeping=!!S?.sleeping;
+   const r=originalRest();
+   if(wasSleeping&&S&&!S.sleeping&&!reduce.matches){
+     const state=S,sp=SPEC.id,st=stage(),coat=S.coat;
+     setTimeout(()=>{
+       if(S===state&&SPEC.id===sp&&stage()===st&&S.coat===coat&&!S.sleeping&&!S.exp){
+         window.EVERHATCH_RIG_TEST?.beginCare('wake',1750);
+         lastAction='wake';
+       }
+     },180);
+   }
+   return r;
+ };
+ window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
+})();
 
 /* boot */
 resize();requestAnimationFrame(drawBG);

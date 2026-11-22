@@ -1,0 +1,123 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Everhatch — Living Anatomy Studio</title><style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1a3155,#091122 70%);color:#f8e8bf;font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh;padding:20px 14px}.wrap{max-width:1040px;margin:auto}h1{font-family:Georgia,serif;font-weight:normal;letter-spacing:.05em;margin:12px 0 6px;font-size:clamp(1.7rem,4vw,2.7rem)}h2{font:600 1.05rem system-ui;color:#f2d694;margin:3px 0 12px}p{line-height:1.5;color:#d8dfef}.small{font-size:.86rem;color:#b5c1df}.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;padding:15px;border-radius:16px;background:#101d37;border:1px solid #b5915888}.control label{display:block;font-weight:700;margin-bottom:5px;color:#eacb8d}.control select,.control button{width:100%;background:#23385a;border:1px solid #b9a06b;color:#fff3d3;border-radius:10px;padding:12px 10px;font-size:1rem;min-height:48px}.control button{cursor:pointer;background:#c49b51;color:#10213d;font-weight:700}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}.box{background:#101b32;border:1px solid #5f6e8c;border-radius:16px;padding:12px;overflow:hidden;min-width:0}.box canvas{width:100%;height:auto;aspect-ratio:370/310;display:block;max-width:370px;margin:auto;background:radial-gradient(circle at center,#334b6a55,#0b152c);border-radius:12px}.status{margin-top:12px;color:#ffe5aa;font-size:.88rem}.hint{border-left:3px solid #d8b36b;padding:10px 12px;background:#101d37;border-radius:8px}.badge{display:inline-flex;border:1px solid #b5915877;border-radius:99px;padding:5px 9px;font-size:.75rem;margin:5px 5px 5px 0;color:#e6d3ae}@media(max-width:580px){.two{grid-template-columns:1fr}.box canvas{max-width:100%}}@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></head><body><div class="wrap"><div class="small">EVERHATCH · ANIMATION PRODUCTION TOOLS · v29</div><h1>Living Anatomy Studio</h1><p>Inspect the original age-and-coat artwork beside its localized head, wing, chest, leg and tail deformation. Change species, life stage, coat and action to review how the mesh behaves across all 150 appearances.</p><div class="controls"><div class="control"><label for="species">Species</label><select id="species"><option value="griffin">Griffin</option><option value="hippogriff">Hippogriff</option><option value="phoenix">Phoenix</option><option value="pegasus">Pegasus</option><option value="wyvern">Wyvern</option></select></div><div class="control"><label for="stage">Life stage</label><select id="stage"><option value="0">1 · Hatchling</option><option value="1">2 · Fledgling</option><option value="2">3 · Youngling</option><option value="3">4 · Legend</option><option value="4">5 · Ascendant</option></select></div><div class="control"><label for="coat">Coat</label><select id="coat"><option value="0">Coat 1</option><option value="1">Coat 2</option><option value="2">Coat 3</option><option value="3">Coat 4</option><option value="4">Coat 5</option><option value="5">Coat 6 · Rare</option></select></div><div class="control"><label for="action">Action</label><select id="action"><option value="feed">Feeding / head dip</option><option value="drink">Drinking</option><option value="play">Play / wing lift</option><option value="groom">Groom / wing fold</option><option value="stretch">Stretch</option><option value="pet">Affection</option><option value="cuddle">Cuddle</option><option value="call">Mighty call</option><option value="flight">Flight</option><option value="roar">Roar</option><option value="impact">Impact / tail slam</option><option value="magic">Magical move</option><option value="sleep">Sleep settle</option><option value="wake">Wake and stretch</option></select></div><div class="control"><label for="speed">Speed</label><select id="speed"><option value="0.5">0.5× slow</option><option value="1" selected>1× normal</option><option value="1.5">1.5× quick</option></select></div><div class="control"><label>Playback</label><button type="button" id="play">Play animation</button></div></div><div class="two"><section class="box"><h2>Original stage artwork</h2><canvas id="original" width="370" height="310" aria-label="Original illustrated pose"></canvas></section><section class="box"><h2>v29 animated mesh</h2><canvas id="animated" width="370" height="310" aria-label="Animated illustrated pose"></canvas></section></div><div class="status" id="status" role="status">Loading creature art…</div><p class="hint"><b>Production note:</b> This pass warps localized regions of the existing illustration. It is not a fully segmented skeletal rig or a new hand-drawn frame sequence. The original art, stage and coat remain unchanged. Reduced-motion preferences disable automatic animation.</p><div><span class="badge">5 species</span><span class="badge">5 stages</span><span class="badge">6 coat slots</span><span class="badge">150 appearance combinations</span><span class="badge">Offline compatible</span></div></div><script>
+(function(){'use strict';
+const ROOT='#none',SPECIES=['griffin','hippogriff','phoenix','pegasus','wyvern'];
+const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+const webpCache=new Map();
+ const meshCols=9,meshRows=8,srcW=370,srcH=310;
+ const sourceVerts=[];
+ const sourceTris=[];
+ for(let y=0;y<=meshRows;y++)for(let x=0;x<=meshCols;x++)sourceVerts.push({x:x*srcW/meshCols,y:y*srcH/meshRows});
+ for(let y=0;y<meshRows;y++)for(let x=0;x<meshCols;x++){
+   const a=y*(meshCols+1)+x,b=a+1,c=a+meshCols+1,d=c+1;
+   sourceTris.push([a,b,d],[a,d,c]);
+ }
+ const stats={careStarts:0,trickStarts:0,sleepStarts:0,renderedFrames:0,frameDraws:0,assetFailures:0};
+ let currentCare=null,currentTrick=null,currentRest=null;
+ function imageFor(src){
+   let p=webpCache.get(src);
+   if(!p){p=new Promise((resolve,reject)=>{const img=new Image(); img.onload=()=>resolve(img); img.onerror=()=>reject(new Error('Animation asset missing: '+src)); img.src=src;});webpCache.set(src,p)}
+   return p;
+ }
+ function validCare(){return !!(S&&!titleUp&&S.phase==='alive'&&!S.sleeping&&!S.exp&&SPECIES.includes(SPEC.id)&&!Object.values(S.eq||{}).some(Boolean));}
+ function srcOf(s,st,coat){return `assets/motion/${s}-${st}-${coat}-0.webp`;}
+ function fitRect(imageEl){
+   if(!imageEl)return null;
+   return {x:Number(imageEl.getAttribute('x')||0),y:Number(imageEl.getAttribute('y')||0),w:Number(imageEl.getAttribute('width')||320),h:Number(imageEl.getAttribute('height')||300)};
+ }
+ const anatomyBounds={"griffin":[[75,38,218,246],[73,111,223,189],[51,88,267,212],[43,68,284,232],[38,65,294,235]],"hippogriff":[[72,113,225,177],[56,75,258,215],[63,71,244,229],[47,64,275,236],[40,57,290,243]],"phoenix":[[73,40,223,244],[90,115,190,185],[62,85,245,215],[45,66,279,234],[28,60,313,240]],"pegasus":[[76,36,216,248],[92,83,185,217],[69,70,232,230],[52,67,266,233],[38,61,293,239]],"wyvern":[[91,158,188,140],[78,144,214,156],[56,56,257,244],[39,53,292,247],[30,39,310,261]]};
+ function getBounds(img,sp,st){const [x,y,w,h]=(anatomyBounds[sp]||anatomyBounds.griffin)[st];return {x,y,w,h};}
+
+ function params(action,progress,stage,species){
+   const p=Math.max(0,Math.min(1,progress)), bell=Math.sin(p*Math.PI), wobble=Math.sin(p*Math.PI*4), slow=Math.sin(p*Math.PI*2);
+   const child=1.14-stage*.075;
+   let head=0,wing=0,tail=0,fore=0,rear=0,chest=0,neck=0;
+   switch(action){
+     case 'feed':head=.24*bell+.06*wobble;neck=10*bell;wing=-.065*bell;tail=.09*slow;chest=.016*bell;break;
+     case 'drink':head=.29*bell;neck=12*bell;wing=-.04*bell;tail=.05*slow;break;
+     case 'pet':case 'cuddle':head=-.10*bell+.035*slow;neck=-7*bell;tail=.11*slow;wing=.04*bell;chest=.018*bell;break;
+     case 'groom':head=.18*bell;wing=.21*bell+.05*wobble;tail=.09*slow;fore=5*bell;break;
+     case 'play':head=.10*wobble;wing=.25*bell+.07*wobble;tail=.15*wobble;fore=-15*bell;rear=-7*bell;chest=.015*bell;break;
+     case 'stretch':head=-.13*bell;neck=-9*bell;wing=.38*bell;tail=.13*slow;fore=-9*bell;chest=.033*bell;break;
+     case 'call':case 'roar':head=-.21*bell;neck=-8*bell;wing=.21*bell;tail=.05*wobble;chest=.048*bell;break;
+     case 'flight':wing=.46*slow;head=-.055*bell;tail=.16*slow;fore=-14*bell;rear=-7*bell;chest=.025*bell;break;
+     case 'impact':wing=.15*bell;head=.13*bell;neck=3*bell;tail=-.16*bell;fore=17*bell;chest=-.02*bell;break;
+     case 'sing':head=-.16*bell;neck=-3*bell;wing=.2*bell;tail=.14*slow;chest=.027*bell;break;
+     case 'rearing':head=-.12*bell;wing=.31*bell;fore=-24*bell;rear=3*bell;tail=.12*bell;chest=.022*bell;break;
+     case 'magic':head=-.12*bell;wing=.36*bell;tail=.19*slow;fore=-8*bell;chest=.03*bell;break;
+     case 'sleep':head=.20*bell;neck=8*bell;wing=-.16*bell;tail=.07*bell;chest=-.013*bell;break;
+     case 'wake':head=-.17*bell;neck=-9*bell;wing=.3*bell;tail=.15*slow;fore=-8*bell;break;
+     default:head=.05*slow;wing=.08*slow;tail=.05*slow;chest=.01*slow;
+   }
+   // Anatomical personality, not just a different particle palette.
+   const sf={griffin:[1.06,1.05,.8,.9],hippogriff:[1.14,1.12,.92,1.28],phoenix:[.85,1.32,1.42,.75],pegasus:[1.18,1.1,1.23,1.38],wyvern:[1.26,1.25,1.55,1.0]}[species]||[1,1,1,1];
+   head*=sf[0]*child;wing*=sf[1]*(1.03-stage*.035);tail*=sf[2]*child;fore*=sf[3]*child;rear*=sf[3]*child;
+   return {head,wing,tail,fore,rear,chest,neck};
+ }
+ function deform(vertex,bounds,params,species){
+   const x=vertex.x,y=vertex.y,b=bounds, W=b.w,H=b.h;
+   const p=(u,v)=>({x:b.x+u*W,y:b.y+v*H});
+   const neck=p(species==='wyvern'?.66:.68,.43),head=p(.78,.25),wing=p(.39,.41),wingRoot=p(.56,.56),tail=p(.17,.72),tailRoot=p(.36,.68),fore=p(.73,.83),rear=p(.38,.83),chest=p(.61,.58);
+   let dx=0,dy=0;
+   function bend(center,pivot,rads,radiusX,radiusY,amount=1){
+     const nx=(x-center.x)/radiusX,ny=(y-center.y)/radiusY;
+     const w=Math.exp(-2.1*(nx*nx+ny*ny))*amount;
+     const cs=Math.cos(rads),sn=Math.sin(rads),rx=x-pivot.x,ry=y-pivot.y;
+     dx+=((cs*rx-sn*ry+pivot.x)-x)*w;
+     dy+=((sn*rx+cs*ry+pivot.y)-y)*w;
+   }
+   bend(head,neck,params.head,W*.34,H*.37);
+   bend(wing,wingRoot,-params.wing,W*.53,H*.48);
+   bend(tail,tailRoot,params.tail,W*.36,H*.40);
+   const fwx=(x-fore.x)/(W*.23),fwy=(y-fore.y)/(H*.34);
+   const wf=Math.exp(-2.3*(fwx*fwx+fwy*fwy));dy+=params.fore*wf;dx-=params.fore*.3*wf;
+   const rwx=(x-rear.x)/(W*.21),rwy=(y-rear.y)/(H*.26);
+   const wr=Math.exp(-2.2*(rwx*rwx+rwy*rwy));dy+=params.rear*wr;
+   const cwx=(x-chest.x)/(W*.37),cwy=(y-chest.y)/(H*.45);
+   const wc=Math.exp(-2.2*(cwx*cwx+cwy*cwy));dy-=params.chest*H*wc;
+   const nhx=(x-head.x)/(W*.29),nhy=(y-head.y)/(H*.3);
+   const wh=Math.exp(-2*(nhx*nhx+nhy*nhy));dy+=params.neck*wh;
+   return {x:x+dx,y:y+dy};
+ }
+ function paintTriangle(ctx,img,a,b,c,A,B,C){
+   const det=(b.x-a.x)*(c.y-a.y)-(c.x-a.x)*(b.y-a.y);
+   if(Math.abs(det)<1e-6)return;
+   const aa=((B.x-A.x)*(c.y-a.y)-(C.x-A.x)*(b.y-a.y))/det;
+   const bb=((B.y-A.y)*(c.y-a.y)-(C.y-A.y)*(b.y-a.y))/det;
+   const cc=((C.x-A.x)*(b.x-a.x)-(B.x-A.x)*(c.x-a.x))/det;
+   const dd=((C.y-A.y)*(b.x-a.x)-(B.y-A.y)*(c.x-a.x))/det;
+   const ee=A.x-aa*a.x-cc*a.y,ff=A.y-bb*a.x-dd*a.y;
+   const mx=(A.x+B.x+C.x)/3,my=(A.y+B.y+C.y)/3;
+   const infl=v=>{const vx=v.x-mx,vy=v.y-my,len=Math.max(.001,Math.hypot(vx,vy));return {x:v.x+vx/len*1.05,y:v.y+vy/len*1.05}};
+   const AX=infl(A),BX=infl(B),CX=infl(C);
+   ctx.save();ctx.beginPath();ctx.moveTo(AX.x,AX.y);ctx.lineTo(BX.x,BX.y);ctx.lineTo(CX.x,CX.y);ctx.closePath();ctx.clip();ctx.transform(aa,bb,cc,dd,ee,ff);ctx.drawImage(img,0,0,srcW,srcH);ctx.restore();
+ }
+ function paintMesh(ctx,img,action,progress,sp,st,rect,opacity=1){
+   const bounds=getBounds(img,sp,st), pa=params(action,progress,st,sp);
+   ctx.save();ctx.globalAlpha=opacity;ctx.translate(rect.x,rect.y);ctx.scale(rect.w/srcW,rect.h/srcH);
+   const dest=sourceVerts.map(v=>deform(v,bounds,pa,sp));
+   const boundX=bounds.x-28,boundY=bounds.y-28,right=bounds.x+bounds.w+28,bottom=bounds.y+bounds.h+28;
+   for(let i=0;i<sourceTris.length;i++){
+     const [ia,ib,ic]=sourceTris[i],a=sourceVerts[ia],b=sourceVerts[ib],c=sourceVerts[ic];
+     if(Math.max(a.x,b.x,c.x)<boundX||Math.min(a.x,b.x,c.x)>right||Math.max(a.y,b.y,c.y)<boundY||Math.min(a.y,b.y,c.y)>bottom)continue;
+     paintTriangle(ctx,img,a,b,c,dest[ia],dest[ib],dest[ic]);
+   }
+   ctx.restore();stats.frameDraws++;
+ }
+
+const q=id=>document.getElementById(id), selects=['species','stage','coat','action','speed'];
+let img=null,raf=0,beg=0,active=false;
+function update(){
+ cancelAnimationFrame(raf);active=false;
+ const sp=q('species').value,st=Number(q('stage').value),coat=Number(q('coat').value),name=`assets/motion/${sp}-${st}-${coat}-0.webp`;
+ q('status').textContent='Loading '+name+'…';
+ imageFor(name).then(i=>{if(q('species').value!==sp||Number(q('stage').value)!==st||Number(q('coat').value)!==coat)return;img=i;q('status').textContent=`Loaded ${sp} · life stage ${st+1} · coat ${coat+1} · ${q('action').value}`;const c=q('original').getContext('2d');c.clearRect(0,0,370,310);c.drawImage(i,0,0,370,310);paint(0)}).catch(()=>{q('status').textContent='Could not load '+name;img=null});
+}
+function paint(p){if(!img)return;const c=q('animated').getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,370,310);paintMesh(c,img,q('action').value,p,q('species').value,Number(q('stage').value),{x:0,y:0,w:370,h:310});}
+function loop(t){if(!active)return;const p=((t-beg)*Number(q('speed').value)%2200)/2200;paint(p);raf=requestAnimationFrame(loop)}
+q('play').addEventListener('click',()=>{if(!img)return;active=!active;cancelAnimationFrame(raf);q('play').textContent=active?'Pause':'Play animation';if(active){beg=performance.now();raf=requestAnimationFrame(loop)}});
+selects.forEach(id=>q(id).addEventListener('change',()=>{if(id==='speed')return;if(id==='action'){q('status').textContent=`Loaded ${q('species').value} · life stage ${Number(q('stage').value)+1} · coat ${Number(q('coat').value)+1} · ${q('action').value}`;paint(0);return}update()}));
+update();
+})();
+</script></body></html>
