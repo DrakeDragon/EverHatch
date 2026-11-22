@@ -1,0 +1,129 @@
+{
+  "syntax": false,
+  "static_idle_patch": {
+    "10_tested": 10,
+    "max_crest_alpha_pixels": 0,
+    "samples": [
+      {
+        "stage": 0,
+        "coat": 0,
+        "alpha": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "stage": 0,
+        "coat": 5,
+        "alpha": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "stage": 1,
+        "coat": 0,
+        "alpha": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "stage": 1,
+        "coat": 5,
+        "alpha": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "stage": 2,
+        "coat": 0,
+        "alpha": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "stage": 2,
+        "coat": 5,
+        "alpha": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "stage": 3,
+        "coat": 0,
+        "alpha": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "stage": 3,
+        "coat": 5,
+        "alpha": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "stage": 4,
+        "coat": 0,
+        "alpha": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "stage": 4,
+        "coat": 5,
+        "alpha": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "expression_active": {
+    "reactive_crest_pixels": 595,
+    "status": {
+      "version": "v34",
+      "articulatedFeatures": [
+        "lower jaw/beak",
+        "iris gaze",
+        "ear/crest tuft"
+      ],
+      "loaded": 10,
+      "failed": 0,
+      "frames": 31,
+      "rigFrames": 0,
+      "models": 150,
+      "reducedMotion": false,
+      "emotion": "curious"
+    }
+  },
+  "gameplay": {
+    "play_rig": 1,
+    "feeding_hunger": 19.998041944444445,
+    "facial_frames": 34,
+    "focus_200pct": {
+      "width": 320,
+      "view": 1,
+      "buttons": 4
+    }
+  },
+  "errors": [],
+  "missing": []
+}

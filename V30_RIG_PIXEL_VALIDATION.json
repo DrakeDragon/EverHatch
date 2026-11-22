@@ -1,0 +1,370 @@
+{
+  "models": 60,
+  "parts_per_model": 6,
+  "rendered_max_mae": 0.0,
+  "rendered_mean_mae": 0.0,
+  "blank_layers": [],
+  "models_over_mae_1": [],
+  "results": [
+    {
+      "name": "griffin-0-0",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-0-1",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-0-2",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-0-3",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-0-4",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-0-5",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-1-0",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-1-1",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-1-2",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-1-3",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-1-4",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-1-5",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-2-0",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-2-1",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-2-2",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-2-3",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-2-4",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-2-5",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-3-0",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-3-1",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-3-2",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-3-3",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-3-4",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-3-5",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-4-0",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-4-1",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-4-2",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-4-3",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-4-4",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "griffin-4-5",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-0-0",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-0-1",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-0-2",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-0-3",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-0-4",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-0-5",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-1-0",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-1-1",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-1-2",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-1-3",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-1-4",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-1-5",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-2-0",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-2-1",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-2-2",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-2-3",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-2-4",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-2-5",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-3-0",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-3-1",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-3-2",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-3-3",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-3-4",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-3-5",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-4-0",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-4-1",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-4-2",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-4-3",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-4-4",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    },
+    {
+      "name": "wyvern-4-5",
+      "pixel_mae": 0.0,
+      "maxdiff": 0,
+      "pixels_diff": 0
+    }
+  ]
+}

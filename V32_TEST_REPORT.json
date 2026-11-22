@@ -1,0 +1,62 @@
+{
+  "version": 32,
+  "asset_checks": {
+    "files": 600,
+    "all_present": true,
+    "blank_or_invalid": 0,
+    "failures": []
+  },
+  "browser": {
+    "initial_mood": "\u2726 Current mood: Curious\nStill discovering its own personality.",
+    "play_expression": "curious",
+    "care_rig": 1,
+    "face_idle_canvas": 1,
+    "face_images_loaded": 4,
+    "phoenix_overlay": {
+      "version": "v32",
+      "types": [
+        "blink",
+        "pleased",
+        "curious",
+        "wary"
+      ],
+      "coats": 6,
+      "stages": 5,
+      "species": [
+        "griffin",
+        "hippogriff",
+        "phoenix",
+        "pegasus",
+        "wyvern"
+      ],
+      "opened": 8,
+      "failed": 0,
+      "frames": 27,
+      "reducedMotion": false,
+      "currentEmotion": "curious"
+    },
+    "phoenix_rig_started": true,
+    "phoenix_rig_canvas": 1,
+    "phoenix_rig_metrics": {
+      "care": 2,
+      "tricks": 0,
+      "failures": 0,
+      "frames": 41,
+      "firstFrames": 2,
+      "drawn": 41,
+      "models": 150,
+      "cache": 2
+    },
+    "text_size": "200",
+    "max_page_width": 320,
+    "viewport_width": 320,
+    "view_pet_visible": 1,
+    "focus_at_200": true,
+    "focus_buttons": 4,
+    "reduced_motion": true,
+    "studio_state": "Relaxed and affectionate",
+    "studio_asset": "Matched face artwork loaded"
+  },
+  "errors": [],
+  "missing_assets": []
+}

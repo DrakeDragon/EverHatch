@@ -1,0 +1,1083 @@
+{
+  "version": 24,
+  "species": [
+    "griffin",
+    "hippogriff",
+    "phoenix",
+    "pegasus",
+    "wyvern"
+  ],
+  "stages": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "coats": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "poses": [
+    "idle",
+    "crouch",
+    "launch",
+    "call"
+  ],
+  "entries": [
+    {
+      "species": "griffin",
+      "stage": 0,
+      "coat": 0,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "griffin",
+      "stage": 0,
+      "coat": 1,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "griffin",
+      "stage": 0,
+      "coat": 2,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "griffin",
+      "stage": 0,
+      "coat": 3,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "griffin",
+      "stage": 0,
+      "coat": 4,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "griffin",
+      "stage": 0,
+      "coat": 5,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "griffin",
+      "stage": 1,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 1,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 1,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 1,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 1,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 1,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 2,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 2,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 2,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 2,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 2,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 2,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 3,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 3,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 3,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 3,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 3,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 3,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 4,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 4,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 4,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 4,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 4,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "griffin",
+      "stage": 4,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 0,
+      "coat": 0,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 0,
+      "coat": 1,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 0,
+      "coat": 2,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 0,
+      "coat": 3,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 0,
+      "coat": 4,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 0,
+      "coat": 5,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 1,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 1,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 1,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 1,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 1,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 1,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 2,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 2,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 2,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 2,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 2,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 2,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 3,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 3,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 3,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 3,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 3,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 3,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 4,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 4,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 4,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 4,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 4,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "hippogriff",
+      "stage": 4,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 0,
+      "coat": 0,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "phoenix",
+      "stage": 0,
+      "coat": 1,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "phoenix",
+      "stage": 0,
+      "coat": 2,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "phoenix",
+      "stage": 0,
+      "coat": 3,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "phoenix",
+      "stage": 0,
+      "coat": 4,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "phoenix",
+      "stage": 0,
+      "coat": 5,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "phoenix",
+      "stage": 1,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 1,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 1,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 1,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 1,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 1,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 2,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 2,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 2,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 2,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 2,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 2,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 3,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 3,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 3,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 3,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 3,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 3,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 4,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 4,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 4,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 4,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 4,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "phoenix",
+      "stage": 4,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 0,
+      "coat": 0,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "pegasus",
+      "stage": 0,
+      "coat": 1,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "pegasus",
+      "stage": 0,
+      "coat": 2,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "pegasus",
+      "stage": 0,
+      "coat": 3,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "pegasus",
+      "stage": 0,
+      "coat": 4,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "pegasus",
+      "stage": 0,
+      "coat": 5,
+      "frames": 4,
+      "source": "existing-newborn-expression-poses"
+    },
+    {
+      "species": "pegasus",
+      "stage": 1,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 1,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 1,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 1,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 1,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 1,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 2,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 2,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 2,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 2,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 2,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 2,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 3,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 3,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 3,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 3,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 3,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 3,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 4,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 4,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 4,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 4,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 4,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "pegasus",
+      "stage": 4,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 0,
+      "coat": 0,
+      "frames": 4,
+      "source": "hand-illustrated-keyposes"
+    },
+    {
+      "species": "wyvern",
+      "stage": 0,
+      "coat": 1,
+      "frames": 4,
+      "source": "hand-illustrated-keyposes"
+    },
+    {
+      "species": "wyvern",
+      "stage": 0,
+      "coat": 2,
+      "frames": 4,
+      "source": "hand-illustrated-keyposes"
+    },
+    {
+      "species": "wyvern",
+      "stage": 0,
+      "coat": 3,
+      "frames": 4,
+      "source": "hand-illustrated-keyposes"
+    },
+    {
+      "species": "wyvern",
+      "stage": 0,
+      "coat": 4,
+      "frames": 4,
+      "source": "hand-illustrated-keyposes"
+    },
+    {
+      "species": "wyvern",
+      "stage": 0,
+      "coat": 5,
+      "frames": 4,
+      "source": "hand-illustrated-keyposes"
+    },
+    {
+      "species": "wyvern",
+      "stage": 1,
+      "coat": 0,
+      "frames": 4,
+      "source": "hand-illustrated-keyposes"
+    },
+    {
+      "species": "wyvern",
+      "stage": 1,
+      "coat": 1,
+      "frames": 4,
+      "source": "hand-illustrated-keyposes"
+    },
+    {
+      "species": "wyvern",
+      "stage": 1,
+      "coat": 2,
+      "frames": 4,
+      "source": "hand-illustrated-keyposes"
+    },
+    {
+      "species": "wyvern",
+      "stage": 1,
+      "coat": 3,
+      "frames": 4,
+      "source": "hand-illustrated-keyposes"
+    },
+    {
+      "species": "wyvern",
+      "stage": 1,
+      "coat": 4,
+      "frames": 4,
+      "source": "hand-illustrated-keyposes"
+    },
+    {
+      "species": "wyvern",
+      "stage": 1,
+      "coat": 5,
+      "frames": 4,
+      "source": "hand-illustrated-keyposes"
+    },
+    {
+      "species": "wyvern",
+      "stage": 2,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 2,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 2,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 2,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 2,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 2,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 3,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 3,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 3,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 3,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 3,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 3,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 4,
+      "coat": 0,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 4,
+      "coat": 1,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 4,
+      "coat": 2,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 4,
+      "coat": 3,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 4,
+      "coat": 4,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    },
+    {
+      "species": "wyvern",
+      "stage": 4,
+      "coat": 5,
+      "frames": 4,
+      "source": "age-specific-painterly-mesh-pose-study"
+    }
+  ]
+}

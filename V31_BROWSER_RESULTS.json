@@ -1,0 +1,124 @@
+{
+  "v": 31,
+  "coverage": 150,
+  "rendered": 150,
+  "new_species_care_trick_checks": [
+    {
+      "species": "hippogriff",
+      "stage": 0,
+      "coat": 0,
+      "trick": "rear",
+      "care": {
+        "rig": true,
+        "mesh": false,
+        "species": "hippogriff",
+        "stage": 0,
+        "coat": 0
+      },
+      "trick_result": {
+        "active": true,
+        "rig": true,
+        "mesh": false
+      }
+    },
+    {
+      "species": "hippogriff",
+      "stage": 4,
+      "coat": 5,
+      "trick": "canter",
+      "care": {
+        "rig": true,
+        "mesh": false,
+        "species": "hippogriff",
+        "stage": 4,
+        "coat": 5
+      },
+      "trick_result": {
+        "active": true,
+        "rig": true,
+        "mesh": false
+      }
+    },
+    {
+      "species": "phoenix",
+      "stage": 2,
+      "coat": 3,
+      "trick": "flamedance",
+      "care": {
+        "rig": true,
+        "mesh": false,
+        "species": "phoenix",
+        "stage": 2,
+        "coat": 3
+      },
+      "trick_result": {
+        "active": true,
+        "rig": true,
+        "mesh": false
+      }
+    },
+    {
+      "species": "phoenix",
+      "stage": 4,
+      "coat": 5,
+      "trick": "cinder",
+      "care": {
+        "rig": true,
+        "mesh": false,
+        "species": "phoenix",
+        "stage": 4,
+        "coat": 5
+      },
+      "trick_result": {
+        "active": true,
+        "rig": true,
+        "mesh": false
+      }
+    },
+    {
+      "species": "pegasus",
+      "stage": 1,
+      "coat": 2,
+      "trick": "cloudtrot",
+      "care": {
+        "rig": true,
+        "mesh": false,
+        "species": "pegasus",
+        "stage": 1,
+        "coat": 2
+      },
+      "trick_result": {
+        "active": true,
+        "rig": true,
+        "mesh": false
+      }
+    },
+    {
+      "species": "pegasus",
+      "stage": 4,
+      "coat": 5,
+      "trick": "stargallop",
+      "care": {
+        "rig": true,
+        "mesh": false,
+        "species": "pegasus",
+        "stage": 4,
+        "coat": 5
+      },
+      "trick_result": {
+        "active": true,
+        "rig": true,
+        "mesh": false
+      }
+    }
+  ],
+  "equipment_legacy_fallback": true,
+  "accessibility": {
+    "width": 320,
+    "max": 320,
+    "focus": true
+  },
+  "save_roundtrip_write_size": 1721,
+  "errors": [],
+  "failed_asset_requests": []
+}

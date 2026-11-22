@@ -1,0 +1,87 @@
+{
+  "version": 34,
+  "asset_validation": {
+    "joints": 150,
+    "interiors": 150,
+    "bad": []
+  },
+  "studio": {
+    "initial_status": "Ready: griffin \u00b7 Stage 1 \u00b7 Coat 1 \u00b7 6 moving parts + joint and mouth art",
+    "comparison": {
+      "mismatch": 112,
+      "visible": 34445,
+      "percent": 0.3251560458702279
+    },
+    "coverage": {
+      "ok": 150,
+      "neutral": 150,
+      "changed": 150,
+      "errors": [],
+      "rig": {
+        "drawn": 306,
+        "failures": 0,
+        "models": 150,
+        "cache": 12
+      },
+      "face": {
+        "version": "v34",
+        "articulatedFeatures": [
+          "lower jaw/beak",
+          "iris gaze",
+          "ear/crest tuft"
+        ],
+        "loaded": 150,
+        "failed": 0,
+        "frames": 9,
+        "rigFrames": 6,
+        "models": 150,
+        "reducedMotion": false,
+        "emotion": ""
+      }
+    }
+  },
+  "gameplay": {
+    "play": {
+      "rig": 1,
+      "face": 16,
+      "mood_visible": true
+    },
+    "feeding": {
+      "hunger": 35,
+      "action": "feed",
+      "rig": 1
+    },
+    "feeding_recovery": 1,
+    "wake": {
+      "entered_sleep": true,
+      "awake": true,
+      "action": "wake",
+      "rig": 1
+    },
+    "trick": {
+      "started": true,
+      "rig": 1,
+      "face": 88
+    },
+    "equipment_fallback": true,
+    "simulated_save_keys": [
+      [
+        "aerie.text-size.v1",
+        3
+      ],
+      [
+        "aerie_save_v1",
+        1896
+      ]
+    ],
+    "accessibility": {
+      "width": 320,
+      "viewport": 320,
+      "focus": true,
+      "pet_buttons": 4
+    },
+    "reduced_motion": true
+  },
+  "errors": [],
+  "missing": []
+}

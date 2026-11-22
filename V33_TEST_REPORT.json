@@ -1,0 +1,93 @@
+{
+  "version": 33,
+  "asset_checks": {
+    "expected": 600,
+    "actual": 600,
+    "blank_or_invalid": [],
+    "models": 150
+  },
+  "gameplay": {
+    "status_at_start": {
+      "version": "v33",
+      "articulatedFeatures": [
+        "lower jaw/beak",
+        "iris gaze",
+        "ear/crest tuft"
+      ],
+      "loaded": 1,
+      "failed": 0,
+      "frames": 9,
+      "rigFrames": 0,
+      "models": 150,
+      "reducedMotion": false,
+      "emotion": ""
+    },
+    "mood_visible": true,
+    "all_variations": {
+      "ok": 150,
+      "errors": []
+    },
+    "play": {
+      "reaction": "play",
+      "rig": 1,
+      "face_covered": 14
+    },
+    "feed": {
+      "hunger_change": 14.998076944444449,
+      "reaction": "chew",
+      "rig": 1
+    },
+    "species_samples": [
+      {
+        "sp": "wyvern",
+        "st": 4,
+        "coat": 5,
+        "rig": false,
+        "frames": 35,
+        "failures": 0
+      },
+      {
+        "sp": "pegasus",
+        "st": 2,
+        "coat": 3,
+        "rig": false,
+        "frames": 35,
+        "failures": 0
+      },
+      {
+        "sp": "phoenix",
+        "st": 3,
+        "coat": 0,
+        "rig": false,
+        "frames": 35,
+        "failures": 0
+      },
+      {
+        "sp": "hippogriff",
+        "st": 0,
+        "coat": 2,
+        "rig": false,
+        "frames": 35,
+        "failures": 0
+      },
+      {
+        "sp": "griffin",
+        "st": 1,
+        "coat": 4,
+        "rig": false,
+        "frames": 35,
+        "failures": 0
+      }
+    ],
+    "text_size": "200",
+    "page_width": 320,
+    "viewport_width": 320,
+    "focus": {
+      "active": true,
+      "pet_buttons": 4
+    },
+    "reduced_motion": true
+  },
+  "errors": [],
+  "missing_assets": []
+}
