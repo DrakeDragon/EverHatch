@@ -63,7 +63,7 @@ jobs:
                   if stat.S_ISLNK((member.external_attr>>16) & 0xffff):
                       raise SystemExit(f'Symlink not allowed: {member.filename}')
               z.extractall(dest)
-          needed=['index.html','assets/growth','assets/rig','assets/motion','assets/faces-v32','assets/faces-v33']
+          needed=['index.html','assets/growth','assets/rig','assets/motion','assets/expressions','assets/faces-v33']
           for item in needed:
               if not (dest/item).exists():
                   raise SystemExit(f'Missing required file/folder: {item}')
