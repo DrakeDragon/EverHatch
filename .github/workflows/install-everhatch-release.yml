@@ -1,0 +1,95 @@
+name: Install a complete Everhatch game release
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing GitHub release tag containing one Everhatch ZIP"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: everhatch-release-installer
+  cancel-in-progress: false
+
+jobs:
+  install:
+    if: github.repository == 'DrakeDragon/EverHatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the GitHub Pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download the game ZIP attached to this release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/everhatch-release"
+          gh release download "$RELEASE_TAG" --pattern 'Everhatch-*.zip' --dir "$RUNNER_TEMP/everhatch-release"
+          count=$(find "$RUNNER_TEMP/everhatch-release" -maxdepth 1 -type f -name '*.zip' | wc -l)
+          if [ "$count" -ne 1 ]; then
+            echo "Expected exactly one Everhatch-*.zip attached to the release; found $count." >&2
+            exit 1
+          fi
+
+      - name: Validate and extract complete game package
+        env:
+          ZIP_FOLDER: ${{ runner.temp }}/everhatch-release
+          STAGE_FOLDER: ${{ runner.temp }}/everhatch-staged
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, stat, zipfile
+          folder=pathlib.Path(os.environ['ZIP_FOLDER'])
+          dest=pathlib.Path(os.environ['STAGE_FOLDER'])
+          archive=next(folder.glob('Everhatch-*.zip'))
+          dest.mkdir(parents=True,exist_ok=True)
+          with zipfile.ZipFile(archive) as z:
+              files=[v for v in z.infolist() if not v.is_dir()]
+              if len(files)<3500:
+                  raise SystemExit(f'Not a complete Everhatch package: only {len(files)} files')
+              for member in z.infolist():
+                  path=pathlib.PurePosixPath(member.filename)
+                  if path.is_absolute() or '..' in path.parts or '\\' in member.filename or member.filename.startswith('.git/'):
+                      raise SystemExit(f'Unsafe package path: {member.filename}')
+                  if stat.S_ISLNK((member.external_attr>>16) & 0xffff):
+                      raise SystemExit(f'Symlink not allowed: {member.filename}')
+              z.extractall(dest)
+          needed=['index.html','assets/growth','assets/rig','assets/motion','assets/faces-v32','assets/faces-v33']
+          for item in needed:
+              if not (dest/item).exists():
+                  raise SystemExit(f'Missing required file/folder: {item}')
+          print(f'Validated {len(files)} package files')
+          PY
+
+      - name: Copy the package into the repository root
+        env:
+          STAGE_FOLDER: ${{ runner.temp }}/everhatch-staged
+        run: |
+          set -euo pipefail
+          rsync -a --exclude '.git' --exclude '.github' --exclude 'CNAME' "$STAGE_FOLDER/" "$GITHUB_WORKSPACE/"
+          test -f index.html
+          test -f assets/faces-v33/facial-runtime.js
+
+      - name: Commit and publish GitHub Pages source
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          git config user.name "everhatch-deployer[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Game release already matches main; nothing to commit."
+          else
+            git commit -m "Deploy Everhatch release $RELEASE_TAG"
+            git push origin HEAD:main
+          fi
