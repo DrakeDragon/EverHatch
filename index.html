@@ -4216,7 +4216,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
 })();
 
-/* v37 — One continuous companion animation director with localized anatomy.
+/* v38 — One continuous animation director with true illustrated, detachable zones.
  * Replaces v35's class-toggle motion. One state machine animates the ONE
  * illustrated companion in the live SVG; it never swaps age/coat images.
  * The legacy cutout, facial and mesh runtimes remain quarantined.
@@ -4265,134 +4265,200 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
   wyvern:   {breath:.005,sway:.45,idle:2.0,dip:1.14,hop:1.05,tail:1.2,tempo:.94}
  };
  const center={x:0,y:0,r:0,sx:1,sy:1};
- /* v37 / Phase A: localized, joint-aware image deformation.
-  * All three regions are composited by one SVG filter on the ORIGINAL image.
-  * No second creature images, no cutout canvases, no independent RAF.
-  * Landmarks come from existing v31 anatomical measurements, grouped by stage.
+ /* v38 preview: REAL, independently articulated illustrated parts.
+  * The existing 150-source rig masks are applied to the LIVE growth image,
+  * preserving the correct species, stage and coat colors pixel-for-pixel.
+  * The four cutouts are prepared ONCE on an offscreen canvas, and are then
+  * animated as SVG groups by the existing director's ONE requestAnimationFrame.
+  * Newborn artworks use a separate silhouette and stay on v36 safe motion.
   */
- const boneEnabled=/(?:^|[?&])anatomy=1(?:&|$)/.test(location.search);
+ const boneEnabled=/(?:^|[?&])(?:rig=1|anatomy=1)(?:&|$)/.test(location.search);
+ const motionLab=boneEnabled&&/(?:^|[?&])motionlab=1(?:&|$)/.test(location.search);
+ let boneDemo=null;
  const boneCounters={enabled:boneEnabled,binds:0,maps:0,steps:0,errors:0,disabled:false,reductions:0,
-   missingLandmarks:0,slowFrames:0,current:'',maxHead:0,maxWing:0,maxTail:0};
- const boneCache=new Map(),boneNS='http://www.w3.org/2000/svg';
- let bone=null,boneStyles=null,boneFailureSince=0;
+   missingLandmarks:0,slowFrames:0,current:'',maxHead:0,maxWing:0,maxTail:0,prepared:0,
+   failures:0,stageZeroFallbacks:0,loading:false,visible:false,controllerCount:1};
+ const NS='http://www.w3.org/2000/svg',partNames=['tail','wing','core','head'];
+ const W=370,H=310;
+ const boneCache=new Map(),boneDisabledModels=new Set(); // keep only last 3 prepared variants
+ let bone=null,boneFailureSince=0,boneTicket=0,bonePending='',bonePendingImage=null;
  const boneDefault={head:0,wing:0,tail:0};
  let boneState={...boneDefault};
- function boneMap(name,pt,st,sp){
-   const N=185,M=155,c=document.createElement('canvas');c.width=N;c.height=M;
-   const ctx=c.getContext('2d',{willReadFrequently:false});
-   if(!ctx)return null;
-   const im=ctx.createImageData(N,M),arr=im.data;
-   const size=st===0?.69:st===1?.82:st===2?1:st===3?1.08:1.15;
-   const cfg=name==='head'?{x:pt.head[0]+size*19,y:pt.head[1]-size*25,rx:52*size,ry:57*size,dx:80,dy:119}:
-     name==='wing'?{x:pt.wing[0]-size*36,y:pt.wing[1]-size*42,rx:71*size,ry:68*size,dx:102,dy:-98}:
-     {x:pt.tail[0]-size*51,y:pt.tail[1]+size*10,rx:71*size,ry:46*size,dx:-116,dy:60};
-   if(sp==='phoenix'&&name==='wing'){cfg.ry*=1.2;cfg.rx*=1.12}
-   if(sp==='wyvern'&&name==='wing')cfg.rx*=1.2;
-   for(let y=0;y<M;y++)for(let x=0;x<N;x++){
-     const xx=(x+.5)*370/N,yy=(y+.5)*310/M;
-     const d=Math.pow((xx-cfg.x)/cfg.rx,2)+Math.pow((yy-cfg.y)/cfg.ry,2);
-     const weight=Math.exp(-2.0*d);
-     const k=(y*N+x)*4;
-     arr[k]=Math.max(0,Math.min(255,Math.round(128+cfg.dx*weight)));
-     arr[k+1]=Math.max(0,Math.min(255,Math.round(128+cfg.dy*weight)));
-     arr[k+2]=128;arr[k+3]=255;
-   }
-   ctx.putImageData(im,0,0);boneCounters.maps++;
-   return c.toDataURL('image/png');
- }
- function boneImages(sp,st){
-   const key=sp+'/'+st;
+ const clampBone=(v,a,b)=>Math.min(b,Math.max(a,v));
+ const boneTag=name=>document.createElementNS(NS,name);
+ function loadImage(url){return new Promise((resolve,reject)=>{
+   const pic=new Image();pic.crossOrigin='anonymous';pic.onload=()=>resolve(pic);pic.onerror=()=>reject(Error('missing rig part: '+url));pic.src=url;
+ });}
+ function boneParts(sp,st,coat,source){
+   const key=sp+'/'+st+'/'+coat+'/'+source;
    if(boneCache.has(key))return boneCache.get(key);
-   const model=window.EVERHATCH_RIG_MANIFEST?.models?.[`${sp}-${st}-0`];
-   if(!model?.pivot){boneCounters.missingLandmarks++;return null}
-   try{
-     const urls=['head','wing','tail'].map(n=>boneMap(n,model.pivot,st,sp));
-     if(urls.some(x=>!x))throw Error('unable to make displacement maps');
-     boneCache.set(key,urls);return urls;
-   }catch(e){boneCounters.errors++;return null}
+   const metadata=window.EVERHATCH_RIG_MANIFEST?.models?.[`${sp}-${st}-${coat}`];
+   if(!metadata?.pivot||!metadata.bbox){boneCounters.missingLandmarks++;return Promise.reject(Error('no matching illustrated mask'))}
+   const prefix=`assets/rig/${sp}-${st}-${coat}-`;
+   const masks=['head','wing','tail','base','hind','fore'];
+   const request=Promise.all([loadImage(source),...masks.map(k=>loadImage(prefix+k+'.webp'))]).then(images=>{
+     const sourceImage=images[0],cutouts=images.slice(1);
+     const SW=sourceImage.naturalWidth,SH=sourceImage.naturalHeight;
+     if(!SW||!SH||SW>800||SH>800)throw Error('unexpected source dimensions');
+     const cv=document.createElement('canvas');cv.width=SW;cv.height=SH;
+     const ctx=cv.getContext('2d',{willReadFrequently:true});
+     if(!ctx)throw Error('2D extraction unsupported');
+     ctx.clearRect(0,0,SW,SH);ctx.drawImage(sourceImage,0,0,SW,SH);
+     const raw=ctx.getImageData(0,0,SW,SH).data;
+     let left=SW,top=SH,right=0,bottom=0;
+     for(let y=0;y<SH;y++)for(let x=0;x<SW;x++)if(raw[(y*SW+x)*4+3]>12){
+       left=Math.min(left,x);right=Math.max(right,x+1);top=Math.min(top,y);bottom=Math.max(bottom,y+1);
+     }
+     if(left>=right||top>=bottom)throw Error('blank creature art');
+     const [rx0,ry0,rx1,ry1]=metadata.bbox;
+     const scaleX=(right-left)/(rx1-rx0),scaleY=(bottom-top)/(ry1-ry0);
+     if(!(scaleX>.4&&scaleX<2.5&&scaleY>.4&&scaleY<2.5))throw Error('incompatible original art and mask scale');
+     const geometry={scaleX,scaleY,x:left-rx0*scaleX,y:top-ry0*scaleY};
+     const aligned=(Math.abs(scaleX-1)<.02&&Math.abs(scaleY-1)<.02&&Math.abs(geometry.x)<3&&Math.abs(geometry.y)<3);
+     const alphas={};
+     for(let i=0;i<masks.length;i++){
+       if(cutouts[i].naturalWidth!==W||cutouts[i].naturalHeight!==H)throw Error('rig mask size mismatch');
+       ctx.clearRect(0,0,SW,SH);
+       ctx.setTransform(scaleX,0,0,scaleY,geometry.x,geometry.y);
+       ctx.drawImage(cutouts[i],0,0,W,H);
+       ctx.setTransform(1,0,0,1,0,0);
+       const a=ctx.getImageData(0,0,SW,SH).data,channel=new Uint8Array(SW*SH);
+       for(let n=0,j=3;n<channel.length;n++,j+=4)channel[n]=a[j];
+       alphas[masks[i]]=channel;
+     }
+     const alpha={head:new Uint8Array(SW*SH),wing:new Uint8Array(SW*SH),
+       tail:new Uint8Array(SW*SH),core:new Uint8Array(SW*SH)};
+     let unmapped=0;
+     for(let i=0;i<SW*SH;i++){
+       const a=raw[i*4+3];if(!a)continue;
+       const hh=alphas.head[i],ww=alphas.wing[i],tt=alphas.tail[i],
+             cc=alphas.base[i]+alphas.hind[i]+alphas.fore[i];
+       const total=hh+ww+tt+cc;
+       if(total<10){unmapped++;alpha.core[i]=a;continue}
+       const ah=Math.round(a*hh/total),aw=Math.round(a*ww/total),at=Math.round(a*tt/total);
+       alpha.head[i]=ah;alpha.wing[i]=aw;alpha.tail[i]=at;
+       alpha.core[i]=Math.max(0,a-ah-aw-at);
+     }
+     if(unmapped>SW*SH*.18)throw Error('too much silhouette not mapped to joints: '+unmapped);
+     const data={};
+     for(const part of partNames){
+       const image=ctx.createImageData(SW,SH),dst=image.data;
+       for(let i=0,j=0;i<SW*SH;i++,j+=4){
+         dst[j]=raw[j];dst[j+1]=raw[j+1];dst[j+2]=raw[j+2];dst[j+3]=alpha[part][i];
+       }
+       ctx.clearRect(0,0,SW,SH);ctx.putImageData(image,0,0);
+       data[part]=cv.toDataURL('image/png');boneCounters.maps++;
+     }
+     const pivot={};for(const part of ['head','wing','tail']){
+       const pt=metadata.pivot[part];pivot[part]=[pt[0]*scaleX+geometry.x,pt[1]*scaleY+geometry.y];
+     }
+     boneCounters.prepared++;
+     // Predecode every generated layer before hiding the always-safe source.
+     return Promise.all(partNames.map(name=>loadImage(data[name]))).then(()=>
+       ({data,pivot,SW,SH,aligned,unmapped,geometry}));
+   }).catch(e=>{boneCache.delete(key);boneCounters.failures++;throw e});
+   boneCache.set(key,request);
+   if(boneCache.size>3)boneCache.delete(boneCache.keys().next().value);
+   return request;
  }
+
  function boneClear(){
-   if(bone?.image?.isConnected)bone.image.removeAttribute('filter');
-   if(bone?.defs?.isConnected)bone.defs.remove();
+   boneTicket++;bonePending='';bonePendingImage=null;boneCounters.loading=false;boneCounters.visible=false;
+   if(bone?.image?.isConnected)bone.image.style.removeProperty('opacity');
+   if(bone?.root?.isConnected)bone.root.remove();
    bone=null;boneState={...boneDefault};boneCounters.current='';
  }
  function boneBind(){
-   const svg=body?.ownerSVGElement,im=body?.querySelector('.growth-frame,.newborn-frame');
-   if(!boneEnabled||!svg||!im||!S||S.sleeping||reduce.matches||boneCounters.disabled){boneClear();return}
-   const key=SPEC.id+'/'+stage()+'/'+S.coat;
-   if(bone&&bone.image===im&&boneCounters.current===key)return;
+   const im=body?.querySelector('.growth-frame,.newborn-frame');
+   if(!boneEnabled||!im||!S||S.sleeping||reduce.matches||boneCounters.disabled){
+     if(bone||bonePending)boneClear();
+     return;
+   }
+   const sp=SPEC.id,st=stage(),coat=Number(S.coat),source=im.getAttribute('href')||'';
+   const key=sp+'/'+st+'/'+coat+'/'+source;
+   if(boneDisabledModels.has(key))return;
+   if(bone?.image===im&&boneCounters.current===key)return;
+   if(bonePending===key&&bonePendingImage===im)return;
    boneClear();
-   const urls=boneImages(SPEC.id,stage());
-   if(!urls)return;
-   try{
-     const tag=(n)=>document.createElementNS(boneNS,n);
-     const defs=tag('defs'),filter=tag('filter');
-     const id='eh-v37-bone-'+Math.floor(Math.random()*1e9).toString(36);
-     filter.setAttribute('id',id);filter.setAttribute('filterUnits','userSpaceOnUse');
-     filter.setAttribute('primitiveUnits','userSpaceOnUse');
-     filter.setAttribute('x','0');filter.setAttribute('y','0');
-     filter.setAttribute('width','320');filter.setAttribute('height','300');
-     const x=im.getAttribute('x')||'0',y=im.getAttribute('y')||'0';
-     const w=im.getAttribute('width')||'320',h=im.getAttribute('height')||'300';
-     const maps={};
-     for(let i=0;i<3;i++){
-       const kind=['head','wing','tail'][i],map=tag('feImage');
-       map.setAttribute('href',urls[i]);map.setAttribute('x',x);map.setAttribute('y',y);
-       map.setAttribute('width',w);map.setAttribute('height',h);
-       map.setAttribute('preserveAspectRatio','none');map.setAttribute('result','bone-'+kind);
-       filter.appendChild(map);
-       const warp=tag('feDisplacementMap');
-       warp.setAttribute('in',i===0?'SourceGraphic':'bend-'+['head','wing','tail'][i-1]);
-       warp.setAttribute('in2','bone-'+kind);
-       warp.setAttribute('scale','0');
-       warp.setAttribute('xChannelSelector','R');warp.setAttribute('yChannelSelector','G');
-       warp.setAttribute('result','bend-'+kind);
-       filter.appendChild(warp);maps[kind]=warp;
+   if(!source.startsWith('assets/growth/')&&!source.startsWith('assets/newborn/'))return;
+   bonePending=key;bonePendingImage=im;const ticket=++boneTicket;boneCounters.loading=true;
+   boneParts(sp,st,coat,source).then(data=>{
+     if(ticket!==boneTicket||!im.isConnected||body?.querySelector('.growth-frame,.newborn-frame')!==im||!boneEnabled||reduce.matches||document.hidden||S?.sleeping||boneCounters.disabled){
+       if(ticket===boneTicket){bonePending='';bonePendingImage=null;boneCounters.loading=false;boneCounters.skips=(boneCounters.skips||0)+1;boneCounters.lastSkip=`connected=${im.isConnected},image=${body?.querySelector('.growth-frame,.newborn-frame')===im},hidden=${document.hidden}`;}
+       return;
      }
-     defs.appendChild(filter);svg.insertBefore(defs,svg.firstChild);
-     im.setAttribute('filter','url(#'+id+')');
-     bone={image:im,defs,maps,key};boneCounters.current=key;boneCounters.binds++;
-   }catch(e){boneCounters.errors++;boneClear()}
+     const x=+im.getAttribute('x'),y=+im.getAttribute('y'),w=+im.getAttribute('width'),h=+im.getAttribute('height');
+     if(!Number.isFinite(x+y+w+h)||w<=0||h<=0)throw Error('bad illustration bounds');
+     const fit=Math.min(w/data.SW,h/data.SH),vw=data.SW*fit,vh=data.SH*fit;
+     const vx=x+(w-vw)/2,vy=y+(h-vh); // matches SVG xMidYMax meet
+     const root=boneTag('g');root.setAttribute('class','eh-v38-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
+     root.setAttribute('transform',`translate(${vx} ${vy}) scale(${fit})`);
+     const parts={};
+     for(const name of partNames){
+       const g=boneTag('g');g.setAttribute('data-bone',name);
+       const pic=boneTag('image');pic.setAttribute('href',data.data[name]);
+       pic.setAttribute('x','0');pic.setAttribute('y','0');pic.setAttribute('width',String(data.SW));pic.setAttribute('height',String(data.SH));
+       pic.setAttribute('preserveAspectRatio','none');
+       g.appendChild(pic);root.appendChild(g);parts[name]=g;
+     }
+     im.after(root);
+     // Only hide the original AFTER the full composite is ready and inserted.
+     // The original illustration always remains as an instant fallback.
+     im.style.opacity='0';
+     bone={image:im,root,parts,pivot:data.pivot,key};bonePending='';bonePendingImage=null;boneCounters.aligned=data.aligned;boneCounters.unmapped=data.unmapped;
+     boneCounters.current=key;boneCounters.binds++;boneCounters.loading=false;boneCounters.visible=true;
+   }).catch(e=>{
+     if(ticket===boneTicket){bonePending='';bonePendingImage=null;boneCounters.loading=false;boneCounters.errors++;boneCounters.lastError=String(e).slice(0,180);boneDisabledModels.add(key);}
+   });
  }
  function boneTick(now,activity){
    if(!boneEnabled||!body||reduce.matches||document.hidden||boneCounters.disabled)return;
    if(!bone||!bone.image.isConnected||bone.image!==body.querySelector('.growth-frame,.newborn-frame'))boneBind();
    if(!bone)return;
-   const sp=SPEC.id,st=stage(),tempo=profiles[sp]?.tempo||1;
-   const t=(now-startedAt)*.001;
-   const factor=st===0?.65:st===1?.78:1;
-   let target={
-     head:Math.sin(t*1.35*tempo+.5)*2.3*factor,
-     wing:Math.sin(t*1.61*tempo-.9)*(sp==='phoenix'?4.6:sp==='wyvern'?3.7:2.9)*factor,
-     tail:Math.sin(t*1.13*tempo+1.1)*3.5*factor
-   };
-   if(activity){
-     const p=Math.max(0,Math.min(1,(now-activity.start)/activity.duration));
-     const envelope=Math.pow(Math.sin(Math.PI*p),2);
-     const label=activity.name;
-     let response;
-     if(label==='feed'||label==='drink')response={head:12,wing:-3,tail:1};
-     else if(label==='pet'||label==='cuddle'||label==='greet')response={head:9,wing:2,tail:11};
-     else if(label==='groom')response={head:-5,wing:8,tail:4};
-     else if(label==='stretch'||label==='wake')response={head:-10,wing:12,tail:8};
-     else if(label==='call')response={head:-11,wing:5,tail:6};
-     else if(label.startsWith('trick:'))response={head:6,wing:15,tail:12};
-     else response={head:5,wing:13,tail:11};
-     for(const part of ['head','wing','tail'])target[part]+=response[part]*envelope*factor;
+   const sp=SPEC.id,st=stage(),profile=profiles[sp]||profiles.griffin;
+   const t=(now-startedAt)*.001*profile.tempo;
+   const juvenile=st===0?.57:st===1?.76:st===2?.9:1;
+   const target={head:Math.sin(t*1.22+.3)*2.2*juvenile,
+     wing:Math.sin(t*1.67-.5)*(sp==='phoenix'?4.5:3.1)*juvenile,
+     tail:Math.sin(t*1.30+.8)*(sp==='wyvern'?6.7:5.1)*juvenile};
+   if(boneDemo){
+     const elapsed=(now-boneDemo.start)/boneDemo.duration;
+     if(elapsed>=1){boneDemo=null;}
+     else{
+       const u=clampBone(elapsed,0,1),wave=Math.pow(Math.sin(Math.PI*u),2);
+       if(boneDemo.part==='head'||boneDemo.part==='all')target.head=wave*20;
+       else target.head=0;
+       if(boneDemo.part==='wing'||boneDemo.part==='all')target.wing=wave*(-24);
+       else target.wing=0;
+       if(boneDemo.part==='tail'||boneDemo.part==='all')target.tail=wave*27;
+       else target.tail=0;
+     }
    }
+   if(!boneDemo&&activity){
+     const p=clampBone((now-activity.start)/activity.duration,0,1);
+     const envelope=Math.pow(Math.sin(Math.PI*p),2),name=activity.name;
+     let reaction={head:6,wing:9,tail:11};
+     if(name==='feed'||name==='drink')reaction={head:13,wing:-6,tail:5};
+     else if(name==='pet'||name==='cuddle'||name==='greet')reaction={head:-11,wing:4,tail:16};
+     else if(name==='groom')reaction={head:-3,wing:13,tail:9};
+     else if(name==='stretch'||name==='wake')reaction={head:-10,wing:17,tail:10};
+     else if(name==='call')reaction={head:-14,wing:9,tail:9};
+     else if(name==='play'||name.startsWith('trick:'))reaction={head:-8,wing:22,tail:20};
+     for(const part of ['head','wing','tail'])target[part]+=reaction[part]*envelope*juvenile;
+   }
+   const timeAlpha=1-Math.exp(-32/130);
    for(const part of ['head','wing','tail']){
-     const old=boneState[part],next=old+(target[part]-old)*.21;
-     boneState[part]=next;
-     if(Math.abs(next-old)>.025){bone.maps[part].setAttribute('scale',next.toFixed(2));}
-     boneCounters['max'+part[0].toUpperCase()+part.slice(1)]=Math.max(
-       boneCounters['max'+part[0].toUpperCase()+part.slice(1)],Math.abs(next));
+     const prev=boneState[part];boneState[part]+=(target[part]-prev)*timeAlpha;
+     const pivot=bone.pivot[part];if(!pivot)continue;
+     bone.parts[part].setAttribute('transform',`rotate(${boneState[part].toFixed(3)} ${pivot[0]} ${pivot[1]})`);
+     boneCounters['max'+part[0].toUpperCase()+part.slice(1)]=Math.max(boneCounters['max'+part[0].toUpperCase()+part.slice(1)],Math.abs(boneState[part]));
    }
    boneCounters.steps++;
  }
  function bonePerformance(gap){
+   if(!boneEnabled)return;
    if(gap>95&&gap<2000){boneCounters.slowFrames++;
-     if(!boneFailureSince)boneFailureSince=performance.now();
-   }
+     if(!boneFailureSince)boneFailureSince=performance.now();}
    if(boneCounters.slowFrames>=12&&performance.now()-boneFailureSince<30000){
      boneCounters.disabled=true;boneCounters.reductions++;boneClear();
    }
@@ -4507,7 +4573,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    }
    const alpha=1-Math.exp(-dt/74);
    current=blend(current,target,alpha);
-   writePose(body,current);
+   const illustrated=boneEnabled&&bone?.root?.isConnected;
+   writePose(body,boneDemo?asPose():illustrated?asPose(current.x*.55,current.y*.55,current.r*.32,
+     1+(current.sx-1)*.48,1+(current.sy-1)*.48):current);
    boneTick(now,boneAction);
    metrics.frames++;
    raf=requestAnimationFrame(tick);metrics.activeRafs=1;
@@ -4516,7 +4584,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    if(raf||document.hidden||reduce.matches||!anchor())return;
    lastFrame=0;raf=requestAnimationFrame(tick);metrics.activeRafs=1;
  }
- function stop(){if(raf)cancelAnimationFrame(raf);raf=0;metrics.activeRafs=0;lastFrame=0;active=null;boneClear();
+ function stop(){if(raf)cancelAnimationFrame(raf);raf=0;metrics.activeRafs=0;lastFrame=0;active=null;boneDemo=null;boneClear();
    if(body?.isConnected)body.style.transform='none';current={...center};}
  function play(name,duration=1300){
    if(!modelKey()||S?.sleeping||reduce.matches)return false;
@@ -4567,16 +4635,44 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    run.timer=setTimeout(()=>{if(trickRun===run)stopTrickStage()},ms+70);
    return true;
  };
+ function previewPart(part,duration=1800){
+   if(!boneEnabled||!bone?.root?.isConnected||reduce.matches||document.hidden)return false;
+   if(!['head','wing','tail','all'].includes(part))return false;
+   active=null;boneDemo={part,start:performance.now(),duration:Math.max(900,Number(duration)||1800)};
+   boneCounters.demoClicks=(boneCounters.demoClicks||0)+1;
+   kick();return true;
+ }
+ if(motionLab){
+   const css=document.createElement('style');
+   css.textContent=`#eh-v38-lab{position:fixed;z-index:60;bottom:max(12px,env(safe-area-inset-bottom));
+     left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;
+     background:rgba(9,17,42,.92);border:1px solid #d0ae65;border-radius:13px;
+     padding:7px 9px;box-shadow:0 6px 22px #05071b88;max-width:calc(100vw - 12px)}
+     #eh-v38-lab button{cursor:pointer;min-width:59px;min-height:46px;flex:1;border:1px solid #a99b70;
+       border-radius:8px;background:#273159;color:#f9e8bb;font-size:12px;font-weight:700}
+     #eh-v38-lab button:active{background:#43578c}
+     @media(max-width:350px){#eh-v38-lab button{min-width:54px}}
+     @media(prefers-reduced-motion:reduce){#eh-v38-lab{opacity:.75}}`;
+   document.head.appendChild(css);
+   const lab=document.createElement('div');lab.id='eh-v38-lab';lab.setAttribute('role','group');
+   lab.setAttribute('aria-label','Independent creature motion test controls');
+   for(const [k,label] of [['head','Head'],['wing','Wing'],['tail','Tail'],['all','All 3']]){
+     const b=document.createElement('button');b.type='button';b.textContent=label;
+     b.onclick=()=>{if(!previewPart(k))b.title='Creature illustration preparing or reduced motion enabled'};
+     lab.appendChild(b);
+   }
+   document.body.appendChild(lab);
+ }
  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else fresh()});
  if(reduce.addEventListener)reduce.addEventListener('change',()=>{if(reduce.matches)stop();else fresh()});
  else if(reduce.addListener)reduce.addListener(()=>{if(reduce.matches)stop();else fresh()});
- window.EVERHATCH_ANIMATOR={version:'v37',mode:'single-SVG-continuous-anatomy',
+ window.EVERHATCH_ANIMATOR={version:'v38',mode:'single-SVG-true-articulated-preview',
    metrics:()=>({...metrics,model,href:validImage,action:active?.name||'idle',
      bodyCount:wrap.querySelectorAll('.growth-body,.newborn-body,.care-sleep-body').length,
      canvasCount:wrap.querySelectorAll('canvas').length,paused:reduce.matches||document.hidden,
-     anatomy:{...boneCounters,values:{...boneState},filterCount:wrap.querySelectorAll('filter[id^=eh-v37-bone]').length}}),
-   play,fresh,stop,previewTrick:(id,ms=1800)=>{const t=TRICK_BY_ID[id];return !!(t&&startTrickStage(t,ms));},profiles:Object.keys(profiles)};
- window.EVERHATCH_STABILITY={version:'v37',mode:'single-SVG-continuous-anatomy',
+     anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v38-rig').length}}),
+   play,fresh,stop,previewPart,previewTrick:(id,ms=1800)=>{const t=TRICK_BY_ID[id];return !!(t&&startTrickStage(t,ms));},profiles:Object.keys(profiles)};
+ window.EVERHATCH_STABILITY={version:'v38',mode:'single-SVG-true-articulated-preview',
    metrics:()=>window.EVERHATCH_ANIMATOR.metrics(),audit:fresh,stop};
 })();
 
