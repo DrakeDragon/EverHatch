@@ -5137,13 +5137,13 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      if(qpanel.hidden)return;
      const q=qaRoster(),d=q.live;
      qpanel.textContent='v43 QA — '+(q.passed?'METADATA OK':'CHECK ISSUES')+
-       '\\nRig geometry '+q.validRig+'/'+q.checked+
+       '\nRig geometry '+q.validRig+'/'+q.checked+
        ' · Facial geometry '+q.validFace+'/'+q.checked+
-       '\\n'+Object.entries(q.bySpecies).map(([name,x])=>name+': '+x.rig+'/30').join(' | ')+
-       '\\nLive: '+(d.species||'none')+' / stage '+(d.stage??'-')+' / coat '+(d.coat??'-')+
-       '\\nRigs '+d.rigCount+' · faces '+d.faceCount+' · failures '+(d.rigFailures+d.facialFailures)+
-       '\\n'+(q.issues.length?q.issues.join(', '):'No geometry/DOM warnings')+
-       '\\nVisual quality requires device testing.';
+       '\n'+Object.entries(q.bySpecies).map(([name,x])=>name+': '+x.rig+'/30').join(' | ')+
+       '\nLive: '+(d.species||'none')+' / stage '+(d.stage??'-')+' / coat '+(d.coat??'-')+
+       '\nRigs '+d.rigCount+' · faces '+d.faceCount+' · failures '+(d.rigFailures+d.facialFailures)+
+       '\n'+(q.issues.length?q.issues.join(', '):'No geometry/DOM warnings')+
+       '\nVisual quality requires device testing.';
    };
    lab.appendChild(qbtn);lab.appendChild(qpanel);
    lab.style.flexWrap='wrap';lab.style.width='min(420px,calc(100vw - 12px))';
