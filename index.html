@@ -4441,6 +4441,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
        pic.setAttribute('x','0');pic.setAttribute('y','0');pic.setAttribute('width',String(data.SW));pic.setAttribute('height',String(data.SH));
        pic.setAttribute('preserveAspectRatio','none');
        g.appendChild(pic);root.appendChild(g);parts[name]=g;
+       // No duplicated alpha at neutral pose.
+       if(name==='bridgeBack'||name==='bridgeHead')g.setAttribute('opacity','0');
      }
      im.after(root);
      // Only hide the original AFTER the full composite is ready and inserted.
@@ -4513,6 +4515,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      bone.parts[part].setAttribute('transform',`rotate(${boneState[part].toFixed(3)} ${pivot[0]} ${pivot[1]})`);
      boneCounters['max'+part[0].toUpperCase()+part.slice(1)]=Math.max(boneCounters['max'+part[0].toUpperCase()+part.slice(1)],Math.abs(boneState[part]));
    }
+   // Feathered socket textures become visible only when a joint bends.
+   // At rest all original colors AND alpha values remain unchanged.
+   const backSeam=clampBone(Math.max(Math.abs(boneState.wing)/24,Math.abs(boneState.tail)/26),0,.82);
+   const neckSeam=clampBone(Math.abs(boneState.head)/25,0,.78);
+   bone.parts.bridgeBack?.setAttribute('opacity',backSeam.toFixed(3));
+   bone.parts.bridgeHead?.setAttribute('opacity',neckSeam.toFixed(3));
    boneCounters.steps++;
  }
  function bonePerformance(gap){
