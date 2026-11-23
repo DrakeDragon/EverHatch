@@ -571,7 +571,7 @@ window.EVERHATCH_SET_MOTION_MODE=function(mode){
   target.searchParams.set('motion',chosen);
   if(chosen==='live')for(const k of ['rig','anatomy','face','personality'])
     if(target.searchParams.get(k)==='0')target.searchParams.delete(k);
-  target.searchParams.set('v','44');
+  target.searchParams.set('v','45');
   location.assign(target.toString());
 };
 /* ============================ helpers ============================ */
@@ -4261,7 +4261,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
 })();
 
-/* v44 — Living creature movement active by default, with safe classic rollback and coherent individual joint responses.
+/* v45 — Joint integrity: remove smeared cutout pixels, keep feet planted, constrain neck hinges.
  * Replaces v35's class-toggle motion. One state machine animates the ONE
  * illustrated companion in the live SVG; it never swaps age/coat images.
  * The legacy cutout, facial and mesh runtimes remain quarantined.
@@ -4334,6 +4334,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  const personalityEnabled=boneEnabled&&MOTION_QUERY.get('personality')!=='0';
  let boneDemo=null;
  const boneCounters={enabled:boneEnabled,binds:0,maps:0,steps:0,errors:0,disabled:false,reductions:0,
+   maskPixelsRejected:0,maskPixelsTrusted:0,plantedPixels:0,neckPixelsAnchored:0,
    missingLandmarks:0,slowFrames:0,current:'',maxHead:0,maxWing:0,maxTail:0,prepared:0,
    failures:0,stageZeroFallbacks:0,loading:false,visible:false,controllerCount:1};
  const NS='http://www.w3.org/2000/svg',partNames=['tail','wing','core','head'];
@@ -4380,7 +4381,10 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      if(!(scaleX>.4&&scaleX<2.5&&scaleY>.4&&scaleY<2.5))throw Error('incompatible original art and mask scale');
      const geometry={scaleX,scaleY,x:left-rx0*scaleX,y:top-ry0*scaleY};
      const aligned=(Math.abs(scaleX-1)<.02&&Math.abs(scaleY-1)<.02&&Math.abs(geometry.x)<3&&Math.abs(geometry.y)<3);
-     const alphas={};
+     // Some v34 mask WebPs have horizontal color smears outside their body part.
+     // Accept their alpha only when RGB also matches the CURRENT source artwork.
+     // No mask can carry opaque non-creature pixels into another moving part.
+     const alphas={},trustedByPart={};
      for(let i=0;i<masks.length;i++){
        if(cutouts[i].naturalWidth!==W||cutouts[i].naturalHeight!==H)throw Error('rig mask size mismatch');
        ctx.clearRect(0,0,SW,SH);
@@ -4388,24 +4392,58 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
        ctx.drawImage(cutouts[i],0,0,W,H);
        ctx.setTransform(1,0,0,1,0,0);
        const a=ctx.getImageData(0,0,SW,SH).data,channel=new Uint8Array(SW*SH);
-       for(let n=0,j=3;n<channel.length;n++,j+=4)channel[n]=a[j];
+       let trusted=0;
+       for(let n=0,j=0;n<channel.length;n++,j+=4){
+         const aa=a[j+3],originalAlpha=raw[j+3];
+         if(aa<12||originalAlpha<12)continue;
+         const d0=Math.abs(a[j]-raw[j]),d1=Math.abs(a[j+1]-raw[j+1]),
+           d2=Math.abs(a[j+2]-raw[j+2]);
+         // Mask artifacts contain unrelated stretched pixels and bright
+         // magenta/blue strips; normal lossy-WebP differences are tolerated.
+         if(Math.max(d0,d1,d2)>76&&d0+d1+d2>115){
+           boneCounters.maskPixelsRejected++;continue;
+         }
+         channel[n]=Math.min(aa,originalAlpha);
+         trusted++;
+       }
+       trustedByPart[masks[i]]=trusted;boneCounters.maskPixelsTrusted+=trusted;
        alphas[masks[i]]=channel;
      }
+     // Prefer the complete original illustration over bad or blank joint maps.
+     if(trustedByPart.head<45||trustedByPart.wing<60||trustedByPart.tail<25)
+       throw Error('Untrusted mask: intact original preserved');
      // Every pixel has one owner. At rest the original texture is reconstructed
      // exactly: dividing opacity across independently overlaid images washes it out.
      const alpha={head:new Uint8Array(SW*SH),wing:new Uint8Array(SW*SH),
        tail:new Uint8Array(SW*SH),core:new Uint8Array(SW*SH)};
      let unmapped=0,subjectPixels=0,mappedPixels=0;
+     const imgLeft=rx0*scaleX+geometry.x,imgTop=ry0*scaleY+geometry.y,
+       imgWidth=(rx1-rx0)*scaleX,imgHeight=(ry1-ry0)*scaleY;
+     const neckPivotY=metadata.pivot.head[1]*scaleY+geometry.y;
      for(let i=0;i<SW*SH;i++){
        const a=raw[i*4+3];if(!a)continue;
        subjectPixels++;
-       const hh=alphas.head[i],ww=alphas.wing[i],tt=alphas.tail[i],
-         cc=Math.min(255,alphas.base[i]+alphas.hind[i]+alphas.fore[i]);
+       const x=i%SW,y=Math.floor(i/SW);
+       // Every leg and paw remains welded to the torso. A smudged tail mask
+       // must never rotate a planted rear foot away from its own leg.
+       const lowerBodyFoot=y>imgTop+imgHeight*.73&&x>imgLeft+imgWidth*.18;
+       const legMask=y>imgTop+imgHeight*.56&&
+         Math.max(alphas.hind[i],alphas.fore[i])>24;
+       if(lowerBodyFoot||legMask){
+         alpha.core[i]=a;boneCounters.plantedPixels++;continue;
+       }
+       // Anchor the lower neck in the core while the upper head responds.
+       const hh=y>neckPivotY+12*scaleY?0:alphas.head[i];
+       if(!hh&&alphas.head[i])boneCounters.neckPixelsAnchored++;
+       const ww=alphas.wing[i];
+       const tailAllowed=x<imgLeft+imgWidth*.56&&
+         !(y>imgTop+imgHeight*.67&&x>imgLeft+imgWidth*.22);
+       const tt=tailAllowed?alphas.tail[i]:0;
+       const cc=Math.min(255,alphas.base[i]+alphas.hind[i]+alphas.fore[i]);
        const max=Math.max(hh,ww,tt,cc);
        if(max<10){unmapped++;alpha.core[i]=a;continue}
        mappedPixels++;
-       // Anchor overlap pixels to the torso when adjacent mask edges nearly tie.
-       const owner=cc>=max*.92&&cc>15?'core':
+       const owner=cc>=max*.90&&cc>15?'core':
          hh===max?'head':ww===max?'wing':tt===max?'tail':'core';
        alpha[owner][i]=a;
      }
