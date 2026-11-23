@@ -4216,7 +4216,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
 })();
 
-/* v36 — One continuous companion animation director.
+/* v37 — One continuous companion animation director with localized anatomy.
  * Replaces v35's class-toggle motion. One state machine animates the ONE
  * illustrated companion in the live SVG; it never swaps age/coat images.
  * The legacy cutout, facial and mesh runtimes remain quarantined.
@@ -4265,6 +4265,139 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
   wyvern:   {breath:.005,sway:.45,idle:2.0,dip:1.14,hop:1.05,tail:1.2,tempo:.94}
  };
  const center={x:0,y:0,r:0,sx:1,sy:1};
+ /* v37 / Phase A: localized, joint-aware image deformation.
+  * All three regions are composited by one SVG filter on the ORIGINAL image.
+  * No second creature images, no cutout canvases, no independent RAF.
+  * Landmarks come from existing v31 anatomical measurements, grouped by stage.
+  */
+ const boneEnabled=/(?:^|[?&])anatomy=1(?:&|$)/.test(location.search);
+ const boneCounters={enabled:boneEnabled,binds:0,maps:0,steps:0,errors:0,disabled:false,reductions:0,
+   missingLandmarks:0,slowFrames:0,current:'',maxHead:0,maxWing:0,maxTail:0};
+ const boneCache=new Map(),boneNS='http://www.w3.org/2000/svg';
+ let bone=null,boneStyles=null,boneFailureSince=0;
+ const boneDefault={head:0,wing:0,tail:0};
+ let boneState={...boneDefault};
+ function boneMap(name,pt,st,sp){
+   const N=185,M=155,c=document.createElement('canvas');c.width=N;c.height=M;
+   const ctx=c.getContext('2d',{willReadFrequently:false});
+   if(!ctx)return null;
+   const im=ctx.createImageData(N,M),arr=im.data;
+   const size=st===0?.69:st===1?.82:st===2?1:st===3?1.08:1.15;
+   const cfg=name==='head'?{x:pt.head[0]+size*19,y:pt.head[1]-size*25,rx:52*size,ry:57*size,dx:80,dy:119}:
+     name==='wing'?{x:pt.wing[0]-size*36,y:pt.wing[1]-size*42,rx:71*size,ry:68*size,dx:102,dy:-98}:
+     {x:pt.tail[0]-size*51,y:pt.tail[1]+size*10,rx:71*size,ry:46*size,dx:-116,dy:60};
+   if(sp==='phoenix'&&name==='wing'){cfg.ry*=1.2;cfg.rx*=1.12}
+   if(sp==='wyvern'&&name==='wing')cfg.rx*=1.2;
+   for(let y=0;y<M;y++)for(let x=0;x<N;x++){
+     const xx=(x+.5)*370/N,yy=(y+.5)*310/M;
+     const d=Math.pow((xx-cfg.x)/cfg.rx,2)+Math.pow((yy-cfg.y)/cfg.ry,2);
+     const weight=Math.exp(-2.0*d);
+     const k=(y*N+x)*4;
+     arr[k]=Math.max(0,Math.min(255,Math.round(128+cfg.dx*weight)));
+     arr[k+1]=Math.max(0,Math.min(255,Math.round(128+cfg.dy*weight)));
+     arr[k+2]=128;arr[k+3]=255;
+   }
+   ctx.putImageData(im,0,0);boneCounters.maps++;
+   return c.toDataURL('image/png');
+ }
+ function boneImages(sp,st){
+   const key=sp+'/'+st;
+   if(boneCache.has(key))return boneCache.get(key);
+   const model=window.EVERHATCH_RIG_MANIFEST?.models?.[`${sp}-${st}-0`];
+   if(!model?.pivot){boneCounters.missingLandmarks++;return null}
+   try{
+     const urls=['head','wing','tail'].map(n=>boneMap(n,model.pivot,st,sp));
+     if(urls.some(x=>!x))throw Error('unable to make displacement maps');
+     boneCache.set(key,urls);return urls;
+   }catch(e){boneCounters.errors++;return null}
+ }
+ function boneClear(){
+   if(bone?.image?.isConnected)bone.image.removeAttribute('filter');
+   if(bone?.defs?.isConnected)bone.defs.remove();
+   bone=null;boneState={...boneDefault};boneCounters.current='';
+ }
+ function boneBind(){
+   const svg=body?.ownerSVGElement,im=body?.querySelector('.growth-frame,.newborn-frame');
+   if(!boneEnabled||!svg||!im||!S||S.sleeping||reduce.matches||boneCounters.disabled){boneClear();return}
+   const key=SPEC.id+'/'+stage()+'/'+S.coat;
+   if(bone&&bone.image===im&&boneCounters.current===key)return;
+   boneClear();
+   const urls=boneImages(SPEC.id,stage());
+   if(!urls)return;
+   try{
+     const tag=(n)=>document.createElementNS(boneNS,n);
+     const defs=tag('defs'),filter=tag('filter');
+     const id='eh-v37-bone-'+Math.floor(Math.random()*1e9).toString(36);
+     filter.setAttribute('id',id);filter.setAttribute('filterUnits','userSpaceOnUse');
+     filter.setAttribute('primitiveUnits','userSpaceOnUse');
+     filter.setAttribute('x','0');filter.setAttribute('y','0');
+     filter.setAttribute('width','320');filter.setAttribute('height','300');
+     const x=im.getAttribute('x')||'0',y=im.getAttribute('y')||'0';
+     const w=im.getAttribute('width')||'320',h=im.getAttribute('height')||'300';
+     const maps={};
+     for(let i=0;i<3;i++){
+       const kind=['head','wing','tail'][i],map=tag('feImage');
+       map.setAttribute('href',urls[i]);map.setAttribute('x',x);map.setAttribute('y',y);
+       map.setAttribute('width',w);map.setAttribute('height',h);
+       map.setAttribute('preserveAspectRatio','none');map.setAttribute('result','bone-'+kind);
+       filter.appendChild(map);
+       const warp=tag('feDisplacementMap');
+       warp.setAttribute('in',i===0?'SourceGraphic':'bend-'+['head','wing','tail'][i-1]);
+       warp.setAttribute('in2','bone-'+kind);
+       warp.setAttribute('scale','0');
+       warp.setAttribute('xChannelSelector','R');warp.setAttribute('yChannelSelector','G');
+       warp.setAttribute('result','bend-'+kind);
+       filter.appendChild(warp);maps[kind]=warp;
+     }
+     defs.appendChild(filter);svg.insertBefore(defs,svg.firstChild);
+     im.setAttribute('filter','url(#'+id+')');
+     bone={image:im,defs,maps,key};boneCounters.current=key;boneCounters.binds++;
+   }catch(e){boneCounters.errors++;boneClear()}
+ }
+ function boneTick(now,activity){
+   if(!boneEnabled||!body||reduce.matches||document.hidden||boneCounters.disabled)return;
+   if(!bone||!bone.image.isConnected||bone.image!==body.querySelector('.growth-frame,.newborn-frame'))boneBind();
+   if(!bone)return;
+   const sp=SPEC.id,st=stage(),tempo=profiles[sp]?.tempo||1;
+   const t=(now-startedAt)*.001;
+   const factor=st===0?.65:st===1?.78:1;
+   let target={
+     head:Math.sin(t*1.35*tempo+.5)*2.3*factor,
+     wing:Math.sin(t*1.61*tempo-.9)*(sp==='phoenix'?4.6:sp==='wyvern'?3.7:2.9)*factor,
+     tail:Math.sin(t*1.13*tempo+1.1)*3.5*factor
+   };
+   if(activity){
+     const p=Math.max(0,Math.min(1,(now-activity.start)/activity.duration));
+     const envelope=Math.pow(Math.sin(Math.PI*p),2);
+     const label=activity.name;
+     let response;
+     if(label==='feed'||label==='drink')response={head:12,wing:-3,tail:1};
+     else if(label==='pet'||label==='cuddle'||label==='greet')response={head:9,wing:2,tail:11};
+     else if(label==='groom')response={head:-5,wing:8,tail:4};
+     else if(label==='stretch'||label==='wake')response={head:-10,wing:12,tail:8};
+     else if(label==='call')response={head:-11,wing:5,tail:6};
+     else if(label.startsWith('trick:'))response={head:6,wing:15,tail:12};
+     else response={head:5,wing:13,tail:11};
+     for(const part of ['head','wing','tail'])target[part]+=response[part]*envelope*factor;
+   }
+   for(const part of ['head','wing','tail']){
+     const old=boneState[part],next=old+(target[part]-old)*.21;
+     boneState[part]=next;
+     if(Math.abs(next-old)>.025){bone.maps[part].setAttribute('scale',next.toFixed(2));}
+     boneCounters['max'+part[0].toUpperCase()+part.slice(1)]=Math.max(
+       boneCounters['max'+part[0].toUpperCase()+part.slice(1)],Math.abs(next));
+   }
+   boneCounters.steps++;
+ }
+ function bonePerformance(gap){
+   if(gap>95&&gap<2000){boneCounters.slowFrames++;
+     if(!boneFailureSince)boneFailureSince=performance.now();
+   }
+   if(boneCounters.slowFrames>=12&&performance.now()-boneFailureSince<30000){
+     boneCounters.disabled=true;boneCounters.reductions++;boneClear();
+   }
+ }
+
  const metrics={ticks:0,frames:0,maxGapMs:0,longGaps:0,rebinding:0,actions:0,tricks:0,sourceSwaps:0,failures:0,frameBudget:33,activeRafs:0,lastAction:'idle',lastTrick:''};
  let body=null,model='',raf=0,lastFrame=0,startedAt=performance.now();
  let current={...center},active=null,seed=0,validImage='';
@@ -4348,7 +4481,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    const k=modelKey(),n=k?wrap.querySelector('.growth-body,.newborn-body,.care-sleep-body'):null;
    if(n!==body||k!==model){
      if(body&&body.isConnected)body.style.removeProperty('transform');
-     body=n;model=k;metrics.rebinding++;
+     body=n;model=k;metrics.rebinding++;boneBind();
      if(n){seed=SPEC.id.length+stage()*1.7;const nextImage=n.querySelector('image')?.getAttribute('href')||'';if(validImage&&nextImage!==validImage)metrics.sourceSwaps++;validImage=nextImage;writePose(n,current);}
      else{current={...center};active=null;}
    }
@@ -4360,10 +4493,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    if(!canAnimate())return;
    if(lastFrame&&now-lastFrame<31){raf=requestAnimationFrame(tick);metrics.activeRafs=1;return;}
    const dt=lastFrame?Math.min(120,now-lastFrame):33;
-   if(lastFrame){const gap=now-lastFrame;metrics.maxGapMs=Math.max(metrics.maxGapMs,gap);if(gap>120)metrics.longGaps++}
+   if(lastFrame){const gap=now-lastFrame;metrics.maxGapMs=Math.max(metrics.maxGapMs,gap);if(gap>120)metrics.longGaps++;bonePerformance(gap)}
    lastFrame=now;metrics.ticks++;
    const profile=profiles[SPEC.id]||profiles.griffin;
    const resting=idlePose(now,profile);
+   const boneAction=active;
    const overlay=sampleAction(now,profile);
    let target=add(resting,overlay);
    if(active&&active.from){
@@ -4374,6 +4508,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    const alpha=1-Math.exp(-dt/74);
    current=blend(current,target,alpha);
    writePose(body,current);
+   boneTick(now,boneAction);
    metrics.frames++;
    raf=requestAnimationFrame(tick);metrics.activeRafs=1;
  }
@@ -4381,7 +4516,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    if(raf||document.hidden||reduce.matches||!anchor())return;
    lastFrame=0;raf=requestAnimationFrame(tick);metrics.activeRafs=1;
  }
- function stop(){if(raf)cancelAnimationFrame(raf);raf=0;metrics.activeRafs=0;lastFrame=0;active=null;
+ function stop(){if(raf)cancelAnimationFrame(raf);raf=0;metrics.activeRafs=0;lastFrame=0;active=null;boneClear();
    if(body?.isConnected)body.style.transform='none';current={...center};}
  function play(name,duration=1300){
    if(!modelKey()||S?.sleeping||reduce.matches)return false;
@@ -4435,12 +4570,13 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else fresh()});
  if(reduce.addEventListener)reduce.addEventListener('change',()=>{if(reduce.matches)stop();else fresh()});
  else if(reduce.addListener)reduce.addListener(()=>{if(reduce.matches)stop();else fresh()});
- window.EVERHATCH_ANIMATOR={version:'v36',mode:'single-SVG-continuous',
+ window.EVERHATCH_ANIMATOR={version:'v37',mode:'single-SVG-continuous-anatomy',
    metrics:()=>({...metrics,model,href:validImage,action:active?.name||'idle',
      bodyCount:wrap.querySelectorAll('.growth-body,.newborn-body,.care-sleep-body').length,
-     canvasCount:wrap.querySelectorAll('canvas').length,paused:reduce.matches||document.hidden}),
+     canvasCount:wrap.querySelectorAll('canvas').length,paused:reduce.matches||document.hidden,
+     anatomy:{...boneCounters,values:{...boneState},filterCount:wrap.querySelectorAll('filter[id^=eh-v37-bone]').length}}),
    play,fresh,stop,previewTrick:(id,ms=1800)=>{const t=TRICK_BY_ID[id];return !!(t&&startTrickStage(t,ms));},profiles:Object.keys(profiles)};
- window.EVERHATCH_STABILITY={version:'v36',mode:'single-SVG-continuous',
+ window.EVERHATCH_STABILITY={version:'v37',mode:'single-SVG-continuous-anatomy',
    metrics:()=>window.EVERHATCH_ANIMATOR.metrics(),audit:fresh,stop};
 })();
 
