@@ -5117,6 +5117,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    }
    const rigCount=wrap.querySelectorAll('.eh-v44-rig').length;
    const faceCount=wrap.querySelectorAll('.eh-v44-face').length;
+   const proceduralJoints=!!body?.classList?.contains('eh-procedural-body');
+   const rendering=classicMotion?'classic':
+     rigCount?'illustrated separate joints':
+     proceduralJoints?'equipped SVG separate joints':
+     wrap.querySelector('.newborn-frame')?'newborn expression artwork':
+     boneCounters.loading?'preparing separate joints':'original-art safety fallback';
    const sources=wrap.querySelectorAll('.growth-frame,.newborn-frame');
    if(rigCount>1)issues.push('duplicate-live-rigs');
    if(faceCount>1)issues.push('duplicate-face-rigs');
@@ -5132,7 +5138,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      bySpecies,
      live:{species:SPEC?.id||null,stage:S?.phase==='alive'?stage():null,
        coat:S?.coat??null,rigCount,faceCount,creatureImages:sources.length,
-       loading:boneCounters.loading,articulated:boneCounters.visible,
+       loading:boneCounters.loading,articulated:boneCounters.visible||proceduralJoints,
+       rendering,proceduralJoints,
        reducedMotion:reduce.matches,activeRafs:metrics.activeRafs,
        rigFailures:boneCounters.failures,facialFailures:faceStats.failed,
        fallbackActive:boneCounters.disabled,posture:personalityStats.current},
@@ -5192,11 +5199,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      qpanel.hidden=!qpanel.hidden;
      if(qpanel.hidden)return;
      const q=qaRoster(),d=q.live;
-     qpanel.textContent='v43 QA — '+(q.passed?'METADATA OK':'CHECK ISSUES')+
+     qpanel.textContent='v44 QA — '+(q.passed?'METADATA OK':'CHECK ISSUES')+
        '\nRig geometry '+q.validRig+'/'+q.checked+
        ' · Facial geometry '+q.validFace+'/'+q.checked+
        '\n'+Object.entries(q.bySpecies).map(([name,x])=>name+': '+x.rig+'/30').join(' | ')+
        '\nLive: '+(d.species||'none')+' / stage '+(d.stage??'-')+' / coat '+(d.coat??'-')+
+       '\nRendering: '+d.rendering+
        '\nRigs '+d.rigCount+' · faces '+d.faceCount+' · failures '+(d.rigFailures+d.facialFailures)+
        '\n'+(q.issues.length?q.issues.join(', '):'No geometry/DOM warnings')+
        '\nVisual quality requires device testing.';
@@ -5211,7 +5219,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  else if(reduce.addListener)reduce.addListener(()=>{if(reduce.matches)stop();else fresh()});
  window.EVERHATCH_ANIMATOR={version:'v44',mode:'living-motion-default-with-classic-rollback',
    metrics:()=>({...metrics,model,href:validImage,action:active?.name||'idle',
-     bodyCount:wrap.querySelectorAll('.growth-body,.newborn-body,.care-sleep-body').length,
+     bodyCount:wrap.querySelectorAll('.growth-body,.newborn-body,.care-sleep-body,.eh-procedural-body').length,
+     renderMode:classicMotion?'classic':bone?.root?.isConnected?'illustrated-joints':body?.classList?.contains('eh-procedural-body')?'equipped-SVG-joints':'fallback',
      canvasCount:wrap.querySelectorAll('canvas').length,paused:reduce.matches||document.hidden,
      face:{...faceStats,liveHeadLayers:wrap.querySelectorAll('.eh-v44-face').length},
      personality:{...personalityStats,model:persona.key,gesture:persona.active?.a?.[0]||null},
