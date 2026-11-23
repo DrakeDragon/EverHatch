@@ -554,6 +554,23 @@ html[data-large-text] .focus-open-care small{display:none}
 // Everhatch v35: a single stable illustrated presentation system.
 window.EVERHATCH_STABILITY_MODE=true;
 (()=>{'use strict';
+/* v44 motion selection is separate from creature save data. */
+const MOTION_PREF_KEY='everhatch_motion_display_v1';
+const MOTION_QUERY=new URLSearchParams(location.search);
+let previousMotionPreference='';
+try{previousMotionPreference=localStorage.getItem(MOTION_PREF_KEY)||'';}catch(e){}
+const classicMotion=MOTION_QUERY.get('motion')==='classic'||
+  (MOTION_QUERY.get('motion')!=='live'&&previousMotionPreference==='classic');
+window.EVERHATCH_MOTION_MODE=classicMotion?'classic':'living';
+window.EVERHATCH_SET_MOTION_MODE=function(mode){
+  const chosen=mode==='classic'?'classic':'live';
+  try{save();}catch(e){}
+  try{localStorage.setItem(MOTION_PREF_KEY,chosen);}catch(e){}
+  const target=new URL(location.href);
+  target.searchParams.set('motion',chosen);
+  target.searchParams.set('v','44');
+  location.assign(target.toString());
+};
 /* ============================ helpers ============================ */
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -2618,7 +2635,7 @@ function newbornKind(){
  return coatArtId(SPEC.id,S.coat);
 }
 function newbornSetPose(pose){
- if(window.EVERHATCH_STABILITY_MODE&&!/(?:^|[?&])face=1(?:&|$)/.test(location.search))pose='idle';
+ if(window.EVERHATCH_MOTION_MODE==='classic')pose='idle';
  const img=document.querySelector('#gwrap .newborn-frame');if(!img)return;
  const id=img.dataset.animal;if(!newbornReady[id])return;
  if(newbornMotion.matches)pose='idle';
@@ -2651,8 +2668,7 @@ function requestNewborn(id){
 }
 function loadNewbornArt(){if(existing) {const id=coatArtId(existing.species||'griffin',existing.coat);if(id)requestNewborn(id);}}
 // Hatchlings retain their own complete, coat-matched illustrated expressions.
-const newbornPersonalityEnabled=/(?:^|[?&])personality=1(?:&|$)/.test(location.search)
- &&/(?:^|[?&])face=1(?:&|$)/.test(location.search);
+const newbornPersonalityEnabled=!classicMotion;
 const newbornTempo={
  griffin:{blink:[4100,6700],curious:[10800,15100],happy:20600,hold:780},
  hippogriff:{blink:[3200,5900],curious:[7100,10600],happy:13900,hold:950},
@@ -4238,7 +4254,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
 })();
 
-/* v43 — Whole-roster motion QA: smooth facial, interaction and personality transitions.
+/* v44 — Living creature movement active by default, with safe classic rollback and coherent individual joint responses.
  * Replaces v35's class-toggle motion. One state machine animates the ONE
  * illustrated companion in the live SVG; it never swaps age/coat images.
  * The legacy cutout, facial and mesh runtimes remain quarantined.
@@ -4294,10 +4310,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
   * animated as SVG groups by the existing director's ONE requestAnimationFrame.
   * Newborn artworks use a separate silhouette and stay on v36 safe motion.
   */
- const boneEnabled=/(?:^|[?&])(?:rig=1|anatomy=1)(?:&|$)/.test(location.search);
- const motionLab=boneEnabled&&/(?:^|[?&])motionlab=1(?:&|$)/.test(location.search);
- const faceEnabled=boneEnabled&&/(?:^|[?&])face=1(?:&|$)/.test(location.search);
- const personalityEnabled=boneEnabled&&/(?:^|[?&])personality=1(?:&|$)/.test(location.search);
+ // In regular play, stage 1-4 creatures use true head/wing/tail joints.
+ // ?motion=classic or the Settings toggle restores the original behavior.
+ const boneEnabled=!classicMotion&&MOTION_QUERY.get('rig')!=='0'&&MOTION_QUERY.get('anatomy')!=='0';
+ const motionLab=boneEnabled&&MOTION_QUERY.get('motionlab')==='1';
+ const faceEnabled=boneEnabled&&MOTION_QUERY.get('face')!=='0';
+ const personalityEnabled=boneEnabled&&MOTION_QUERY.get('personality')!=='0';
  let boneDemo=null;
  const boneCounters={enabled:boneEnabled,binds:0,maps:0,steps:0,errors:0,disabled:false,reductions:0,
    missingLandmarks:0,slowFrames:0,current:'',maxHead:0,maxWing:0,maxTail:0,prepared:0,
@@ -4482,7 +4500,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    loadFaceSet(sp,st,coat).then(assets=>{
      if(art!==bone||!art.root.isConnected||document.hidden||reduce.matches||
        !S||S.sleeping||S.exp||titleUp||SPEC.id!==sp||stage()!==st||Number(S.coat)!==coat)return;
-     const root=boneTag('g');root.setAttribute('class','eh-v43-face');
+     const root=boneTag('g');root.setAttribute('class','eh-v44-face');
      root.setAttribute('transform',`translate(${data.geometry.x} ${data.geometry.y}) scale(${data.geometry.scaleX} ${data.geometry.scaleY})`);
      root.setAttribute('pointer-events','none');
      // All facial features follow the identical head pivot and rotation.
@@ -4619,7 +4637,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    // 370×310 facial/rig patches onto them during the facial preview.
    if(faceEnabled&&st===0){if(bone||bonePending)boneClear();return;}
    const key=sp+'/'+st+'/'+coat+'/'+source;
-   if(boneDisabledModels.has(key))return;
+   if(boneDisabledModels.has(key)){if(bone||bonePending)boneClear();return;}
    if(bone?.image===im&&boneCounters.current===key)return;
    if(bonePending===key&&bonePendingImage===im)return;
    boneClear();
@@ -4634,7 +4652,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      if(!Number.isFinite(x+y+w+h)||w<=0||h<=0)throw Error('bad illustration bounds');
      const fit=Math.min(w/data.SW,h/data.SH),vw=data.SW*fit,vh=data.SH*fit;
      const vx=x+(w-vw)/2,vy=y+(h-vh); // matches SVG xMidYMax meet
-     const root=boneTag('g');root.setAttribute('class','eh-v43-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
+     const root=boneTag('g');root.setAttribute('class','eh-v44-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
      root.setAttribute('transform',`translate(${vx} ${vy}) scale(${fit})`);
      const parts={};
      // Exact source-colored wing/tail sockets below those joints, neck under head.
@@ -4787,7 +4805,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  ['Sentinel glance',-9,2,-4,0,0,-.6,'curious',2000],
  ['Regal wing-set',2,12,1,0,-1,.4,'wary',2150],
  ['Watchful tail',7,-3,-9,1,0,.6,'curious',2350]],
- affection:['Protective bow',9,-6,5,-1,2,-.8,'happy'],
+ affection:['Protective bow',-8,-6,5,-1,2,-.8,'happy'],
  play:['Proud flourish',-7,13,6,1,-2,1,'curious'],
  treat:['Careful acceptance',10,-2,4,0,1,.4,'happy'],
  alert:['Guardian call',-11,10,-6,0,-1,-.7,'wary']},
@@ -4795,7 +4813,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  ['Curious head tilt',13,1,6,1,0,1,'curious',1850],
  ['Eager shuffle',-5,9,10,2,-2,-.6,'happy',1750],
  ['Feather ruffle',3,-12,6,-1,-1,.4,'happy',2200]],
- affection:['Trusting nuzzle',12,1,10,2,2,1,'happy'],
+ affection:['Trusting nuzzle',-10,1,10,2,2,1,'happy'],
  play:['Joyful hop',-6,15,13,2,-4,1.4,'happy'],
  treat:['Eager nibble',8,6,8,1,1,.7,'happy'],
  alert:['Surprised glance',-9,8,3,0,-1,-1,'curious']},
@@ -4803,15 +4821,15 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  ['Ember shimmer',-3,11,14,-1,-1,.7,'happy',2100],
  ['Flamecrest salute',-10,6,9,0,-2,-.6,'curious',1850],
  ['Sunward stretch',5,-14,12,1,-2,.9,'happy',2250]],
- affection:['Warm-hearted flutter',-3,14,14,0,-2,.9,'happy'],
- play:['Spark dance',7,-18,18,-2,-3,1.5,'happy'],
+ affection:['Warm-hearted flutter',-7,14,14,0,-2,.9,'happy'],
+ play:['Spark dance',-7,14,18,-2,-3,1.5,'happy'],
  treat:['Grateful chirp',9,4,9,0,0,.7,'happy'],
  alert:['Flare of courage',-8,15,15,0,-2,-1,'wary']},
  pegasus:{tone:'Gentle cloud dancer',cadence:12000,habits:[
  ['Listening ear flick',-8,1,5,0,0,-.6,'curious',1900],
  ['Cloudward glance',-10,6,4,0,-2,.3,'curious',2300],
  ['Soft prance',4,8,-8,2,-3,.9,'happy',2450]],
- affection:['Gentle muzzle nuzzle',10,-4,8,2,1,.6,'happy'],
+ affection:['Gentle muzzle nuzzle',-8,-4,8,2,1,.6,'happy'],
  play:['Floating prance',-5,12,10,2,-4,.8,'happy'],
  treat:['Quiet gratitude',8,0,6,0,1,.4,'happy'],
  alert:['Perked ears',-7,7,5,0,-1,-.3,'curious']},
@@ -4819,8 +4837,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  ['Suspicious side-eye',12,-4,-10,1,0,1,'wary',2000],
  ['Tail curl',4,1,18,0,1,-.4,'curious',2300],
  ['Sneaky wing stretch',-9,-15,8,-1,-1,-1,'curious',2200]],
- affection:['Secret head bump',11,-5,15,2,1,1,'happy'],
- play:['Cheeky tail whip',-11,11,-18,-2,-2,-1.5,'wary'],
+ affection:['Secret head bump',-10,-5,15,2,1,1,'happy'],
+ play:['Cheeky tail whip',-11,11,17,-2,-2,-1.5,'wary'],
  treat:['Possessive nibble',11,-3,14,1,1,.8,'happy'],
  alert:['Tiny dragon challenge',-13,-14,17,0,-1,-1.3,'wary']}
  };
@@ -4965,8 +4983,10 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    const alpha=1-Math.exp(-dt/74);
    current=blend(current,target,alpha);
    const illustrated=boneEnabled&&bone?.root?.isConnected;
-   writePose(body,boneDemo?asPose():illustrated?asPose(current.x*.55,current.y*.55,current.r*.32,
-     1+(current.sx-1)*.48,1+(current.sy-1)*.48):current);
+   // Keep the body mostly planted when moving illustrated joints are available.
+   // When unavailable, preserve the familiar safe whole-body action as fallback.
+   writePose(body,boneDemo?asPose():illustrated?asPose(current.x*.20,current.y*.20,current.r*.08,
+     1+(current.sx-1)*.16,1+(current.sy-1)*.16):current);
    boneTick(now,boneAction,dt,personality);
    faceTick(now,dt);
    metrics.frames++;
@@ -5059,8 +5079,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      bySpecies[sp]={rig:rigOk,facial:faceOk,expected:30,newborn:stageZero,habits:personalities[sp]?.habits.length||0};
      if(!personalities[sp]||personalities[sp].habits.length!==3)issues.push(sp+':personality');
    }
-   const rigCount=wrap.querySelectorAll('.eh-v43-rig').length;
-   const faceCount=wrap.querySelectorAll('.eh-v43-face').length;
+   const rigCount=wrap.querySelectorAll('.eh-v44-rig').length;
+   const faceCount=wrap.querySelectorAll('.eh-v44-face').length;
    const sources=wrap.querySelectorAll('.growth-frame,.newborn-frame');
    if(rigCount>1)issues.push('duplicate-live-rigs');
    if(faceCount>1)issues.push('duplicate-face-rigs');
@@ -5087,17 +5107,17 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
 
  if(motionLab){
    const css=document.createElement('style');
-   css.textContent=`#eh-v43-lab{position:fixed;z-index:60;bottom:max(12px,env(safe-area-inset-bottom));
+   css.textContent=`#eh-v44-lab{position:fixed;z-index:60;bottom:max(12px,env(safe-area-inset-bottom));
      left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;
      background:rgba(9,17,42,.92);border:1px solid #d0ae65;border-radius:13px;
      padding:7px 9px;box-shadow:0 6px 22px #05071b88;max-width:calc(100vw - 12px)}
-     #eh-v43-lab button{cursor:pointer;min-width:59px;min-height:46px;flex:1;border:1px solid #a99b70;
+     #eh-v44-lab button{cursor:pointer;min-width:59px;min-height:46px;flex:1;border:1px solid #a99b70;
        border-radius:8px;background:#273159;color:#f9e8bb;font-size:12px;font-weight:700}
-     #eh-v43-lab button:active{background:#43578c}
-     @media(max-width:350px){#eh-v43-lab button{min-width:54px}}
-     @media(prefers-reduced-motion:reduce){#eh-v43-lab{opacity:.75}}`;
+     #eh-v44-lab button:active{background:#43578c}
+     @media(max-width:350px){#eh-v44-lab button{min-width:54px}}
+     @media(prefers-reduced-motion:reduce){#eh-v44-lab{opacity:.75}}`;
    document.head.appendChild(css);
-   const lab=document.createElement('div');lab.id='eh-v43-lab';lab.setAttribute('role','group');
+   const lab=document.createElement('div');lab.id='eh-v44-lab';lab.setAttribute('role','group');
    lab.setAttribute('aria-label','Independent creature motion test controls');
    for(const [k,label] of [['head','Head'],['wing','Wing'],['tail','Tail'],['all','All 3']]){
      const b=document.createElement('button');b.type='button';b.textContent=label;
@@ -5153,13 +5173,13 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else fresh()});
  if(reduce.addEventListener)reduce.addEventListener('change',()=>{if(reduce.matches)stop();else fresh()});
  else if(reduce.addListener)reduce.addListener(()=>{if(reduce.matches)stop();else fresh()});
- window.EVERHATCH_ANIMATOR={version:'v43',mode:'five-family-motion-qa-preview',
+ window.EVERHATCH_ANIMATOR={version:'v44',mode:'living-motion-default-with-classic-rollback',
    metrics:()=>({...metrics,model,href:validImage,action:active?.name||'idle',
      bodyCount:wrap.querySelectorAll('.growth-body,.newborn-body,.care-sleep-body').length,
      canvasCount:wrap.querySelectorAll('canvas').length,paused:reduce.matches||document.hidden,
-     face:{...faceStats,liveHeadLayers:wrap.querySelectorAll('.eh-v43-face').length},
+     face:{...faceStats,liveHeadLayers:wrap.querySelectorAll('.eh-v44-face').length},
      personality:{...personalityStats,model:persona.key,gesture:persona.active?.a?.[0]||null},
-     anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v43-rig').length,
+     anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v44-rig').length,
        roster:Object.fromEntries(Object.keys(familyBone).map(sp=>[sp,
          Object.keys(window.EVERHATCH_RIG_MANIFEST?.models||{}).filter(k=>k.startsWith(sp+'-')).length]))}}),
    qa:qaRoster,
@@ -5171,7 +5191,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      tone:p.tone,habits:p.habits.map(a=>a[0]),affection:p.affection[0],
      play:p.play[0],treat:p.treat[0],alert:p.alert[0]}])),
    previewFace:(name)=>{if(!bone?.face)return false;faceReact('preview:'+name,1250);kick();return true;},previewTrick:(id,ms=1800)=>{const t=TRICK_BY_ID[id];return !!(t&&startTrickStage(t,ms));},profiles:Object.keys(profiles)};
- window.EVERHATCH_STABILITY={version:'v43',mode:'five-family-motion-qa-preview',
+ window.EVERHATCH_STABILITY={version:'v44',mode:'living-motion-default-with-classic-rollback',
    metrics:()=>window.EVERHATCH_ANIMATOR.metrics(),audit:fresh,stop};
 })();
 
