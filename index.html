@@ -4333,20 +4333,25 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
        for(let n=0,j=3;n<channel.length;n++,j+=4)channel[n]=a[j];
        alphas[masks[i]]=channel;
      }
+     // Every pixel has one owner. At rest the original texture is reconstructed
+     // exactly: dividing opacity across independently overlaid images washes it out.
      const alpha={head:new Uint8Array(SW*SH),wing:new Uint8Array(SW*SH),
        tail:new Uint8Array(SW*SH),core:new Uint8Array(SW*SH)};
-     let unmapped=0;
+     let unmapped=0,subjectPixels=0,mappedPixels=0;
      for(let i=0;i<SW*SH;i++){
        const a=raw[i*4+3];if(!a)continue;
+       subjectPixels++;
        const hh=alphas.head[i],ww=alphas.wing[i],tt=alphas.tail[i],
-             cc=alphas.base[i]+alphas.hind[i]+alphas.fore[i];
-       const total=hh+ww+tt+cc;
-       if(total<10){unmapped++;alpha.core[i]=a;continue}
-       const ah=Math.round(a*hh/total),aw=Math.round(a*ww/total),at=Math.round(a*tt/total);
-       alpha.head[i]=ah;alpha.wing[i]=aw;alpha.tail[i]=at;
-       alpha.core[i]=Math.max(0,a-ah-aw-at);
+         cc=Math.min(255,alphas.base[i]+alphas.hind[i]+alphas.fore[i]);
+       const max=Math.max(hh,ww,tt,cc);
+       if(max<10){unmapped++;alpha.core[i]=a;continue}
+       mappedPixels++;
+       // Anchor overlap pixels to the torso when adjacent mask edges nearly tie.
+       const owner=cc>=max*.92&&cc>15?'core':
+         hh===max?'head':ww===max?'wing':tt===max?'tail':'core';
+       alpha[owner][i]=a;
      }
-     if(unmapped>SW*SH*.18)throw Error('too much silhouette not mapped to joints: '+unmapped);
+     if(!subjectPixels||unmapped>subjectPixels*.5)throw Error('rig masks do not match this illustration');
      const data={};
      for(const part of partNames){
        const image=ctx.createImageData(SW,SH),dst=image.data;
@@ -4359,10 +4364,38 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      const pivot={};for(const part of ['head','wing','tail']){
        const pt=metadata.pivot[part];pivot[part]=[pt[0]*scaleX+geometry.x,pt[1]*scaleY+geometry.y];
      }
+     // Joint sockets are painted only from the CURRENT species/stage/coat image.
+     // Feathered local source pixels support the parts as they rotate away.
+     const family=familyBone[sp]||familyBone.griffin;
+     const life=st===0?.72:st===1?.86:st===2?1:st===3?1.08:1.15;
+     for(const slot of ['bridgeBack','bridgeHead']){
+       const plate=ctx.createImageData(SW,SH),dst=plate.data;
+       const joints=slot==='bridgeBack'?['tail','wing']:['head'];
+       for(const part of joints){
+         const [px,py]=pivot[part],radii=family.socket[part];
+         const rx=radii[0]*life*scaleX,ry=radii[1]*life*scaleY;
+         if(!Number.isFinite(px+py+rx+ry)||rx<2||ry<2)continue;
+         const x0=Math.max(0,Math.floor(px-rx)),x1=Math.min(SW,Math.ceil(px+rx));
+         const y0=Math.max(0,Math.floor(py-ry)),y1=Math.min(SH,Math.ceil(py+ry));
+         for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
+           const u=(x+.5-px)/rx,v=(y+.5-py)/ry,d=u*u+v*v;
+           if(d>=1)continue;
+           const k=(y*SW+x)*4,sourceA=raw[k+3];
+           if(!sourceA)continue;
+           const feather=Math.pow(1-Math.sqrt(d),.7);
+           const paint=Math.round(sourceA*Math.min(1,feather*1.45));
+           if(paint<=dst[k+3])continue;
+           dst[k]=raw[k];dst[k+1]=raw[k+1];dst[k+2]=raw[k+2];dst[k+3]=paint;
+         }
+       }
+       ctx.clearRect(0,0,SW,SH);ctx.putImageData(plate,0,0);
+       data[slot]=cv.toDataURL('image/png');boneCounters.maps++;
+     }
      boneCounters.prepared++;
-     // Predecode every generated layer before hiding the always-safe source.
-     return Promise.all(partNames.map(name=>loadImage(data[name]))).then(()=>
-       ({data,pivot,SW,SH,aligned,unmapped,geometry}));
+     // All six cutouts are decoded before hiding the unchanged, always-safe art.
+     const layerNames=[...partNames,'bridgeBack','bridgeHead'];
+     return Promise.all(layerNames.map(name=>loadImage(data[name]))).then(()=>
+       ({data,pivot,SW,SH,aligned,unmapped,mappedPixels,subjectPixels,geometry}));
    }).catch(e=>{boneCache.delete(key);boneCounters.failures++;throw e});
    boneCache.set(key,request);
    if(boneCache.size>3)boneCache.delete(boneCache.keys().next().value);
@@ -4401,7 +4434,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      const root=boneTag('g');root.setAttribute('class','eh-v38-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
      root.setAttribute('transform',`translate(${vx} ${vy}) scale(${fit})`);
      const parts={};
-     for(const name of partNames){
+     // Exact source-colored wing/tail sockets below those joints, neck under head.
+     for(const name of ['bridgeBack','tail','wing','core','bridgeHead','head']){
        const g=boneTag('g');g.setAttribute('data-bone',name);
        const pic=boneTag('image');pic.setAttribute('href',data.data[name]);
        pic.setAttribute('x','0');pic.setAttribute('y','0');pic.setAttribute('width',String(data.SW));pic.setAttribute('height',String(data.SH));
@@ -4412,7 +4446,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      // Only hide the original AFTER the full composite is ready and inserted.
      // The original illustration always remains as an instant fallback.
      im.style.opacity='0';
-     bone={image:im,root,parts,pivot:data.pivot,key};bonePending='';bonePendingImage=null;boneCounters.aligned=data.aligned;boneCounters.unmapped=data.unmapped;
+     bone={image:im,root,parts,pivot:data.pivot,key};bonePending='';bonePendingImage=null;boneCounters.aligned=data.aligned;boneCounters.unmapped=data.unmapped;boneCounters.mappedPixels=data.mappedPixels;boneCounters.subjectPixels=data.subjectPixels;
      boneCounters.current=key;boneCounters.binds++;boneCounters.loading=false;boneCounters.visible=true;
    }).catch(e=>{
      if(ticket===boneTicket){bonePending='';bonePendingImage=null;boneCounters.loading=false;boneCounters.errors++;boneCounters.lastError=String(e).slice(0,180);boneDisabledModels.add(key);}
