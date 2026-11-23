@@ -4253,6 +4253,83 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
   window.EVERHATCH_IDLE_GUARD={version:'v34.3',repair,metrics:()=>({...counters})};
 })();
 
+/* Everhatch v34.4 — persistent, browser-native illustrated companion.
+ * Repairs disappearance after animation by making the resting creature image
+ * independent of the SVG image element and the temporary cutout canvas.
+ * No save-data or gameplay changes. */
+(function(){
+  'use strict';
+  const wrap=$('#gwrap'),scene=$('#scene'),trick=$('#trick-stage');
+  if(!wrap||!scene)return;
+  const style=document.createElement('style');
+  style.textContent=`
+  #eh-companion-permanent{position:absolute;z-index:6;object-fit:contain;object-position:center bottom;pointer-events:none;display:block;opacity:0;filter:drop-shadow(0 5px 8px #10162770);transform-origin:50% 92%;animation:ehCompanionBreath 4s ease-in-out infinite}
+  @keyframes ehCompanionBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.007,1.017)}}
+  #gwrap.eh-companion-ready .growth-frame,#gwrap.eh-companion-ready .newborn-frame,#gwrap.eh-companion-ready .care-sleep-frame{opacity:0!important}
+  @media (prefers-reduced-motion:reduce){#eh-companion-permanent{animation:none!important}}
+  `;document.head.appendChild(style);
+  const image=document.createElement('img');
+  image.id='eh-companion-permanent';image.alt='';image.setAttribute('aria-hidden','true');image.decoding='async';image.draggable=false;
+  let lastKey='',candidateIndex=0,failedKey='',attempt=0;
+  const metrics={ready:0,failed:0,repairs:0,assetSwitches:0,lastArt:'',visible:false};
+  function model(){
+    if(!S||S.phase!=='alive'||!SPEC||titleUp||S.exp)return null;
+    const sp=SPEC.id,st=stage(),coat=Number(S.coat),id=coatArtId(sp,coat);
+    if(!id)return null;
+    const sleep=!!S.sleeping;
+    const width=sleep?[178,208,246,284,310][st]:[188,208,246,284,310][st];
+    const height=sleep?width*240/370:st===0?213:width*310/370;
+    const x=sleep?(320-width)/2:st===0?66:(320-width)/2;
+    const y=sleep?265-height:st===0?58:267-height;
+    const file=sleep?`assets/sleep/${id}-${st}.webp`:st===0?`assets/newborn/${id}-idle.webp`:`assets/growth/${id}-${st}.webp`;
+    return {key:`${sp}/${st}/${coat}/${sleep}`,sp,st,coat,x,y,width,height,sources:[file,`assets/motion/${sp}-${st}-${coat}-0.webp`,`assets/${sp}.webp`]};
+  }
+  function ensureAttached(){if(image.parentNode!==wrap){wrap.appendChild(image);metrics.repairs++;}}
+  function sourceFor(m,index){return m.sources[index]}
+  function startSource(m,ix){
+    if(ix>=m.sources.length){failedKey=m.key;wrap.classList.remove('eh-companion-ready');image.style.opacity='0';metrics.failed++;return;}
+    candidateIndex=ix;metrics.assetSwitches++;
+    image.dataset.loaded='';image.src=sourceFor(m,ix)+'?eh=34.4';
+  }
+  image.onload=()=>{
+    if(!image.naturalWidth)return;
+    image.dataset.loaded='yes';metrics.ready++;
+    sync();
+  };
+  image.onerror=()=>{
+    const m=model();
+    if(!m||lastKey!==m.key)return;
+    startSource(m,candidateIndex+1);
+  };
+  function sync(){
+    const m=model();
+    if(!m){image.style.opacity='0';wrap.classList.remove('eh-companion-ready');return;}
+    ensureAttached();
+    if(lastKey!==m.key){lastKey=m.key;failedKey='';candidateIndex=0;attempt++;image.style.opacity='0';wrap.classList.remove('eh-companion-ready');startSource(m,0);}
+    if(failedKey===m.key)return;
+    image.style.left=(100*m.x/320)+'%';image.style.top=(100*m.y/300)+'%';image.style.width=(100*m.width/320)+'%';image.style.height=(100*m.height/300)+'%';
+    const ready=image.complete&&image.naturalWidth>0&&image.dataset.loaded==='yes';
+    if(!ready){wrap.classList.remove('eh-companion-ready');image.style.opacity='0';metrics.visible=false;return;}
+    // Trust a real painted animation canvas only while it actually exists.
+    // Stale classes and old trick flags must NEVER make the companion disappear.
+    const animated=!!wrap.querySelector('canvas.v30-rig-care,canvas.v29-mesh-care');
+    const onStage=!!(trick&&trick.classList.contains('on')&&trickRun);
+    const show=!animated&&!onStage;
+    wrap.classList.toggle('eh-companion-ready',true);
+    image.style.opacity=show?'1':'0';
+    metrics.visible=show;metrics.lastArt=image.getAttribute('src')||'';
+  }
+  const oldRender=renderGriffin;
+  renderGriffin=function(force){const r=oldRender(force);sync();return r};
+  const observer=new MutationObserver(()=>sync());
+  observer.observe(wrap,{childList:true,attributes:true,attributeFilter:['class']});
+  if(trick)observer.observe(trick,{attributes:true,attributeFilter:['class']});
+  // Backstop if a browser suspends an animation callback or swaps SVG content.
+  setInterval(sync,220);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
+  window.EVERHATCH_COMPANION_VISIBILITY={version:'v34.4',sync,metrics:()=>({...metrics,model:model()?.key||null,attached:image.isConnected})};
+})();
+
 /* boot */
 resize();requestAnimationFrame(drawBG);
 const existing=load();if(existing){applySpecies(existing.species||'griffin');$('#tCont').style.display='';$('#tNew').style.display='';$('#tBegin').style.display='none'}
