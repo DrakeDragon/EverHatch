@@ -1119,7 +1119,7 @@ function intro(keeper){
   let i=0;const go=()=>{const s=slides[i];showModal({title:s[0],html:`<p style="text-align:center;font-style:italic">${s[1]}</p>${i===0?'<p class="note" style="text-align:center">Across the sky realms, other mythical creatures are stirring, too. Every egg is a new beginning.</p>':''}`,buttons:[{t:i<2?'Next':'Warm the egg',cls:'gold',fn:()=>{i++;if(i<3){closeModal(true);go();return false}
     S=fresh(keeper);S.species=SPEC.id;journal('You found a single warm egg in the ruins of the old aerie.');save();titleUp=false;$('#title').classList.add('hide');lastGKey='';tab='care';renderAll();say('Tap the egg to warm it.',8000)}}]})};go()}
 function beginName(){showModal({title:'Welcome, Keeper',html:`<p style="text-align:center">What should the mountain call you?</p><input type="text" id="kn" maxlength="14" placeholder="Your name" autocomplete="off">`,buttons:[{t:'Continue',cls:'gold',fn:()=>{const v=clean($('#kn').value)||'Keeper';closeModal(true);intro(v);return false}},{t:'Back'}]})}
-function cont(){S=load();if(!S)return;applySpecies(S.species||'griffin');S.hatching=false;titleUp=false;$('#title').classList.add('hide');
+function cont(){S=load();if(!S)return;auSet();applySpecies(S.species||'griffin');S.hatching=false;titleUp=false;$('#title').classList.add('hide');
   const dt=(Date.now()-S.last)/1000;if(S.phase==='alive'){offline(dt)}
   lastGKey='';renderAll();S.last=Date.now();lastT=Date.now();
   if(S.phase==='alive'&&!S.name){askName(true)}
@@ -1177,7 +1177,9 @@ const CHORDS=[[146.83,174.61,220],[116.54,146.83,174.61],[174.61,220,261.63],[13
 const SCALE=[293.66,349.23,392,440,523.25,587.33,698.46,880];
 const musOn=()=>S?S.set.music:true, sfxOn=()=>S?S.set.sfx:true, volNow=()=>S?S.set.vol:.6;
 function auInit(){
-  if(AU.ctx){if(AU.ctx.state==='suspended')AU.ctx.resume();return}
+  // Never start an audio context while both sound settings are OFF.
+  if(!musOn()&&!sfxOn()){if(AU.ready)auSet();return}
+  if(AU.ctx){if(AU.ctx.state==='suspended')AU.ctx.resume().catch(()=>{});auSet();return}
   try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=AU.ctx=new C();
     AU.m=c.createGain();AU.m.gain.value=volNow();AU.m.connect(c.destination);
     AU.mus=c.createGain();AU.mus.gain.value=.5;AU.mus.connect(AU.m);
@@ -1188,7 +1190,23 @@ function auInit(){
     for(let i=0;i<3;i++){const o=c.createOscillator();o.type=i===1?'triangle':'sawtooth';o.frequency.value=CHORDS[0][i];o.detune.value=(i-1)*7;const g=c.createGain();g.gain.value=.33;o.connect(g);g.connect(pf);o.start();AU.pad.push(o)}
     AU.ready=true;AU.timer=setInterval(auSched,250);auSet()
   }catch(e){AU.ctx=null;AU.ready=false}}
-function auSet(){if(!AU.ready)return;const t=AU.ctx.currentTime;AU.m.gain.setTargetAtTime(volNow(),t,.1);AU.padGain.gain.setTargetAtTime(musOn()?.1:0,t,.6)}
+function auSet(){
+  if(!AU.ready||!AU.ctx)return;
+  const t=AU.ctx.currentTime,onMusic=!!musOn(),onSfx=!!sfxOn();
+  // Silence the entire channels including sustained tones and echo tails.
+  // Muting only padGain left other instruments audible when Music was OFF.
+  for(const [node,value] of [[AU.m,(onMusic||onSfx)?volNow():0],
+    [AU.mus,onMusic?.5:0],[AU.sfx,onSfx?.9:0],
+    [AU.padGain,onMusic?.1:0]]){
+    if(!node)continue;
+    node.gain.cancelScheduledValues(t);
+    node.gain.setValueAtTime(value,t);
+  }
+  if(!onMusic){AU.nextNote=0;AU.nextBeat=0;}
+}
+window.EVERHATCH_AUDIO_STATE=()=>({version:'v34.3',music:!!musOn(),sound:!!sfxOn(),
+  context:AU.ctx?.state||'not-created',musicGain:AU.mus?.gain.value??null,
+  soundGain:AU.sfx?.gain.value??null,masterGain:AU.m?.gain.value??null});
 function isNight(){const h=new Date().getHours();return h>=21||h<6}
 function pluck(t){const c=AU.ctx,f=pick(SCALE)*(Math.random()<.2?.5:1);const o=c.createOscillator(),g=c.createGain(),s=c.createGain();o.type='triangle';o.frequency.value=f;
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.17,t+.03);g.gain.exponentialRampToValueAtTime(.0008,t+2.2);o.connect(g);g.connect(AU.mus);s.gain.value=.7;g.connect(s);s.connect(AU.delay);o.start(t);o.stop(t+2.4)}
@@ -1235,7 +1253,7 @@ function openSettings(){if(modalOpen||!S)return;const s=S.set;
    buttons:[{t:'Close',cls:'gold'}],
    onShow:m=>{bindTextSize(m);auInit();
      $('#tgM',m).onclick=e=>{s.music=!s.music;e.target.textContent=s.music?'On':'Off';auInit();auSet();save()};
-     $('#tgS',m).onclick=e=>{s.sfx=!s.sfx;e.target.textContent=s.sfx?'On':'Off';save();if(s.sfx)sfx('chime')};
+     $('#tgS',m).onclick=e=>{s.sfx=!s.sfx;e.target.textContent=s.sfx?'On':'Off';auSet();save();if(s.sfx){auInit();sfx('chime')}};
      $('#vol',m).oninput=e=>{s.vol=e.target.value/100;auSet();save()};
      $('#stCard',m).onclick=()=>{closeModal(true);shareCard()};
      $('#stCode',m).onclick=()=>{closeModal(true);saveCode()};
@@ -4183,6 +4201,56 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    return r;
  };
  window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
+})();
+
+/* v34.3 — persistent companion visibility safeguard.
+ * A stale trick / cutout-animation state could hide the base creature after
+ * the moving overlay ends, leaving only the sanctuary backdrop visible.
+ * Idle never depends on a temporary rig canvas; original illustrations win.
+ * Visual-only patch, no changes to save data, growth, or action rewards. */
+(function(){
+  'use strict';
+  const scene=$('#scene'),wrap=$('#gwrap'),stageEl=$('#trick-stage');
+  const tracked=new WeakMap();
+  const counters={staleTricks:0,staleRigs:0,staleMeshes:0,staleTrickStages:0};
+  function repair(){
+    if(!S||S.phase!=='alive'||titleUp||!scene||!wrap)return;
+    const playing=!!(trickRun&&stageEl?.classList.contains('on'));
+    // This class hides the base image with visibility:hidden. It must never
+    // survive the end of a trick, even when a previous animation was canceled.
+    if(!playing&&scene.classList.contains('trick-active')){
+      scene.classList.remove('trick-active');counters.staleTricks++;
+    }
+    if(!playing&&stageEl?.classList.contains('v30-active')&&!stageEl.querySelector('.v30-rig-trick')){
+      stageEl.classList.remove('v30-active');counters.staleTrickStages++;
+    }
+    const rigCanvas=wrap.querySelector('canvas.v30-rig-care');
+    if(rigCanvas){
+      let since=tracked.get(rigCanvas);
+      if(!since){since=performance.now();tracked.set(rigCanvas,since);}
+      // Care actions are under two seconds. Recover from a leaked, frozen
+      // canvas after a conservative timeout; never interrupt a normal action.
+      if(performance.now()-since>6000){
+        rigCanvas.remove();wrap.classList.remove('v30-active');counters.staleRigs++;
+      }
+    } else if(wrap.classList.contains('v30-active')){
+      wrap.classList.remove('v30-active');counters.staleRigs++;
+    }
+    const base=wrap.querySelector('.growth-frame,.newborn-frame');
+    if(base&&!wrap.querySelector('canvas.v29-mesh-care,canvas.v30-rig-care')){
+      // The v29 mesh replacement temporarily uses inline opacity:0.
+      // Restore that base opacity if its replacement canvas is gone.
+      if(base.style.opacity==='0'){
+        base.style.removeProperty('opacity');counters.staleMeshes++;
+      }
+      if(base.style.visibility==='hidden'){
+        base.style.removeProperty('visibility');counters.staleMeshes++;
+      }
+    }
+  }
+  setInterval(repair,300);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)repair()});
+  window.EVERHATCH_IDLE_GUARD={version:'v34.3',repair,metrics:()=>({...counters})};
 })();
 
 /* boot */
