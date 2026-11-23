@@ -4482,7 +4482,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    loadFaceSet(sp,st,coat).then(assets=>{
      if(art!==bone||!art.root.isConnected||document.hidden||reduce.matches||
        !S||S.sleeping||S.exp||titleUp||SPEC.id!==sp||stage()!==st||Number(S.coat)!==coat)return;
-     const root=boneTag('g');root.setAttribute('class','eh-v42-face');
+     const root=boneTag('g');root.setAttribute('class','eh-v43-face');
      root.setAttribute('transform',`translate(${data.geometry.x} ${data.geometry.y}) scale(${data.geometry.scaleX} ${data.geometry.scaleY})`);
      root.setAttribute('pointer-events','none');
      // All facial features follow the identical head pivot and rotation.
@@ -4634,7 +4634,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      if(!Number.isFinite(x+y+w+h)||w<=0||h<=0)throw Error('bad illustration bounds');
      const fit=Math.min(w/data.SW,h/data.SH),vw=data.SW*fit,vh=data.SH*fit;
      const vx=x+(w-vw)/2,vy=y+(h-vh); // matches SVG xMidYMax meet
-     const root=boneTag('g');root.setAttribute('class','eh-v42-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
+     const root=boneTag('g');root.setAttribute('class','eh-v43-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
      root.setAttribute('transform',`translate(${vx} ${vy}) scale(${fit})`);
      const parts={};
      // Exact source-colored wing/tail sockets below those joints, neck under head.
@@ -5034,19 +5034,70 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    boneCounters.demoClicks=(boneCounters.demoClicks||0)+1;
    kick();return true;
  }
+
+ // v43 roster QA: metadata geometry for all 150 variants plus live DOM state.
+ // This is NOT a screenshot test and does not claim every image was decoded.
+ function qaRoster(){
+   const rigs=window.EVERHATCH_RIG_MANIFEST?.models||{};
+   const faces=window.EVERHATCH_FACE33_MANIFEST?.models||{};
+   const keys=Object.keys(familyBone);
+   const issues=[],bySpecies={};
+   const validPoint=p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)&&p[0]>=0&&p[0]<=W&&p[1]>=0&&p[1]<=H;
+   const validRect=a=>Array.isArray(a)&&a.length===4&&a.every(Number.isFinite)&&
+     a[0]>=0&&a[1]>=0&&a[0]<a[2]&&a[1]<a[3]&&a[2]<=W&&a[3]<=H;
+   for(const sp of keys){
+     let rigOk=0,faceOk=0,stageZero=0;
+     for(let st=0;st<5;st++)for(let coat=0;coat<6;coat++){
+       const id=sp+'-'+st+'-'+coat,r=rigs[id],f=faces[id];
+       const rg=!!r&&validRect(r.bbox)&&['head','wing','tail'].every(part=>validPoint(r.pivot?.[part]));
+       const fg=!!f&&['eyeRect','jawRect','crestRect'].every(part=>validRect(f[part]))&&
+         validPoint(f.jawPivot)&&validPoint(f.crestPivot);
+       if(rg)rigOk++;else issues.push(id+':rig-geometry');
+       if(fg)faceOk++;else issues.push(id+':face-geometry');
+       if(st===0)stageZero++;
+     }
+     bySpecies[sp]={rig:rigOk,facial:faceOk,expected:30,newborn:stageZero,habits:personalities[sp]?.habits.length||0};
+     if(!personalities[sp]||personalities[sp].habits.length!==3)issues.push(sp+':personality');
+   }
+   const rigCount=wrap.querySelectorAll('.eh-v43-rig').length;
+   const faceCount=wrap.querySelectorAll('.eh-v43-face').length;
+   const sources=wrap.querySelectorAll('.growth-frame,.newborn-frame');
+   if(rigCount>1)issues.push('duplicate-live-rigs');
+   if(faceCount>1)issues.push('duplicate-face-rigs');
+   if(rigCount===1&&bone?.image?.style.opacity!=='0')issues.push('source-visibility');
+   if(faceCount&&rigCount!==1)issues.push('detached-facial-layer');
+   if(faceCount&&!bone?.face?.root?.isConnected)issues.push('facial-parent');
+   if(metrics.activeRafs>1)issues.push('multiple-director-loops');
+   return {
+     version:'v43',scope:'catalog-geometry-and-current-DOM',
+     checked:keys.length*30,
+     validRig:Object.values(bySpecies).reduce((a,v)=>a+v.rig,0),
+     validFace:Object.values(bySpecies).reduce((a,v)=>a+v.facial,0),
+     bySpecies,
+     live:{species:SPEC?.id||null,stage:S?.phase==='alive'?stage():null,
+       coat:S?.coat??null,rigCount,faceCount,creatureImages:sources.length,
+       loading:boneCounters.loading,articulated:boneCounters.visible,
+       reducedMotion:reduce.matches,activeRafs:metrics.activeRafs,
+       rigFailures:boneCounters.failures,facialFailures:faceStats.failed,
+       fallbackActive:boneCounters.disabled,posture:personalityStats.current},
+     issues:issues.slice(0,35),passed:issues.length===0,
+     limits:'Runtime geometry audit only; all art variants and visual motion require on-device observation'
+   };
+ }
+
  if(motionLab){
    const css=document.createElement('style');
-   css.textContent=`#eh-v42-lab{position:fixed;z-index:60;bottom:max(12px,env(safe-area-inset-bottom));
+   css.textContent=`#eh-v43-lab{position:fixed;z-index:60;bottom:max(12px,env(safe-area-inset-bottom));
      left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;
      background:rgba(9,17,42,.92);border:1px solid #d0ae65;border-radius:13px;
      padding:7px 9px;box-shadow:0 6px 22px #05071b88;max-width:calc(100vw - 12px)}
-     #eh-v42-lab button{cursor:pointer;min-width:59px;min-height:46px;flex:1;border:1px solid #a99b70;
+     #eh-v43-lab button{cursor:pointer;min-width:59px;min-height:46px;flex:1;border:1px solid #a99b70;
        border-radius:8px;background:#273159;color:#f9e8bb;font-size:12px;font-weight:700}
-     #eh-v42-lab button:active{background:#43578c}
-     @media(max-width:350px){#eh-v42-lab button{min-width:54px}}
-     @media(prefers-reduced-motion:reduce){#eh-v42-lab{opacity:.75}}`;
+     #eh-v43-lab button:active{background:#43578c}
+     @media(max-width:350px){#eh-v43-lab button{min-width:54px}}
+     @media(prefers-reduced-motion:reduce){#eh-v43-lab{opacity:.75}}`;
    document.head.appendChild(css);
-   const lab=document.createElement('div');lab.id='eh-v42-lab';lab.setAttribute('role','group');
+   const lab=document.createElement('div');lab.id='eh-v43-lab';lab.setAttribute('role','group');
    lab.setAttribute('aria-label','Independent creature motion test controls');
    for(const [k,label] of [['head','Head'],['wing','Wing'],['tail','Tail'],['all','All 3']]){
      const b=document.createElement('button');b.type='button';b.textContent=label;
@@ -5072,20 +5123,46 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      lab.style.flexWrap='wrap';lab.style.width='min(420px,calc(100vw - 12px))';
      lab.querySelectorAll('button').forEach(b=>{b.style.flex='1 1 22%';b.style.minWidth='58px';});
    }
+   // Lightweight, opt-in diagnostics for testing the current companion.
+   const qbtn=document.createElement('button');qbtn.type='button';qbtn.textContent='QA';
+   qbtn.setAttribute('aria-label','Toggle animated companion QA report');
+   const qpanel=document.createElement('pre');
+   qpanel.setAttribute('aria-live','polite');
+   qpanel.hidden=true;
+   qpanel.style.cssText='width:100%;flex-basis:100%;white-space:pre-wrap;text-align:left;'+
+     'font:11px/1.4 system-ui,sans-serif;color:#f9e8bb;margin:0;'+
+     'padding:8px;border-radius:7px;background:#101a38;max-height:25vh;overflow:auto';
+   qbtn.onclick=()=>{
+     qpanel.hidden=!qpanel.hidden;
+     if(qpanel.hidden)return;
+     const q=qaRoster(),d=q.live;
+     qpanel.textContent='v43 QA — '+(q.passed?'METADATA OK':'CHECK ISSUES')+
+       '\\nRig geometry '+q.validRig+'/'+q.checked+
+       ' · Facial geometry '+q.validFace+'/'+q.checked+
+       '\\n'+Object.entries(q.bySpecies).map(([name,x])=>name+': '+x.rig+'/30').join(' | ')+
+       '\\nLive: '+(d.species||'none')+' / stage '+(d.stage??'-')+' / coat '+(d.coat??'-')+
+       '\\nRigs '+d.rigCount+' · faces '+d.faceCount+' · failures '+(d.rigFailures+d.facialFailures)+
+       '\\n'+(q.issues.length?q.issues.join(', '):'No geometry/DOM warnings')+
+       '\\nVisual quality requires device testing.';
+   };
+   lab.appendChild(qbtn);lab.appendChild(qpanel);
+   lab.style.flexWrap='wrap';lab.style.width='min(420px,calc(100vw - 12px))';
+   lab.querySelectorAll('button').forEach(b=>{b.style.flex='1 1 22%';b.style.minWidth='58px';});
    document.body.appendChild(lab);
  }
  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else fresh()});
  if(reduce.addEventListener)reduce.addEventListener('change',()=>{if(reduce.matches)stop();else fresh()});
  else if(reduce.addListener)reduce.addListener(()=>{if(reduce.matches)stop();else fresh()});
- window.EVERHATCH_ANIMATOR={version:'v42',mode:'five-family-distinct-personality-preview',
+ window.EVERHATCH_ANIMATOR={version:'v43',mode:'five-family-motion-qa-preview',
    metrics:()=>({...metrics,model,href:validImage,action:active?.name||'idle',
      bodyCount:wrap.querySelectorAll('.growth-body,.newborn-body,.care-sleep-body').length,
      canvasCount:wrap.querySelectorAll('canvas').length,paused:reduce.matches||document.hidden,
-     face:{...faceStats,liveHeadLayers:wrap.querySelectorAll('.eh-v42-face').length},
+     face:{...faceStats,liveHeadLayers:wrap.querySelectorAll('.eh-v43-face').length},
      personality:{...personalityStats,model:persona.key,gesture:persona.active?.a?.[0]||null},
-     anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v42-rig').length,
+     anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v43-rig').length,
        roster:Object.fromEntries(Object.keys(familyBone).map(sp=>[sp,
          Object.keys(window.EVERHATCH_RIG_MANIFEST?.models||{}).filter(k=>k.startsWith(sp+'-')).length]))}}),
+   qa:qaRoster,
    rigCoverage:()=>Object.fromEntries(Object.keys(familyBone).map(sp=>[sp,
        Array.from({length:5},(_,st)=>Array.from({length:6},(_,coat)=>
          !!window.EVERHATCH_RIG_MANIFEST?.models?.[`${sp}-${st}-${coat}`]))])),
@@ -5094,7 +5171,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      tone:p.tone,habits:p.habits.map(a=>a[0]),affection:p.affection[0],
      play:p.play[0],treat:p.treat[0],alert:p.alert[0]}])),
    previewFace:(name)=>{if(!bone?.face)return false;faceReact('preview:'+name,1250);kick();return true;},previewTrick:(id,ms=1800)=>{const t=TRICK_BY_ID[id];return !!(t&&startTrickStage(t,ms));},profiles:Object.keys(profiles)};
- window.EVERHATCH_STABILITY={version:'v42',mode:'five-family-distinct-personality-preview',
+ window.EVERHATCH_STABILITY={version:'v43',mode:'five-family-motion-qa-preview',
    metrics:()=>window.EVERHATCH_ANIMATOR.metrics(),audit:fresh,stop};
 })();
 
