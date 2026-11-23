@@ -4216,7 +4216,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
 })();
 
-/* v41 — Full-roster living expressions integrated with illustrated anatomical motion.
+/* v42 — Species-specific idle, affectionate and playful motion integrated with v41 expressions.
  * Replaces v35's class-toggle motion. One state machine animates the ONE
  * illustrated companion in the live SVG; it never swaps age/coat images.
  * The legacy cutout, facial and mesh runtimes remain quarantined.
@@ -4275,6 +4275,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  const boneEnabled=/(?:^|[?&])(?:rig=1|anatomy=1)(?:&|$)/.test(location.search);
  const motionLab=boneEnabled&&/(?:^|[?&])motionlab=1(?:&|$)/.test(location.search);
  const faceEnabled=boneEnabled&&/(?:^|[?&])face=1(?:&|$)/.test(location.search);
+ const personalityEnabled=boneEnabled&&/(?:^|[?&])personality=1(?:&|$)/.test(location.search);
  let boneDemo=null;
  const boneCounters={enabled:boneEnabled,binds:0,maps:0,steps:0,errors:0,disabled:false,reductions:0,
    missingLandmarks:0,slowFrames:0,current:'',maxHead:0,maxWing:0,maxTail:0,prepared:0,
@@ -4567,7 +4568,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    boneTicket++;bonePending='';bonePendingImage=null;boneCounters.loading=false;boneCounters.visible=false;
    if(bone?.image?.isConnected)bone.image.style.removeProperty('opacity');
    if(bone?.root?.isConnected)bone.root.remove();
-   bone=null;boneState={...boneDefault};boneCounters.current='';faceReaction=null;faceStats.model='';faceStats.active='';
+   bone=null;boneState={...boneDefault};boneCounters.current='';faceReaction=null;faceStats.model='';faceStats.active='';resetPersona();
  }
  function boneBind(){
    const im=body?.querySelector('.growth-frame,.newborn-frame');
@@ -4619,7 +4620,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      if(ticket===boneTicket){bonePending='';bonePendingImage=null;boneCounters.loading=false;boneCounters.errors++;boneCounters.lastError=String(e).slice(0,180);if(st===0)boneCounters.stageZeroFallbacks++;boneDisabledModels.add(key);}
    });
  }
- function boneTick(now,activity,dt){
+ function boneTick(now,activity,dt,personality){
    if(!boneEnabled||!body||reduce.matches||document.hidden||boneCounters.disabled)return;
    if(!bone||!bone.image.isConnected||bone.image!==body.querySelector('.growth-frame,.newborn-frame'))boneBind();
    if(!bone)return;
@@ -4670,6 +4671,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
         target[part]+=reaction[part]*anatomy.response[idx]*envelope*follow*juvenile;
       }
    }
+   if(personalityEnabled&&personality?.joints&&!boneDemo)for(const part of ['head','wing','tail'])target[part]+=personality.joints[part]||0;
    // Frame-rate-independent smoothing on slower mobile devices.
     const timeAlpha=1-Math.exp(-clampBone(dt||33,16,120)/135);
    for(const part of ['head','wing','tail']){
@@ -4739,6 +4741,105 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    }
    return asPose();
  }
+
+ // v42: each gesture is [name,head,wing,tail,x,y,roll,expression,duration].
+ // All offsets are additive to one creature, from its own artwork. No new RAF.
+ const personalities={
+ griffin:{tone:'Proud guardian',cadence:11500,habits:[
+ ['Sentinel glance',-9,2,-4,0,0,-.6,'curious',2000],
+ ['Regal wing-set',2,12,1,0,-1,.4,'wary',2150],
+ ['Watchful tail',7,-3,-9,1,0,.6,'curious',2350]],
+ affection:['Protective bow',9,-6,5,-1,2,-.8,'happy'],
+ play:['Proud flourish',-7,13,6,1,-2,1,'curious'],
+ treat:['Careful acceptance',10,-2,4,0,1,.4,'happy'],
+ alert:['Guardian call',-11,10,-6,0,-1,-.7,'wary']},
+ hippogriff:{tone:'Curious sweetheart',cadence:9700,habits:[
+ ['Curious head tilt',13,1,6,1,0,1,'curious',1850],
+ ['Eager shuffle',-5,9,10,2,-2,-.6,'happy',1750],
+ ['Feather ruffle',3,-12,6,-1,-1,.4,'happy',2200]],
+ affection:['Trusting nuzzle',12,1,10,2,2,1,'happy'],
+ play:['Joyful hop',-6,15,13,2,-4,1.4,'happy'],
+ treat:['Eager nibble',8,6,8,1,1,.7,'happy'],
+ alert:['Surprised glance',-9,8,3,0,-1,-1,'curious']},
+ phoenix:{tone:'Bright little flame',cadence:8900,habits:[
+ ['Ember shimmer',-3,11,14,-1,-1,.7,'happy',2100],
+ ['Flamecrest salute',-10,6,9,0,-2,-.6,'curious',1850],
+ ['Sunward stretch',5,-14,12,1,-2,.9,'happy',2250]],
+ affection:['Warm-hearted flutter',-3,14,14,0,-2,.9,'happy'],
+ play:['Spark dance',7,-18,18,-2,-3,1.5,'happy'],
+ treat:['Grateful chirp',9,4,9,0,0,.7,'happy'],
+ alert:['Flare of courage',-8,15,15,0,-2,-1,'wary']},
+ pegasus:{tone:'Gentle cloud dancer',cadence:12000,habits:[
+ ['Listening ear flick',-8,1,5,0,0,-.6,'curious',1900],
+ ['Cloudward glance',-10,6,4,0,-2,.3,'curious',2300],
+ ['Soft prance',4,8,-8,2,-3,.9,'happy',2450]],
+ affection:['Gentle muzzle nuzzle',10,-4,8,2,1,.6,'happy'],
+ play:['Floating prance',-5,12,10,2,-4,.8,'happy'],
+ treat:['Quiet gratitude',8,0,6,0,1,.4,'happy'],
+ alert:['Perked ears',-7,7,5,0,-1,-.3,'curious']},
+ wyvern:{tone:'Mischievous little dragon',cadence:10500,habits:[
+ ['Suspicious side-eye',12,-4,-10,1,0,1,'wary',2000],
+ ['Tail curl',4,1,18,0,1,-.4,'curious',2300],
+ ['Sneaky wing stretch',-9,-15,8,-1,-1,-1,'curious',2200]],
+ affection:['Secret head bump',11,-5,15,2,1,1,'happy'],
+ play:['Cheeky tail whip',-11,11,-18,-2,-2,-1.5,'wary'],
+ treat:['Possessive nibble',11,-3,14,1,1,.8,'happy'],
+ alert:['Tiny dragon challenge',-13,-14,17,0,-1,-1.3,'wary']}
+ };
+ const personalityStats={enabled:personalityEnabled,habits:0,reactions:0,previews:0,transitions:0,current:'',species:''};
+ const persona={key:'',active:null,next:0,sequence:0,lastAction:null};
+ const zeroPersona=()=>({pose:asPose(),joints:{head:0,wing:0,tail:0}});
+ function resetPersona(){persona.key='';persona.active=null;persona.next=0;persona.sequence=0;persona.lastAction=null;personalityStats.current='';}
+ function personaOffset(a,envelope){
+   const age=stage()===1?.70:stage()===2?.86:stage()===3?1:1.05,weight=envelope*age;
+   return {pose:asPose(a[4]*weight,a[5]*weight,a[6]*weight),
+     joints:{head:a[1]*weight,wing:a[2]*weight,tail:a[3]*weight}};
+ }
+ function personaAction(name){
+   const p=personalities[SPEC.id];if(!p)return null;
+   if(['pet','cuddle','greet','groom'].includes(name))return p.affection;
+   if(name==='feed'||name==='drink')return p.treat;
+   if(name==='play'||name.startsWith('trick:'))return p.play;
+   if(['call','stretch','wake'].includes(name))return p.alert;
+   return null;
+ }
+ function samplePersona(now,action){
+   if(!personalityEnabled||reduce.matches||document.hidden||S?.sleeping||S?.exp||!bone?.root?.isConnected||boneDemo)return zeroPersona();
+   const spec=personalities[SPEC.id],key=SPEC.id+'/'+stage()+'/'+S.coat;
+   if(!spec)return zeroPersona();
+   if(persona.key!==key){resetPersona();persona.key=key;persona.next=now+4300;personalityStats.species=SPEC.id;}
+   if(action){
+     if(persona.active){persona.active=null;personalityStats.transitions++;}
+     persona.next=now+7100;
+     const a=personaAction(action.name);if(!a)return zeroPersona();
+     if(persona.lastAction!==action){persona.lastAction=action;personalityStats.reactions++;personalityStats.current=a[0];}
+     const u=clampBone((now-action.start)/action.duration,0,1);
+     return personaOffset(a,.77*Math.pow(Math.sin(Math.PI*u),2)*(1+.11*Math.sin(4*Math.PI*u)));
+   }
+   persona.lastAction=null;
+   if(persona.active&&now>=persona.active.end){persona.active=null;personalityStats.transitions++;personalityStats.current='';}
+   if(!persona.active&&now>=persona.next){
+     const a=spec.habits[persona.sequence++%spec.habits.length];
+     persona.active={a,start:now,end:now+a[8]};persona.next=now+spec.cadence+persona.sequence*300;
+     personalityStats.habits++;personalityStats.current=a[0];
+     if(faceEnabled)faceReact('preview:'+a[7],Math.min(1450,a[8]));
+   }
+   if(!persona.active)return zeroPersona();
+   const a=persona.active.a,u=clampBone((now-persona.active.start)/a[8],0,1);
+   return personaOffset(a,Math.pow(Math.sin(Math.PI*u),2));
+ }
+ function previewPersonality(kind='idle'){
+   if(!personalityEnabled||!bone?.root?.isConnected||document.hidden||reduce.matches||S?.sleeping)return false;
+   const spec=personalities[SPEC.id];if(!spec)return false;
+   const a=kind==='affection'?spec.affection:kind==='play'?spec.play:spec.habits[persona.sequence++%spec.habits.length];
+   const now=performance.now();active=null;boneDemo=null;
+   persona.key=SPEC.id+'/'+stage()+'/'+S.coat;persona.lastAction=null;
+   persona.active={a,start:now,end:now+(a[8]||1900)};persona.next=now+spec.cadence;
+   personalityStats.current=a[0];personalityStats.previews++;
+   if(faceEnabled)faceReact('preview:'+a[7],1400);
+   kick();return true;
+ }
+
  function idlePose(now,profile){
    const phase=(now-startedAt)*.001*(2*Math.PI/4.8)*profile.tempo;
    const breath=Math.sin(phase),so=Math.sin(phase*.5+.6);
@@ -4800,8 +4901,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    const profile=profiles[SPEC.id]||profiles.griffin;
    const resting=idlePose(now,profile);
    const boneAction=active;
+   const personality=samplePersona(now,boneAction);
    const overlay=sampleAction(now,profile);
-   let target=add(resting,overlay);
+   let target=add(add(resting,overlay),personality.pose);
    if(active&&active.from){
      const startBlend=smooth((now-active.start)/Math.min(155,active.duration*.22));
      target=blend(active.from,target,startBlend);
@@ -4812,7 +4914,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    const illustrated=boneEnabled&&bone?.root?.isConnected;
    writePose(body,boneDemo?asPose():illustrated?asPose(current.x*.55,current.y*.55,current.r*.32,
      1+(current.sx-1)*.48,1+(current.sy-1)*.48):current);
-   boneTick(now,boneAction,dt);
+   boneTick(now,boneAction,dt,personality);
    faceTick(now);
    metrics.frames++;
    raf=requestAnimationFrame(tick);metrics.activeRafs=1;
@@ -4827,7 +4929,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    if(!modelKey()||S?.sleeping||reduce.matches)return false;
    const n=anchor();if(!n)return false;
    active={name,start:performance.now(),duration:Math.max(480,Number(duration)||1300),from:{...current}};
-   metrics.lastAction=name;metrics.actions++;faceReact(name,duration);kick();return true;
+   metrics.lastAction=name;metrics.actions++;if(personalityEnabled){persona.active=null;persona.next=performance.now()+7100;}faceReact(name,duration);kick();return true;
  }
  function fresh(){anchor();kick()}
  const prevRender=renderGriffin;
