@@ -2650,13 +2650,35 @@ function requestNewborn(id){
  }return false;
 }
 function loadNewbornArt(){if(existing) {const id=coatArtId(existing.species||'griffin',existing.coat);if(id)requestNewborn(id);}}
+// Hatchlings retain their own complete, coat-matched illustrated expressions.
+const newbornPersonalityEnabled=/(?:^|[?&])personality=1(?:&|$)/.test(location.search)
+ &&/(?:^|[?&])face=1(?:&|$)/.test(location.search);
+const newbornTempo={
+ griffin:{blink:[4100,6700],curious:[10800,15100],happy:20600,hold:780},
+ hippogriff:{blink:[3200,5900],curious:[7100,10600],happy:13900,hold:950},
+ phoenix:{blink:[2850,5300],curious:[7700,11100],happy:12500,hold:900},
+ pegasus:{blink:[4200,6900],curious:[9000,13600],happy:16900,hold:950},
+ wyvern:{blink:[4850,7800],curious:[10800,16600],happy:22100,hold:650}
+};
+let nextBabyHappy=performance.now()+12000;
 let nextBlink=performance.now()+2400,nextCurious=performance.now()+5200,blinkEnd=0,curiousEnd=0;
 setInterval(()=>{
  if(document.hidden||!S||titleUp||!newbornKind()||!document.querySelector('#gwrap .newborn-frame'))return;
  const t=performance.now();
  if(t<newbornReactionUntil){newbornSetPose(newbornReaction);return}
- if(t>=nextBlink){blinkEnd=t+180;nextBlink=t+3600+Math.random()*2800;}
- if(t>=nextCurious){curiousEnd=t+720;nextCurious=t+7000+Math.random()*5000;}
+ const pace=newbornPersonalityEnabled?newbornTempo[SPEC?.id]:null;
+ if(t>=nextBlink){
+   blinkEnd=t+(pace?150:180);
+   nextBlink=t+(pace?pace.blink[0]+Math.random()*(pace.blink[1]-pace.blink[0]):3600+Math.random()*2800);
+ }
+ if(t>=nextCurious){
+   curiousEnd=t+(pace?pace.hold:720);
+   nextCurious=t+(pace?pace.curious[0]+Math.random()*(pace.curious[1]-pace.curious[0]):7000+Math.random()*5000);
+ }
+ if(pace&&t>=nextBabyHappy){
+   nextBabyHappy=t+pace.happy+Math.random()*5000;
+   newbornReact('happy',pace.hold);return;
+ }
  newbornSetPose(t<blinkEnd?'blink':t<curiousEnd?'curious':'idle');
 },70);
 {const previous=pLore;pLore=function(){const id=SUB.lore||S.species;const art=coatArtId(id,id===S.species?S.coat:0)||coatArtId(id,0);
@@ -4460,7 +4482,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    loadFaceSet(sp,st,coat).then(assets=>{
      if(art!==bone||!art.root.isConnected||document.hidden||reduce.matches||
        !S||S.sleeping||S.exp||titleUp||SPEC.id!==sp||stage()!==st||Number(S.coat)!==coat)return;
-     const root=boneTag('g');root.setAttribute('class','eh-v41-face');
+     const root=boneTag('g');root.setAttribute('class','eh-v42-face');
      root.setAttribute('transform',`translate(${data.geometry.x} ${data.geometry.y}) scale(${data.geometry.scaleX} ${data.geometry.scaleY})`);
      root.setAttribute('pointer-events','none');
      // All facial features follow the identical head pivot and rotation.
@@ -4596,7 +4618,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      if(!Number.isFinite(x+y+w+h)||w<=0||h<=0)throw Error('bad illustration bounds');
      const fit=Math.min(w/data.SW,h/data.SH),vw=data.SW*fit,vh=data.SH*fit;
      const vx=x+(w-vw)/2,vy=y+(h-vh); // matches SVG xMidYMax meet
-     const root=boneTag('g');root.setAttribute('class','eh-v41-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
+     const root=boneTag('g');root.setAttribute('class','eh-v42-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
      root.setAttribute('transform',`translate(${vx} ${vy}) scale(${fit})`);
      const parts={};
      // Exact source-colored wing/tail sockets below those joints, neck under head.
@@ -4983,17 +5005,17 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  }
  if(motionLab){
    const css=document.createElement('style');
-   css.textContent=`#eh-v41-lab{position:fixed;z-index:60;bottom:max(12px,env(safe-area-inset-bottom));
+   css.textContent=`#eh-v42-lab{position:fixed;z-index:60;bottom:max(12px,env(safe-area-inset-bottom));
      left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;
      background:rgba(9,17,42,.92);border:1px solid #d0ae65;border-radius:13px;
      padding:7px 9px;box-shadow:0 6px 22px #05071b88;max-width:calc(100vw - 12px)}
-     #eh-v41-lab button{cursor:pointer;min-width:59px;min-height:46px;flex:1;border:1px solid #a99b70;
+     #eh-v42-lab button{cursor:pointer;min-width:59px;min-height:46px;flex:1;border:1px solid #a99b70;
        border-radius:8px;background:#273159;color:#f9e8bb;font-size:12px;font-weight:700}
-     #eh-v41-lab button:active{background:#43578c}
-     @media(max-width:350px){#eh-v41-lab button{min-width:54px}}
-     @media(prefers-reduced-motion:reduce){#eh-v41-lab{opacity:.75}}`;
+     #eh-v42-lab button:active{background:#43578c}
+     @media(max-width:350px){#eh-v42-lab button{min-width:54px}}
+     @media(prefers-reduced-motion:reduce){#eh-v42-lab{opacity:.75}}`;
    document.head.appendChild(css);
-   const lab=document.createElement('div');lab.id='eh-v41-lab';lab.setAttribute('role','group');
+   const lab=document.createElement('div');lab.id='eh-v42-lab';lab.setAttribute('role','group');
    lab.setAttribute('aria-label','Independent creature motion test controls');
    for(const [k,label] of [['head','Head'],['wing','Wing'],['tail','Tail'],['all','All 3']]){
      const b=document.createElement('button');b.type='button';b.textContent=label;
@@ -5010,24 +5032,38 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      lab.style.flexWrap='wrap';lab.style.width='min(400px,calc(100vw - 12px))';
      lab.querySelectorAll('button').forEach(b=>{b.style.flex='1 1 22%';b.style.minWidth='58px';});
    }
+   if(personalityEnabled){
+     for(const [kind,title] of [['idle','Habit'],['affection','Nuzzle'],['play','Playful']]){
+       const b=document.createElement('button');b.type='button';b.textContent=title;
+       b.onclick=()=>{if(!previewPersonality(kind))b.title='For awake illustrated companions';};
+       lab.appendChild(b);
+     }
+     lab.style.flexWrap='wrap';lab.style.width='min(420px,calc(100vw - 12px))';
+     lab.querySelectorAll('button').forEach(b=>{b.style.flex='1 1 22%';b.style.minWidth='58px';});
+   }
    document.body.appendChild(lab);
  }
  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else fresh()});
  if(reduce.addEventListener)reduce.addEventListener('change',()=>{if(reduce.matches)stop();else fresh()});
  else if(reduce.addListener)reduce.addListener(()=>{if(reduce.matches)stop();else fresh()});
- window.EVERHATCH_ANIMATOR={version:'v41',mode:'five-family-living-expression-preview',
+ window.EVERHATCH_ANIMATOR={version:'v42',mode:'five-family-distinct-personality-preview',
    metrics:()=>({...metrics,model,href:validImage,action:active?.name||'idle',
      bodyCount:wrap.querySelectorAll('.growth-body,.newborn-body,.care-sleep-body').length,
      canvasCount:wrap.querySelectorAll('canvas').length,paused:reduce.matches||document.hidden,
-     face:{...faceStats,liveHeadLayers:wrap.querySelectorAll('.eh-v41-face').length},
-     anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v41-rig').length,
+     face:{...faceStats,liveHeadLayers:wrap.querySelectorAll('.eh-v42-face').length},
+     personality:{...personalityStats,model:persona.key,gesture:persona.active?.a?.[0]||null},
+     anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v42-rig').length,
        roster:Object.fromEntries(Object.keys(familyBone).map(sp=>[sp,
          Object.keys(window.EVERHATCH_RIG_MANIFEST?.models||{}).filter(k=>k.startsWith(sp+'-')).length]))}}),
    rigCoverage:()=>Object.fromEntries(Object.keys(familyBone).map(sp=>[sp,
        Array.from({length:5},(_,st)=>Array.from({length:6},(_,coat)=>
          !!window.EVERHATCH_RIG_MANIFEST?.models?.[`${sp}-${st}-${coat}`]))])),
-   play,fresh,stop,previewPart,previewFace:(name)=>{if(!bone?.face)return false;faceReact('preview:'+name,1250);kick();return true;},previewTrick:(id,ms=1800)=>{const t=TRICK_BY_ID[id];return !!(t&&startTrickStage(t,ms));},profiles:Object.keys(profiles)};
- window.EVERHATCH_STABILITY={version:'v41',mode:'five-family-living-expression-preview',
+   play,fresh,stop,previewPart,previewPersonality,
+   personalityProfiles:()=>Object.fromEntries(Object.entries(personalities).map(([sp,p])=>[sp,{
+     tone:p.tone,habits:p.habits.map(a=>a[0]),affection:p.affection[0],
+     play:p.play[0],treat:p.treat[0],alert:p.alert[0]}])),
+   previewFace:(name)=>{if(!bone?.face)return false;faceReact('preview:'+name,1250);kick();return true;},previewTrick:(id,ms=1800)=>{const t=TRICK_BY_ID[id];return !!(t&&startTrickStage(t,ms));},profiles:Object.keys(profiles)};
+ window.EVERHATCH_STABILITY={version:'v42',mode:'five-family-distinct-personality-preview',
    metrics:()=>window.EVERHATCH_ANIMATOR.metrics(),audit:fresh,stop};
 })();
 
