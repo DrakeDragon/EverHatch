@@ -4238,7 +4238,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
 })();
 
-/* v42 — Species-specific idle, affectionate and playful motion integrated with v41 expressions.
+/* v43 — Whole-roster motion QA: smooth facial, interaction and personality transitions.
  * Replaces v35's class-toggle motion. One state machine animates the ONE
  * illustrated companion in the live SVG; it never swaps age/coat images.
  * The legacy cutout, facial and mesh runtimes remain quarantined.
@@ -4514,7 +4514,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      }
      art.parts.head.appendChild(root);
      art.face={root,layers,geo,id,
-       nextBlink:performance.now()+3500,blinkEnd:0};
+       nextBlink:performance.now()+3500,blinkEnd:0,opacity:{blink:0,pleased:0,curious:0,wary:0},mouthSmooth:0,crestSmooth:0};
      faceStats.model=id;
    }).catch(e=>{faceStats.failed++;faceStats.lastError=String(e).slice(0,130);});
  }
@@ -4530,11 +4530,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    else if(n==='preview:blink')mode='blink';
    else if(n==='preview:happy')mode='pleased';
    else if(n==='preview:curious')mode='curious';
+   else if(n==='preview:wary')mode='wary';
    else if(n==='preview:talk'){mode='curious';mouth='call';}
    faceReaction={mode,mouth,started:performance.now(),duration:Math.max(480,Number(duration)||1350)};
    faceStats.active=mode+(mouth?'/'+mouth:'');return true;
  }
- function faceTick(now){
+ function faceTick(now,dt){
    if(!faceEnabled||!bone?.face||reduce.matches||document.hidden||S?.sleeping)return;
    const f=bone.face,profile=faceFamily[SPEC.id]||faceFamily.griffin;
    let mode='',opacity=0,mouth=0,gesture=0;
@@ -4558,19 +4559,33 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      faceStats.blinks++;
    }
    if(!mode&&now<f.blinkEnd){mode='blink';opacity=1;}
-   for(const type of faceModes)f.layers[type]?.setAttribute('opacity',
-     (type===mode?opacity:0).toFixed(3));
+   // Blend expression changes rather than cutting suddenly between eye patches.
+   // Separate per-mode opacity lets one expression fade out while another fades in.
+   const fade=1-Math.exp(-clampBone(dt||33,16,120)/64);
+   for(const type of faceModes){
+     const target=type===mode?opacity:0;
+     f.opacity[type]=clampBone(f.opacity[type]+(target-f.opacity[type])*fade,0,1);
+     f.layers[type]?.setAttribute('opacity',f.opacity[type].toFixed(3));
+   }
    if(mode&&opacity>.1)faceStats.expressions++;
    const gaze=f.layers.gaze,iris=f.layers.iris;
    if(gaze&&iris){
-     const g=mode==='blink'?.0:Math.sin(now/1480+SPEC.id.length)*profile.gaze*(mode==='wary'?.25:1);
-     gaze.setAttribute('opacity',mode==='blink'?'0':'0.64');
-     iris.setAttribute('x',String(f.geo.eyeRect[0]+g));
+     const g=mode==='blink'?0:Math.sin(now/1480+SPEC.id.length)*profile.gaze*(mode==='wary'?.25:1);
+     const eyeWidth=f.geo.eyeRect[2]-f.geo.eyeRect[0];
+     const safe=clampBone(g,-eyeWidth*.22,eyeWidth*.22);
+     // No duplicate painted eye when looking straight ahead. Fade in only
+     // when the iris really changes position within its own source eye region.
+     const eyeOpacity=mode==='blink'?0:clampBone(Math.abs(safe)/1.8,0,.67);
+     gaze.setAttribute('opacity',eyeOpacity.toFixed(3));
+     iris.setAttribute('x',String(f.geo.eyeRect[0]+safe));
      faceStats.gazeFrames++;
    }
-   const jawOpen=clampBone(mouth*profile.jaw,0,.94);
+   // Filter the jaw motion to avoid a discontinuous, flashing beak/muzzle patch.
+   const mouthFade=1-Math.exp(-clampBone(dt||33,16,120)/94);
+   f.mouthSmooth+=((mouth||0)-f.mouthSmooth)*mouthFade;
+   const jawOpen=clampBone(f.mouthSmooth*profile.jaw,0,.94);
    if(f.layers.jaw){
-     f.layers.jaw.setAttribute('opacity',(jawOpen>.02?Math.min(.86,.46+jawOpen*.43):0).toFixed(3));
+     f.layers.jaw.setAttribute('opacity',Math.min(.86,jawOpen*1.26).toFixed(3));
      f.layers.jaw.setAttribute('transform',`rotate(${(jawOpen*5.5).toFixed(2)} ${f.geo.jawPivot[0]} ${f.geo.jawPivot[1]})`);
      f.layers.jawImage.setAttribute('y',String(f.geo.jawRect[1]+jawOpen*3.6));
    }
@@ -4580,8 +4595,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    }
    if(jawOpen>.05)faceStats.mouthFrames++;
    if(f.layers.crest){
-     const v=Math.sin(now/230)*gesture*profile.crest*2.3;
-     f.layers.crest.setAttribute('opacity',(gesture*.75).toFixed(3));
+     f.crestSmooth+=(gesture-f.crestSmooth)*mouthFade;
+     const v=Math.sin(now/230)*f.crestSmooth*profile.crest*2.3;
+     f.layers.crest.setAttribute('opacity',(f.crestSmooth*.75).toFixed(3));
      f.layers.crest.setAttribute('transform',`rotate(${v.toFixed(2)} ${f.geo.crestPivot[0]} ${f.geo.crestPivot[1]})`);
    }
  }
@@ -4809,9 +4825,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  alert:['Tiny dragon challenge',-13,-14,17,0,-1,-1.3,'wary']}
  };
  const personalityStats={enabled:personalityEnabled,habits:0,reactions:0,previews:0,transitions:0,current:'',species:''};
- const persona={key:'',active:null,next:0,sequence:0,lastAction:null};
+ const persona={key:'',active:null,next:0,sequence:0,lastAction:null,filtered:null};
  const zeroPersona=()=>({pose:asPose(),joints:{head:0,wing:0,tail:0}});
- function resetPersona(){persona.key='';persona.active=null;persona.next=0;persona.sequence=0;persona.lastAction=null;personalityStats.current='';}
+ function resetPersona(){persona.key='';persona.active=null;persona.next=0;persona.sequence=0;persona.lastAction=null;persona.filtered=null;personalityStats.current='';}
  function personaOffset(a,envelope){
    const age=stage()===1?.70:stage()===2?.86:stage()===3?1:1.05,weight=envelope*age;
    return {pose:asPose(a[4]*weight,a[5]*weight,a[6]*weight),
@@ -4849,6 +4865,21 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    if(!persona.active)return zeroPersona();
    const a=persona.active.a,u=clampBone((now-persona.active.start)/a[8],0,1);
    return personaOffset(a,Math.pow(Math.sin(Math.PI*u),2));
+ }
+ function easePersona(target,dt){
+   // A player petting during a 2s idle pose no longer snaps the head/tail.
+   if(!personalityEnabled)return target;
+   if(!persona.filtered){persona.filtered=target;return target;}
+   const a=1-Math.exp(-clampBone(dt||33,16,120)/145),prev=persona.filtered;
+   const next={
+     pose:asPose(prev.pose.x+(target.pose.x-prev.pose.x)*a,
+       prev.pose.y+(target.pose.y-prev.pose.y)*a,
+       prev.pose.r+(target.pose.r-prev.pose.r)*a),
+     joints:{}
+   };
+   for(const part of ['head','wing','tail'])
+     next.joints[part]=prev.joints[part]+(target.joints[part]-prev.joints[part])*a;
+   persona.filtered=next;return next;
  }
  function previewPersonality(kind='idle'){
    if(!personalityEnabled||!bone?.root?.isConnected||document.hidden||reduce.matches||S?.sleeping)return false;
@@ -4923,7 +4954,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    const profile=profiles[SPEC.id]||profiles.griffin;
    const resting=idlePose(now,profile);
    const boneAction=active;
-   const personality=samplePersona(now,boneAction);
+   const personality=easePersona(samplePersona(now,boneAction),dt);
    const overlay=sampleAction(now,profile);
    let target=add(add(resting,overlay),personality.pose);
    if(active&&active.from){
@@ -4937,7 +4968,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    writePose(body,boneDemo?asPose():illustrated?asPose(current.x*.55,current.y*.55,current.r*.32,
      1+(current.sx-1)*.48,1+(current.sy-1)*.48):current);
    boneTick(now,boneAction,dt,personality);
-   faceTick(now);
+   faceTick(now,dt);
    metrics.frames++;
    raf=requestAnimationFrame(tick);metrics.activeRafs=1;
  }
