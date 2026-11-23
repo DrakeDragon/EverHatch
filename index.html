@@ -4431,7 +4431,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      if(!Number.isFinite(x+y+w+h)||w<=0||h<=0)throw Error('bad illustration bounds');
      const fit=Math.min(w/data.SW,h/data.SH),vw=data.SW*fit,vh=data.SH*fit;
      const vx=x+(w-vw)/2,vy=y+(h-vh); // matches SVG xMidYMax meet
-     const root=boneTag('g');root.setAttribute('class','eh-v38-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
+     const root=boneTag('g');root.setAttribute('class','eh-v40-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
      root.setAttribute('transform',`translate(${vx} ${vy}) scale(${fit})`);
      const parts={};
      // Exact source-colored wing/tail sockets below those joints, neck under head.
@@ -4449,7 +4449,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      bone={image:im,root,parts,pivot:data.pivot,key};bonePending='';bonePendingImage=null;boneCounters.aligned=data.aligned;boneCounters.unmapped=data.unmapped;boneCounters.mappedPixels=data.mappedPixels;boneCounters.subjectPixels=data.subjectPixels;
      boneCounters.current=key;boneCounters.binds++;boneCounters.loading=false;boneCounters.visible=true;
    }).catch(e=>{
-     if(ticket===boneTicket){bonePending='';bonePendingImage=null;boneCounters.loading=false;boneCounters.errors++;boneCounters.lastError=String(e).slice(0,180);boneDisabledModels.add(key);}
+     if(ticket===boneTicket){bonePending='';bonePendingImage=null;boneCounters.loading=false;boneCounters.errors++;boneCounters.lastError=String(e).slice(0,180);if(st===0)boneCounters.stageZeroFallbacks++;boneDisabledModels.add(key);}
    });
  }
  function boneTick(now,activity,dt){
@@ -4459,19 +4459,20 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    const sp=SPEC.id,st=stage(),profile=profiles[sp]||profiles.griffin;
    const t=(now-startedAt)*.001*profile.tempo;
    const juvenile=st===0?.57:st===1?.76:st===2?.9:1;
-   const target={head:Math.sin(t*1.22+.3)*2.2*juvenile,
-     wing:Math.sin(t*1.67-.5)*(sp==='phoenix'?4.5:3.1)*juvenile,
-     tail:Math.sin(t*1.30+.8)*(sp==='wyvern'?6.7:5.1)*juvenile};
+   const anatomy=familyBone[sp]||familyBone.griffin;
+   const target={head:Math.sin(t*1.22+.3)*anatomy.idle[0]*juvenile,
+     wing:Math.sin(t*1.67-.5)*anatomy.idle[1]*juvenile,
+     tail:Math.sin(t*1.30+.8)*anatomy.idle[2]*juvenile};
    if(boneDemo){
      const elapsed=(now-boneDemo.start)/boneDemo.duration;
      if(elapsed>=1){boneDemo=null;}
      else{
        const u=clampBone(elapsed,0,1),wave=Math.pow(Math.sin(Math.PI*u),2);
-       if(boneDemo.part==='head'||boneDemo.part==='all')target.head=wave*20;
+       if(boneDemo.part==='head'||boneDemo.part==='all')target.head=wave*20*anatomy.response[0];
        else target.head=0;
-       if(boneDemo.part==='wing'||boneDemo.part==='all')target.wing=wave*(-24);
+       if(boneDemo.part==='wing'||boneDemo.part==='all')target.wing=wave*(-22)*anatomy.response[1];
        else target.wing=0;
-       if(boneDemo.part==='tail'||boneDemo.part==='all')target.tail=wave*27;
+       if(boneDemo.part==='tail'||boneDemo.part==='all')target.tail=wave*24*anatomy.response[2];
        else target.tail=0;
      }
    }
@@ -4494,11 +4495,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
       }
      for(const part of ['head','wing','tail']){
         // Head reacts first, wings answer, and tail follows through.
-        const lag=part==='head'?0:part==='wing'?.075:.16;
+        const idx=part==='head'?0:part==='wing'?1:2;
+        const lag=anatomy.lag[idx];
         const phase=clampBone((p-lag)/(1-lag),0,1);
         const envelope=Math.pow(Math.sin(Math.PI*phase),2);
         const follow=part==='tail'?1+.12*Math.sin(3*Math.PI*phase):1;
-        target[part]+=reaction[part]*envelope*follow*juvenile;
+        target[part]+=reaction[part]*anatomy.response[idx]*envelope*follow*juvenile;
       }
    }
    // Frame-rate-independent smoothing on slower mobile devices.
@@ -4705,17 +4707,17 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  }
  if(motionLab){
    const css=document.createElement('style');
-   css.textContent=`#eh-v38-lab{position:fixed;z-index:60;bottom:max(12px,env(safe-area-inset-bottom));
+   css.textContent=`#eh-v40-lab{position:fixed;z-index:60;bottom:max(12px,env(safe-area-inset-bottom));
      left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;
      background:rgba(9,17,42,.92);border:1px solid #d0ae65;border-radius:13px;
      padding:7px 9px;box-shadow:0 6px 22px #05071b88;max-width:calc(100vw - 12px)}
-     #eh-v38-lab button{cursor:pointer;min-width:59px;min-height:46px;flex:1;border:1px solid #a99b70;
+     #eh-v40-lab button{cursor:pointer;min-width:59px;min-height:46px;flex:1;border:1px solid #a99b70;
        border-radius:8px;background:#273159;color:#f9e8bb;font-size:12px;font-weight:700}
-     #eh-v38-lab button:active{background:#43578c}
-     @media(max-width:350px){#eh-v38-lab button{min-width:54px}}
-     @media(prefers-reduced-motion:reduce){#eh-v38-lab{opacity:.75}}`;
+     #eh-v40-lab button:active{background:#43578c}
+     @media(max-width:350px){#eh-v40-lab button{min-width:54px}}
+     @media(prefers-reduced-motion:reduce){#eh-v40-lab{opacity:.75}}`;
    document.head.appendChild(css);
-   const lab=document.createElement('div');lab.id='eh-v38-lab';lab.setAttribute('role','group');
+   const lab=document.createElement('div');lab.id='eh-v40-lab';lab.setAttribute('role','group');
    lab.setAttribute('aria-label','Independent creature motion test controls');
    for(const [k,label] of [['head','Head'],['wing','Wing'],['tail','Tail'],['all','All 3']]){
      const b=document.createElement('button');b.type='button';b.textContent=label;
@@ -4727,13 +4729,18 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else fresh()});
  if(reduce.addEventListener)reduce.addEventListener('change',()=>{if(reduce.matches)stop();else fresh()});
  else if(reduce.addListener)reduce.addListener(()=>{if(reduce.matches)stop();else fresh()});
- window.EVERHATCH_ANIMATOR={version:'v39',mode:'single-SVG-staggered-articulated-preview',
+ window.EVERHATCH_ANIMATOR={version:'v40',mode:'five-family-socketed-articulation-preview',
    metrics:()=>({...metrics,model,href:validImage,action:active?.name||'idle',
      bodyCount:wrap.querySelectorAll('.growth-body,.newborn-body,.care-sleep-body').length,
      canvasCount:wrap.querySelectorAll('canvas').length,paused:reduce.matches||document.hidden,
-     anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v38-rig').length}}),
+     anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v40-rig').length,
+       roster:Object.fromEntries(Object.keys(familyBone).map(sp=>[sp,
+         Object.keys(window.EVERHATCH_RIG_MANIFEST?.models||{}).filter(k=>k.startsWith(sp+'-')).length]))}}),
+   rigCoverage:()=>Object.fromEntries(Object.keys(familyBone).map(sp=>[sp,
+       Array.from({length:5},(_,st)=>Array.from({length:6},(_,coat)=>
+         !!window.EVERHATCH_RIG_MANIFEST?.models?.[`${sp}-${st}-${coat}`]))])),
    play,fresh,stop,previewPart,previewTrick:(id,ms=1800)=>{const t=TRICK_BY_ID[id];return !!(t&&startTrickStage(t,ms));},profiles:Object.keys(profiles)};
- window.EVERHATCH_STABILITY={version:'v39',mode:'single-SVG-staggered-articulated-preview',
+ window.EVERHATCH_STABILITY={version:'v40',mode:'five-family-socketed-articulation-preview',
    metrics:()=>window.EVERHATCH_ANIMATOR.metrics(),audit:fresh,stop};
 })();
 
