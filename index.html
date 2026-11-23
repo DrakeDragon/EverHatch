@@ -2618,7 +2618,7 @@ function newbornKind(){
  return coatArtId(SPEC.id,S.coat);
 }
 function newbornSetPose(pose){
- if(window.EVERHATCH_STABILITY_MODE)pose='idle';
+ if(window.EVERHATCH_STABILITY_MODE&&!/(?:^|[?&])face=1(?:&|$)/.test(location.search))pose='idle';
  const img=document.querySelector('#gwrap .newborn-frame');if(!img)return;
  const id=img.dataset.animal;if(!newbornReady[id])return;
  if(newbornMotion.matches)pose='idle';
@@ -4216,7 +4216,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
 })();
 
-/* v40 — Full-roster illustrated anatomy and joint seam refinement.
+/* v41 — Full-roster living expressions integrated with illustrated anatomical motion.
  * Replaces v35's class-toggle motion. One state machine animates the ONE
  * illustrated companion in the live SVG; it never swaps age/coat images.
  * The legacy cutout, facial and mesh runtimes remain quarantined.
@@ -4274,6 +4274,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
   */
  const boneEnabled=/(?:^|[?&])(?:rig=1|anatomy=1)(?:&|$)/.test(location.search);
  const motionLab=boneEnabled&&/(?:^|[?&])motionlab=1(?:&|$)/.test(location.search);
+ const faceEnabled=boneEnabled&&/(?:^|[?&])face=1(?:&|$)/.test(location.search);
  let boneDemo=null;
  const boneCounters={enabled:boneEnabled,binds:0,maps:0,steps:0,errors:0,disabled:false,reductions:0,
    missingLandmarks:0,slowFrames:0,current:'',maxHead:0,maxWing:0,maxTail:0,prepared:0,
@@ -4402,11 +4403,171 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    return request;
  }
 
+
+ /* v41 facial continuity: reuse the existing 150 age/coat-matched v32/v33 images,
+  * attaching their eye/jaw details INSIDE the actual articulated head.
+  * No second canvas, independent RAF, whole-creature swap, or save-state changes. */
+ const faceFamily={
+   griffin:{blink:[3100,5600],gaze:1.25,jaw:.72,crest:.74},
+   hippogriff:{blink:[2550,4950],gaze:1.55,jaw:.77,crest:.89},
+   phoenix:{blink:[2700,4750],gaze:1.25,jaw:.82,crest:1.08},
+   pegasus:{blink:[3300,6000],gaze:1.62,jaw:.42,crest:1.12},
+   wyvern:{blink:[3650,6200],gaze:1.68,jaw:1.00,crest:.98}
+ };
+ const faceModes=['blink','pleased','curious','wary'];
+ const faceCache=new Map();
+ const faceStats={enabled:faceEnabled,loaded:0,partial:0,failed:0,missing:0,blinks:0,
+   expressions:0,mouthFrames:0,gazeFrames:0,active:'',model:'',controllerCount:1};
+ let faceReaction=null;
+ function loadFaceSet(sp,st,coat){
+   const id=sp+'-'+st+'-'+coat;
+   if(faceCache.has(id))return faceCache.get(id);
+   const urls={};
+   for(const mode of faceModes)urls[mode]='assets/expressions/'+id+'-'+mode+'.webp';
+   for(const part of ['jaw','crest','eye-base','iris'])
+     urls[part]='assets/faces-v33/'+id+'-'+part+'.webp';
+   urls.interior='assets/interiors-v34/'+id+'.webp';
+   const names=Object.keys(urls);
+   const promise=Promise.allSettled(names.map(name=>loadImage(urls[name]))).then(items=>{
+     const art={};
+     let ok=0;
+     for(let i=0;i<names.length;i++){
+       if(items[i].status==='fulfilled'){art[names[i]]=urls[names[i]];ok++;}
+       else faceStats.missing++;
+     }
+     if(!ok){faceStats.failed++;throw Error('no matching face artwork: '+id)}
+     faceStats.loaded++;if(ok<names.length)faceStats.partial++;
+     return art;
+   }).catch(e=>{faceCache.delete(id);throw e});
+   faceCache.set(id,promise);
+   if(faceCache.size>3)faceCache.delete(faceCache.keys().next().value);
+   return promise;
+ }
+ function faceImage(url,x,y,w,h,parent,hidden=true){
+   const im=boneTag('image');
+   im.setAttribute('href',url);im.setAttribute('x',String(x));im.setAttribute('y',String(y));
+   im.setAttribute('width',String(w));im.setAttribute('height',String(h));
+   im.setAttribute('preserveAspectRatio','none');im.setAttribute('pointer-events','none');
+   if(hidden)im.setAttribute('opacity','0');
+   parent.appendChild(im);return im;
+ }
+ function faceBind(art,data,sp,st,coat){
+   if(!faceEnabled||st===0||!art?.parts?.head||!art.root?.isConnected)return;
+   const id=sp+'-'+st+'-'+coat;
+   const geo=window.EVERHATCH_FACE33_MANIFEST?.models?.[id];
+   if(!geo?.eyeRect||!geo?.jawRect||!geo?.crestRect){faceStats.missing++;return;}
+   loadFaceSet(sp,st,coat).then(assets=>{
+     if(art!==bone||!art.root.isConnected||document.hidden||reduce.matches||
+       !S||S.sleeping||S.exp||titleUp||SPEC.id!==sp||stage()!==st||Number(S.coat)!==coat)return;
+     const root=boneTag('g');root.setAttribute('class','eh-v41-face');
+     root.setAttribute('transform',`translate(${data.geometry.x} ${data.geometry.y}) scale(${data.geometry.scaleX} ${data.geometry.scaleY})`);
+     root.setAttribute('pointer-events','none');
+     // All facial features follow the identical head pivot and rotation.
+     const layers={};
+     if(assets['eye-base']&&assets.iris){
+       const [x0,y0,x1,y1]=geo.eyeRect;
+       const gaze=boneTag('g');gaze.setAttribute('opacity','0');
+       faceImage(assets['eye-base'],x0,y0,x1-x0,y1-y0,gaze,false);
+       layers.iris=faceImage(assets.iris,x0,y0,x1-x0,y1-y0,gaze,false);
+       layers.gaze=gaze;root.appendChild(gaze);
+     }
+     for(const mode of faceModes)if(assets[mode])
+       layers[mode]=faceImage(assets[mode],0,0,370,310,root,true);
+     if(assets.interior){
+       const [x0,y0,x1]=geo.jawRect;
+       layers.interior=faceImage(assets.interior,x0,y0+1,x1-x0,2,root,true);
+     }
+     if(assets.jaw){
+       const [x0,y0,x1,y1]=geo.jawRect;
+       const jaw=boneTag('g');jaw.setAttribute('opacity','0');
+       layers.jawImage=faceImage(assets.jaw,x0,y0,x1-x0,y1-y0,jaw,false);
+       root.appendChild(jaw);layers.jaw=jaw;
+     }
+     if(assets.crest){
+       const [x0,y0,x1,y1]=geo.crestRect;
+       const crest=boneTag('g');crest.setAttribute('opacity','0');
+       faceImage(assets.crest,x0,y0,x1-x0,y1-y0,crest,false);
+       root.appendChild(crest);layers.crest=crest;
+     }
+     art.parts.head.appendChild(root);
+     art.face={root,layers,geo,id,
+       nextBlink:performance.now()+3500,blinkEnd:0};
+     faceStats.model=id;
+   }).catch(e=>{faceStats.failed++;faceStats.lastError=String(e).slice(0,130);});
+ }
+ function faceReact(name,duration=1350){
+   if(!faceEnabled||reduce.matches)return false;
+   const n=String(name||'').toLowerCase();
+   let mode='curious',mouth='';
+   if(/feed|drink/.test(n)){mode='pleased';mouth='chew';}
+   else if(/pet|cuddle|greet|groom/.test(n))mode='pleased';
+   else if(/wake|stretch/.test(n)){mode='curious';mouth=n.includes('wake')?'yawn':'';}
+   else if(/roar|thunder|slam|rear|puff|guard/.test(n)){mode='wary';mouth='call';}
+   else if(/call|sing|song|talk|chatter/.test(n)){mode='curious';mouth='call';}
+   else if(n==='preview:blink')mode='blink';
+   else if(n==='preview:happy')mode='pleased';
+   else if(n==='preview:curious')mode='curious';
+   else if(n==='preview:talk'){mode='curious';mouth='call';}
+   faceReaction={mode,mouth,started:performance.now(),duration:Math.max(480,Number(duration)||1350)};
+   faceStats.active=mode+(mouth?'/'+mouth:'');return true;
+ }
+ function faceTick(now){
+   if(!faceEnabled||!bone?.face||reduce.matches||document.hidden||S?.sleeping)return;
+   const f=bone.face,profile=faceFamily[SPEC.id]||faceFamily.griffin;
+   let mode='',opacity=0,mouth=0,gesture=0;
+   if(faceReaction){
+     const u=(now-faceReaction.started)/faceReaction.duration;
+     if(u>=1){faceReaction=null;faceStats.active='';}
+     else{
+       const p=clampBone(u,0,1),env=Math.pow(Math.sin(Math.PI*p),.72);
+       mode=faceReaction.mode;opacity=env;
+       if(faceReaction.mouth==='chew')
+         mouth=env*(.22+.6*Math.pow(Math.sin(Math.PI*3*p),2));
+       else if(faceReaction.mouth==='call')
+         mouth=env*(.38+.48*Math.sin(Math.PI*p));
+       else if(faceReaction.mouth==='yawn')
+         mouth=env*.88;
+       gesture=env;
+     }
+   }
+   if(!faceReaction&&now>=f.nextBlink){
+     f.blinkEnd=now+165;f.nextBlink=now+profile.blink[0]+Math.random()*(profile.blink[1]-profile.blink[0]);
+     faceStats.blinks++;
+   }
+   if(!mode&&now<f.blinkEnd){mode='blink';opacity=1;}
+   for(const type of faceModes)f.layers[type]?.setAttribute('opacity',
+     (type===mode?opacity:0).toFixed(3));
+   if(mode&&opacity>.1)faceStats.expressions++;
+   const gaze=f.layers.gaze,iris=f.layers.iris;
+   if(gaze&&iris){
+     const g=mode==='blink'?.0:Math.sin(now/1480+SPEC.id.length)*profile.gaze*(mode==='wary'?.25:1);
+     gaze.setAttribute('opacity',mode==='blink'?'0':'0.64');
+     iris.setAttribute('x',String(f.geo.eyeRect[0]+g));
+     faceStats.gazeFrames++;
+   }
+   const jawOpen=clampBone(mouth*profile.jaw,0,.94);
+   if(f.layers.jaw){
+     f.layers.jaw.setAttribute('opacity',(jawOpen>.02?Math.min(.86,.46+jawOpen*.43):0).toFixed(3));
+     f.layers.jaw.setAttribute('transform',`rotate(${(jawOpen*5.5).toFixed(2)} ${f.geo.jawPivot[0]} ${f.geo.jawPivot[1]})`);
+     f.layers.jawImage.setAttribute('y',String(f.geo.jawRect[1]+jawOpen*3.6));
+   }
+   if(f.layers.interior){
+     f.layers.interior.setAttribute('opacity',Math.min(.82,jawOpen*.84).toFixed(3));
+     f.layers.interior.setAttribute('height',String(Math.max(1.2,1.4+jawOpen*7)));
+   }
+   if(jawOpen>.05)faceStats.mouthFrames++;
+   if(f.layers.crest){
+     const v=Math.sin(now/230)*gesture*profile.crest*2.3;
+     f.layers.crest.setAttribute('opacity',(gesture*.75).toFixed(3));
+     f.layers.crest.setAttribute('transform',`rotate(${v.toFixed(2)} ${f.geo.crestPivot[0]} ${f.geo.crestPivot[1]})`);
+   }
+ }
+
  function boneClear(){
    boneTicket++;bonePending='';bonePendingImage=null;boneCounters.loading=false;boneCounters.visible=false;
    if(bone?.image?.isConnected)bone.image.style.removeProperty('opacity');
    if(bone?.root?.isConnected)bone.root.remove();
-   bone=null;boneState={...boneDefault};boneCounters.current='';
+   bone=null;boneState={...boneDefault};boneCounters.current='';faceReaction=null;faceStats.model='';faceStats.active='';
  }
  function boneBind(){
    const im=body?.querySelector('.growth-frame,.newborn-frame');
@@ -4415,6 +4576,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      return;
    }
    const sp=SPEC.id,st=stage(),coat=Number(S.coat),source=im.getAttribute('href')||'';
+   // Newborn poses are complete 320×320 illustrations; never graft adult
+   // 370×310 facial/rig patches onto them during the facial preview.
+   if(faceEnabled&&st===0){if(bone||bonePending)boneClear();return;}
    const key=sp+'/'+st+'/'+coat+'/'+source;
    if(boneDisabledModels.has(key))return;
    if(bone?.image===im&&boneCounters.current===key)return;
@@ -4431,7 +4595,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      if(!Number.isFinite(x+y+w+h)||w<=0||h<=0)throw Error('bad illustration bounds');
      const fit=Math.min(w/data.SW,h/data.SH),vw=data.SW*fit,vh=data.SH*fit;
      const vx=x+(w-vw)/2,vy=y+(h-vh); // matches SVG xMidYMax meet
-     const root=boneTag('g');root.setAttribute('class','eh-v40-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
+     const root=boneTag('g');root.setAttribute('class','eh-v41-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
      root.setAttribute('transform',`translate(${vx} ${vy}) scale(${fit})`);
      const parts={};
      // Exact source-colored wing/tail sockets below those joints, neck under head.
@@ -4450,6 +4614,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      im.style.opacity='0';
      bone={image:im,root,parts,pivot:data.pivot,key};bonePending='';bonePendingImage=null;boneCounters.aligned=data.aligned;boneCounters.unmapped=data.unmapped;boneCounters.mappedPixels=data.mappedPixels;boneCounters.subjectPixels=data.subjectPixels;
      boneCounters.current=key;boneCounters.binds++;boneCounters.loading=false;boneCounters.visible=true;
+     faceBind(bone,data,sp,st,coat);
    }).catch(e=>{
      if(ticket===boneTicket){bonePending='';bonePendingImage=null;boneCounters.loading=false;boneCounters.errors++;boneCounters.lastError=String(e).slice(0,180);if(st===0)boneCounters.stageZeroFallbacks++;boneDisabledModels.add(key);}
    });
@@ -4648,6 +4813,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    writePose(body,boneDemo?asPose():illustrated?asPose(current.x*.55,current.y*.55,current.r*.32,
      1+(current.sx-1)*.48,1+(current.sy-1)*.48):current);
    boneTick(now,boneAction,dt);
+   faceTick(now);
    metrics.frames++;
    raf=requestAnimationFrame(tick);metrics.activeRafs=1;
  }
@@ -4661,7 +4827,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    if(!modelKey()||S?.sleeping||reduce.matches)return false;
    const n=anchor();if(!n)return false;
    active={name,start:performance.now(),duration:Math.max(480,Number(duration)||1300),from:{...current}};
-   metrics.lastAction=name;metrics.actions++;kick();return true;
+   metrics.lastAction=name;metrics.actions++;faceReact(name,duration);kick();return true;
  }
  function fresh(){anchor();kick()}
  const prevRender=renderGriffin;
@@ -4715,40 +4881,51 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  }
  if(motionLab){
    const css=document.createElement('style');
-   css.textContent=`#eh-v40-lab{position:fixed;z-index:60;bottom:max(12px,env(safe-area-inset-bottom));
+   css.textContent=`#eh-v41-lab{position:fixed;z-index:60;bottom:max(12px,env(safe-area-inset-bottom));
      left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;
      background:rgba(9,17,42,.92);border:1px solid #d0ae65;border-radius:13px;
      padding:7px 9px;box-shadow:0 6px 22px #05071b88;max-width:calc(100vw - 12px)}
-     #eh-v40-lab button{cursor:pointer;min-width:59px;min-height:46px;flex:1;border:1px solid #a99b70;
+     #eh-v41-lab button{cursor:pointer;min-width:59px;min-height:46px;flex:1;border:1px solid #a99b70;
        border-radius:8px;background:#273159;color:#f9e8bb;font-size:12px;font-weight:700}
-     #eh-v40-lab button:active{background:#43578c}
-     @media(max-width:350px){#eh-v40-lab button{min-width:54px}}
-     @media(prefers-reduced-motion:reduce){#eh-v40-lab{opacity:.75}}`;
+     #eh-v41-lab button:active{background:#43578c}
+     @media(max-width:350px){#eh-v41-lab button{min-width:54px}}
+     @media(prefers-reduced-motion:reduce){#eh-v41-lab{opacity:.75}}`;
    document.head.appendChild(css);
-   const lab=document.createElement('div');lab.id='eh-v40-lab';lab.setAttribute('role','group');
+   const lab=document.createElement('div');lab.id='eh-v41-lab';lab.setAttribute('role','group');
    lab.setAttribute('aria-label','Independent creature motion test controls');
    for(const [k,label] of [['head','Head'],['wing','Wing'],['tail','Tail'],['all','All 3']]){
      const b=document.createElement('button');b.type='button';b.textContent=label;
      b.onclick=()=>{if(!previewPart(k))b.title='Creature illustration preparing or reduced motion enabled'};
      lab.appendChild(b);
    }
+   if(faceEnabled){
+     // Optional, separate controls only in Motion Lab. Normal gameplay unchanged.
+     for(const [key,label] of [['blink','Blink'],['happy','Happy'],['curious','Curious'],['talk','Talk']]){
+       const b=document.createElement('button');b.type='button';b.textContent=label;
+       b.onclick=()=>{if(bone?.face){faceReact('preview:'+key,1250);kick();}else b.title='Facial art is preparing, or this is the newborn pose stage';};
+       lab.appendChild(b);
+     }
+     lab.style.flexWrap='wrap';lab.style.width='min(400px,calc(100vw - 12px))';
+     lab.querySelectorAll('button').forEach(b=>{b.style.flex='1 1 22%';b.style.minWidth='58px';});
+   }
    document.body.appendChild(lab);
  }
  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else fresh()});
  if(reduce.addEventListener)reduce.addEventListener('change',()=>{if(reduce.matches)stop();else fresh()});
  else if(reduce.addListener)reduce.addListener(()=>{if(reduce.matches)stop();else fresh()});
- window.EVERHATCH_ANIMATOR={version:'v40',mode:'five-family-socketed-articulation-preview',
+ window.EVERHATCH_ANIMATOR={version:'v41',mode:'five-family-living-expression-preview',
    metrics:()=>({...metrics,model,href:validImage,action:active?.name||'idle',
      bodyCount:wrap.querySelectorAll('.growth-body,.newborn-body,.care-sleep-body').length,
      canvasCount:wrap.querySelectorAll('canvas').length,paused:reduce.matches||document.hidden,
-     anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v40-rig').length,
+     face:{...faceStats,liveHeadLayers:wrap.querySelectorAll('.eh-v41-face').length},
+     anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v41-rig').length,
        roster:Object.fromEntries(Object.keys(familyBone).map(sp=>[sp,
          Object.keys(window.EVERHATCH_RIG_MANIFEST?.models||{}).filter(k=>k.startsWith(sp+'-')).length]))}}),
    rigCoverage:()=>Object.fromEntries(Object.keys(familyBone).map(sp=>[sp,
        Array.from({length:5},(_,st)=>Array.from({length:6},(_,coat)=>
          !!window.EVERHATCH_RIG_MANIFEST?.models?.[`${sp}-${st}-${coat}`]))])),
-   play,fresh,stop,previewPart,previewTrick:(id,ms=1800)=>{const t=TRICK_BY_ID[id];return !!(t&&startTrickStage(t,ms));},profiles:Object.keys(profiles)};
- window.EVERHATCH_STABILITY={version:'v40',mode:'five-family-socketed-articulation-preview',
+   play,fresh,stop,previewPart,previewFace:(name)=>{if(!bone?.face)return false;faceReact('preview:'+name,1250);kick();return true;},previewTrick:(id,ms=1800)=>{const t=TRICK_BY_ID[id];return !!(t&&startTrickStage(t,ms));},profiles:Object.keys(profiles)};
+ window.EVERHATCH_STABILITY={version:'v41',mode:'five-family-living-expression-preview',
    metrics:()=>window.EVERHATCH_ANIMATOR.metrics(),audit:fresh,stop};
 })();
 
