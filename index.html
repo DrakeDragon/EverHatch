@@ -4216,7 +4216,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
 })();
 
-/* v39 — Natural articulated motion with mobile-safe frame pacing.
+/* v40 — Full-roster illustrated anatomy and joint seam refinement.
  * Replaces v35's class-toggle motion. One state machine animates the ONE
  * illustrated companion in the live SVG; it never swaps age/coat images.
  * The legacy cutout, facial and mesh runtimes remain quarantined.
@@ -4265,7 +4265,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
   wyvern:   {breath:.005,sway:.45,idle:2.0,dip:1.14,hop:1.05,tail:1.2,tempo:.94}
  };
  const center={x:0,y:0,r:0,sx:1,sy:1};
- /* v39 preview: REAL, independently articulated illustrated parts.
+ /* v40 preview: live illustrated art, original-colored joints, all creature families.
   * The existing 150-source rig masks are applied to the LIVE growth image,
   * preserving the correct species, stage and coat colors pixel-for-pixel.
   * The four cutouts are prepared ONCE on an offscreen canvas, and are then
@@ -4279,7 +4279,14 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    missingLandmarks:0,slowFrames:0,current:'',maxHead:0,maxWing:0,maxTail:0,prepared:0,
    failures:0,stageZeroFallbacks:0,loading:false,visible:false,controllerCount:1};
  const NS='http://www.w3.org/2000/svg',partNames=['tail','wing','core','head'];
- const W=370,H=310;
+ const familyBone={
+    griffin:   {idle:[2.1,3.0,4.0],response:[1.0,.94,.86],lag:[0,.075,.17],socket:{head:[17,16],wing:[20,17],tail:[17,13]}},
+    hippogriff:{idle:[2.6,3.5,4.7],response:[1.07,1.12,1.05],lag:[0,.09,.17],socket:{head:[19,17],wing:[23,18],tail:[19,15]}},
+    phoenix:   {idle:[2.8,4.4,5.2],response:[1.10,1.20,1.15],lag:[0,.055,.15],socket:{head:[17,16],wing:[22,19],tail:[17,14]}},
+    pegasus:   {idle:[2.4,3.8,5.4],response:[1.06,1.12,1.12],lag:[0,.085,.19],socket:{head:[20,18],wing:[22,19],tail:[18,15]}},
+    wyvern:    {idle:[2.7,3.7,6.6],response:[1.14,1.13,1.23],lag:[0,.10,.21],socket:{head:[21,19],wing:[24,21],tail:[20,16]}}
+  };
+  const W=370,H=310;
  const boneCache=new Map(),boneDisabledModels=new Set(); // keep only last 3 prepared variants
  let bone=null,boneFailureSince=0,boneTicket=0,bonePending='',bonePendingImage=null;
  const boneDefault={head:0,wing:0,tail:0};
