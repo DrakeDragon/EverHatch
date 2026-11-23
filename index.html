@@ -568,6 +568,8 @@ window.EVERHATCH_SET_MOTION_MODE=function(mode){
   try{localStorage.setItem(MOTION_PREF_KEY,chosen);}catch(e){}
   const target=new URL(location.href);
   target.searchParams.set('motion',chosen);
+  if(chosen==='live')for(const k of ['rig','anatomy','face','personality'])
+    if(target.searchParams.get(k)==='0')target.searchParams.delete(k);
   target.searchParams.set('v','44');
   location.assign(target.toString());
 };
@@ -1265,7 +1267,8 @@ function sfx(n){if(!AU.ready||!sfxOn()||AU.ctx.state!=='running')return;try{swit
 /* ============================ settings ============================ */
 function openSettings(){if(modalOpen||!S)return;const s=S.set;
   showModal({title:'Settings',html:`
-   ${textSizeControls()}<div class="row"><div class="grow"><b>Music</b></div><button class="btn sbtn" id="tgM">${s.music?'On':'Off'}</button></div>
+   ${textSizeControls()}<div class="row"><div class="grow"><b>Creature motion</b><small>Living moves the head, wings, and tail independently. Classic restores the original animation.</small></div><button class="btn sbtn" id="tgMotion">${window.EVERHATCH_MOTION_MODE==='classic'?'Classic':'Living'}</button></div>
+   <div class="row"><div class="grow"><b>Music</b></div><button class="btn sbtn" id="tgM">${s.music?'On':'Off'}</button></div>
    <div class="row"><div class="grow"><b>Sound effects</b></div><button class="btn sbtn" id="tgS">${s.sfx?'On':'Off'}</button></div>
    <div class="row"><div class="grow"><b>Volume</b><input type="range" id="vol" min="0" max="100" value="${Math.round(s.vol*100)}" style="width:100%;margin-top:6px"></div></div>
    <div class="row" style="cursor:pointer" id="stCard"><div class="grow"><b>Share ${S.name||'your companion'}</b><small>Make a picture card to send to a friend</small></div></div>
@@ -1273,6 +1276,9 @@ function openSettings(){if(modalOpen||!S)return;const s=S.set;
    <div class="row" style="cursor:pointer" id="stNew"><div class="grow"><b>Switch kind / new egg</b><small>Shelve this nest and pick a different creature</small></div></div>${shelfInfo()?`<div class="row" style="cursor:pointer" id="stShelf"><div class="grow"><b>Bring back your shelved nest</b><small>${shelfInfo().name} the ${shelfInfo().sp}. This nest takes its place on the shelf.</small></div></div>`:''}`,
    buttons:[{t:'Close',cls:'gold'}],
    onShow:m=>{bindTextSize(m);auInit();
+     const motionButton=$('#tgMotion',m);
+     if(motionButton)motionButton.onclick=()=>window.EVERHATCH_SET_MOTION_MODE(
+       window.EVERHATCH_MOTION_MODE==='classic'?'live':'classic');
      $('#tgM',m).onclick=e=>{s.music=!s.music;e.target.textContent=s.music?'On':'Off';auInit();auSet();save()};
      $('#tgS',m).onclick=e=>{s.sfx=!s.sfx;e.target.textContent=s.sfx?'On':'Off';auSet();save();if(s.sfx){auInit();sfx('chime')}};
      $('#vol',m).oninput=e=>{s.vol=e.target.value/100;auSet();save()};
