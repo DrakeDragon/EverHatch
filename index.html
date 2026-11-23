@@ -4216,65 +4216,232 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
 })();
 
-/* v35 — stable, single-owner creature renderer.
- * The image rendered by the age/coat-aware original SVG is authoritative.
- * No permanent duplicate image, repeated DOM rewrites, or competing canvases.
- * Existing save IDs, effects, artworks and game mechanics remain unchanged. */
+/* v36 — One continuous companion animation director.
+ * Replaces v35's class-toggle motion. One state machine animates the ONE
+ * illustrated companion in the live SVG; it never swaps age/coat images.
+ * The legacy cutout, facial and mesh runtimes remain quarantined.
+ */
 (function(){
  'use strict';
  const wrap=$('#gwrap'),scene=$('#scene');
- const reduce=window.matchMedia('(prefers-reduced-motion:reduce)');
- const stats={actions:0,visualResets:0,assetRepairs:0,staleRemoved:0};
- let visualTimer=0,actionGeneration=0,validKey='',lastImage='';
- const uiStyle=document.createElement('style');
- uiStyle.textContent=`
- #gwrap .growth-frame,#gwrap .newborn-frame,#gwrap .care-sleep-frame{opacity:1!important;visibility:visible!important}
- #gwrap .growth-body,#gwrap .newborn-body,#gwrap .growth-reaction{will-change:transform}
- #gwrap[data-stable-action=feed] .growth-body,#gwrap[data-stable-action=feed] .newborn-body{animation:ehStableFeed .95s ease-in-out 1!important}
- #gwrap[data-stable-action=pet] .growth-body,#gwrap[data-stable-action=pet] .newborn-body,
- #gwrap[data-stable-action=cuddle] .growth-body,#gwrap[data-stable-action=cuddle] .newborn-body{animation:ehStableNuzzle 1.15s ease-in-out 1!important}
- #gwrap[data-stable-action=play] .growth-body,#gwrap[data-stable-action=play] .newborn-body,
- #gwrap[data-stable-action=trick] .growth-body,#gwrap[data-stable-action=trick] .newborn-body{animation:ehStablePlay 1.15s ease-in-out 1!important}
- #gwrap[data-stable-action=wake] .growth-body,#gwrap[data-stable-action=wake] .newborn-body{animation:ehStableWake 1.15s ease-in-out 1!important}
- #gwrap[data-stable-action=groom] .growth-body,#gwrap[data-stable-action=groom] .newborn-body{animation:ehStableNuzzle 1.15s ease-in-out 1!important}
- @keyframes ehStableFeed{0%,100%{transform:translate(0,0) rotate(0) scale(1)}28%{transform:translate(0,3px) rotate(-1.2deg) scale(1.006,.994)}57%{transform:translate(0,6px) rotate(1deg) scale(1.002,.994)}78%{transform:translate(0,2px) rotate(-.35deg) scale(1)}}
- @keyframes ehStableNuzzle{0%,100%{transform:translate(0,0) rotate(0) scale(1)}30%{transform:translate(5px,0) rotate(1.9deg) scale(1.009)}67%{transform:translate(3px,1px) rotate(1deg) scale(1.012)}}
- @keyframes ehStablePlay{0%,100%{transform:translate(0,0) rotate(0) scale(1)}30%{transform:translate(-3px,-5px) rotate(-1.5deg) scale(1.005)}65%{transform:translate(2px,-9px) rotate(1.5deg) scale(1.008)}}
- @keyframes ehStableWake{0%,100%{transform:scale(1)}45%{transform:translateY(-3px) scale(1.01,1.025)}75%{transform:translateY(-1px) scale(1.015,1.01)}}
- #gwrap .v29-mesh-canvas,#gwrap .v30-rig-care,#gwrap .v27-care-canvas,#gwrap .premium-care-overlay,#gwrap .v32-eye-layer,#gwrap .v33-face-idle{display:none!important}
- @media(prefers-reduced-motion:reduce){#gwrap[data-stable-action] .growth-body,#gwrap[data-stable-action] .newborn-body{animation:none!important}}
- `;document.head.appendChild(uiStyle);
- function active(){return !!(S&&S.phase==='alive'&&!S.exp&&!titleUp&&SPEC)}
- function key(){return active()?`${SPEC.id}/${stage()}/${S.coat}/${S.sleeping}/${Object.values(S.eq||{}).join(',')}`:null}
- function announceVisual(kind,ms=1100){
-   if(!active()||S.sleeping||reduce.matches)return;
-   const serial=++actionGeneration;stats.actions++;clearTimeout(visualTimer);
-   wrap.removeAttribute('data-stable-action');void wrap.offsetWidth;
-   wrap.dataset.stableAction=kind;
-   visualTimer=setTimeout(()=>{if(serial===actionGeneration){wrap.removeAttribute('data-stable-action');}},ms);
+ const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+ const st=document.createElement('style');
+ st.textContent=`
+ /* Only the v36 director transforms the live creature; legacy action CSS cannot compete. */
+ #gwrap .growth-body,#gwrap .newborn-body,#gwrap .care-sleep-body{
+   animation:none!important;transition:none!important;transform-origin:160px 258px!important;
+   transform-box:view-box!important;will-change:transform;visibility:visible!important;
  }
- function reset(){clearTimeout(visualTimer);actionGeneration++;wrap.removeAttribute('data-stable-action');stats.visualResets++;}
- function visualCheck(){
-   if(!active()){reset();return;}
-   const k=key();if(validKey!==k){validKey=k;reset();}
-   // Let the stable SVG be authoritative; no stale overrides may hide it.
-   wrap.classList.remove('v30-active','eh-companion-ready');
-   // A trick's temporary class is handled by its own timer, not by another renderer.
-   const base=wrap.querySelector('.growth-frame,.newborn-frame,.care-sleep-frame');
-   if(base){if(base.style.opacity==='0')base.style.removeProperty('opacity');if(base.style.visibility==='hidden')base.style.removeProperty('visibility');lastImage=base.getAttribute('href')||'';}
+ #gwrap .growth-reaction{animation:none!important;transform:none!important}
+ /* Do not apply the old whole-wrapper bounce on top of the director. */
+ #gwrap.bounce,#gwrap.flinch,#gwrap:has(.growth-frame,.newborn-frame).wob{animation:none!important}
+ #scene.trick-active #gwrap .growth-body,#scene.trick-active #gwrap .newborn-body,
+ #scene.trick-active #gwrap .growth-glow{visibility:visible!important}
+ /* Old overlay renderers are not permitted to become a second creature. */
+ #gwrap .v29-mesh-canvas,#gwrap .v30-rig-care,#gwrap .v27-care-canvas,
+ #gwrap .premium-care-overlay,#gwrap .v32-eye-layer,#gwrap .v33-face-idle,
+ #gwrap #eh-companion-permanent{display:none!important}
+ #trick-stage .v30-rig-trick,#trick-stage .v21-fxcanvas,#trick-stage .wyvern-frame{display:none!important}
+ #scene.trick-active #trick-stage{pointer-events:none}
+ /* Keep large-text View & Pet free of overlapping floating reactions. */
+ html[data-large-text] #app.creature-focus #focusName{display:none!important}
+ html[data-large-text] #app.creature-focus #focusBack{
+   font-size:clamp(16px,.58rem,20px)!important;white-space:nowrap;min-height:52px;
+   max-width:min(100%,220px)
  }
- const oldRender=renderGriffin;
- renderGriffin=function(force){const result=oldRender(force);visualCheck();return result};
- const oldFeed=feed;
- feed=function(id){const hunger=S?.st?.hunger??0,result=oldFeed(id);if(S&&S.st.hunger>hunger)announceVisual('feed',950);return result};
- const oldPet=pet;
- pet=function(spot,e){const before=lastPet,result=oldPet(spot,e);if(before!==lastPet)announceVisual('pet',1150);return result};
- const oldFinish=v21FinishCare;
- v21FinishCare=function(id,cd,msg,fx){const result=oldFinish(id,cd,msg,fx);const type={playCare:'play',cuddleCare:'cuddle',washCare:'groom',stretchCare:'wake',drinkCare:'feed'}[id]||'play';announceVisual(type,1150);return result};
- const oldRest=doRest;
- doRest=function(){const sleeping=!!S?.sleeping,result=oldRest();if(sleeping&&!S.sleeping)announceVisual('wake',1150);else reset();return result};
- // No recurring repairs or DOM observers; one art source and one action timer.
- window.EVERHATCH_STABILITY={version:'v35',mode:'single-illustration',metrics:()=>({...stats,model:key(),image:lastImage,duplicateSprites:wrap.querySelectorAll('#eh-companion-permanent,.v30-rig-care,.v29-mesh-care').length,oldIdleTimers:false}),audit:visualCheck,stop:reset};
+ html[data-large-text] #app.creature-focus #speech{top:77px!important;max-height:70px!important}
+ html[data-large-text] #app.creature-focus .v28-response{display:none!important}
+ #app.creature-focus #trick-stage{bottom:171px;max-height:calc(100% - 203px);width:min(100%,540px)}
+ @media(orientation:landscape) and (max-height:530px){#app.creature-focus #trick-stage{bottom:68px;max-height:calc(100% - 108px)}}
+ @media(prefers-reduced-motion:reduce){#gwrap .growth-body,#gwrap .newborn-body,
+ #gwrap .care-sleep-body{transform:none!important;will-change:auto!important}}
+ `;
+ document.head.appendChild(st);
+ const profiles={
+  griffin:   {breath:.006,sway:.28,idle:1.4,dip:1, hop:.9,tail:.8,tempo:1.00},
+  hippogriff:{breath:.007,sway:.4, idle:1.9,dip:1.1,hop:1.15,tail:1,tempo:.92},
+  phoenix:  {breath:.010,sway:.7, idle:1.3,dip:.8,hop:1.05,tail:1.2,tempo:1.18},
+  pegasus:  {breath:.006,sway:.3, idle:1.8,dip:.9,hop:.9,tail:1.1,tempo:.95},
+  wyvern:   {breath:.005,sway:.45,idle:2.0,dip:1.14,hop:1.05,tail:1.2,tempo:.94}
+ };
+ const center={x:0,y:0,r:0,sx:1,sy:1};
+ const metrics={ticks:0,frames:0,maxGapMs:0,longGaps:0,rebinding:0,actions:0,tricks:0,sourceSwaps:0,failures:0,frameBudget:33,activeRafs:0,lastAction:'idle',lastTrick:''};
+ let body=null,model='',raf=0,lastFrame=0,startedAt=performance.now();
+ let current={...center},active=null,seed=0,validImage='';
+ function modelKey(){
+   if(!S||titleUp||S.phase!=='alive'||S.exp||!SPEC)return '';
+   return [SPEC.id,stage(),S.coat,+!!S.sleeping,Object.values(S.eq||{}).join(',')].join('/');
+ }
+ function asPose(x=0,y=0,r=0,sx=1,sy=1){return {x,y,r,sx,sy};}
+ function blend(a,b,t){return asPose(a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,
+  a.r+(b.r-a.r)*t,a.sx+(b.sx-a.sx)*t,a.sy+(b.sy-a.sy)*t)}
+ function add(a,b){return asPose(a.x+b.x,a.y+b.y,a.r+b.r,a.sx+b.sx-1,a.sy+b.sy-1)}
+ const smooth=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
+ function samples(name,profile){
+   const h=profile.dip,k=profile.hop;
+   const map={
+    feed:[[0,0,0,0,1,1],[.16,-1,1,-1.4*h,1.005,.997],[.32,1,5,3*h,1.01,.986],[.53,0,6,2*h,.998,.982],[.72,2,2,-1.5*h,1.004,.997],[.88,0,-2,.4,1.002,1.01],[1,0,0,0,1,1]],
+    drink:[[0,0,0,0,1,1],[.25,0,5,2.5*h,1,.992],[.53,0,6,2*h,1,.988],[.8,0,-1,-.5,1,1],[1,0,0,0,1,1]],
+    pet:[[0,0,0,0,1,1],[.22,-1,-1,-1.1,1.004,1.002],[.52,5,1,2.6,1.012,1.004],[.75,4,1,1.7,1.008,1.004],[1,0,0,0,1,1]],
+    cuddle:[[0,0,0,0,1,1],[.28,4,-2,2.3,1.014,1.003],[.65,7,-2,3.2,1.018,1.005],[.83,3,1,1.3,1.006,1],[1,0,0,0,1,1]],
+    play:[[0,0,0,0,1,1],[.16,-3,-3,-2.3*k,1.01,1],[.36,3,-8,1.9*k,1.015,1.012],[.56,-4,0,-1.7*k,1.008,.993],[.76,2,-7,1.3*k,1.012,1.006],[1,0,0,0,1,1]],
+    groom:[[0,0,0,0,1,1],[.2,-3,0,-1,1.003,.997],[.48,-2,3,2.3,1.004,.996],[.72,-1,1,-1,1.005,1.005],[1,0,0,0,1,1]],
+    stretch:[[0,0,0,0,1,1],[.24,0,2,-1,1.004,1],[.53,0,-9,-2.2,1.024,1.029],[.76,0,-5,.2,1.015,1.014],[1,0,0,0,1,1]],
+    wake:[[0,0,0,0,1,1],[.24,0,1,-1,1.003,1.005],[.52,0,-9,-1.8,1.02,1.027],[.76,0,-3,1.1,1.013,1.011],[1,0,0,0,1,1]],
+    greet:[[0,0,0,0,1,1],[.28,5,-2,2.2,1.01,1],[.68,7,-2,2.8,1.017,1.007],[1,0,0,0,1,1]],
+    call:[[0,0,0,0,1,1],[.23,-1,2,-1,1,1],[.52,0,-8,-3.1,1.023,1.024],[.74,2,-1,1.1,1.006,.998],[1,0,0,0,1,1]]
+   };
+   return map[name]||map.play;
+ }
+ function lerpSteps(samples,p){
+   if(p<=0)return asPose();
+   if(p>=1)return asPose();
+   for(let i=1;i<samples.length;i++){
+     const a=samples[i-1],b=samples[i];if(p<=b[0]){
+       const q=smooth((p-a[0])/(b[0]-a[0]));
+       return blend(asPose(...a.slice(1)),asPose(...b.slice(1)),q);
+     }
+   }
+   return asPose();
+ }
+ function idlePose(now,profile){
+   const phase=(now-startedAt)*.001*(2*Math.PI/4.8)*profile.tempo;
+   const breath=Math.sin(phase),so=Math.sin(phase*.5+.6);
+   const gestureTime=((now-startedAt)*.001+seed)%9.2;
+   const gesture=gestureTime>6.7&&gestureTime<8.6?
+     Math.pow(Math.sin(Math.PI*(gestureTime-6.7)/1.9),2):0;
+   return asPose(
+     so*.65+gesture*profile.idle*.8,
+     Math.sin(phase*.73)*.6+(1-breath)*.5,
+     so*profile.sway*.5+gesture*profile.sway*1.6,
+     1+profile.breath*.42*breath,
+     1+profile.breath*(.5+.5*breath)
+   );
+ }
+ function trickSteps(id){
+   const arr=TRICK_CHOREO[id]?.[2];
+   if(!arr?.length)return samples('play',profiles[SPEC?.id]||profiles.griffin);
+   return arr.map((t,i)=>[i/(arr.length-1),Math.max(-62,Math.min(62,t[0]*.62)),
+     Math.max(-90,Math.min(24,t[1]*.66)),
+     // Rotational tricks are intentionally expressive, but bounded for steady framing.
+     id==='roll'||id==='spin'||id==='loop'?t[2]:Math.max(-34,Math.min(34,t[2]*.78)),
+     Math.max(.78,Math.min(1.13,t[3])),Math.max(.78,Math.min(1.13,t[3]))]);
+ }
+ function sampleAction(now,profile){
+   if(!active)return asPose();
+   const p=Math.min(1,(now-active.start)/active.duration);
+   const t=active.name.startsWith('trick:')?trickSteps(active.name.slice(6)):samples(active.name,profile);
+   let target=lerpSteps(t,p);
+   // Smaller juvenile movements keep the head and feet within their viewBox.
+   const level=S&&stage()===0?.83:1;
+   target=asPose(target.x*level,target.y*level,target.r*level,
+     1+(target.sx-1)*level,1+(target.sy-1)*level);
+   if(p>=1){metrics.lastAction=active.name;active=null;return asPose()}
+   return target;
+ }
+ function writePose(n,pose){
+   if(!n?.isConnected)return;
+   const f=x=>Number(x.toFixed(3));
+   n.style.transform=`translate(${f(pose.x)}px,${f(pose.y)}px) rotate(${f(pose.r)}deg) scale(${f(pose.sx)},${f(pose.sy)})`;
+ }
+ function anchor(){
+   const k=modelKey(),n=k?wrap.querySelector('.growth-body,.newborn-body,.care-sleep-body'):null;
+   if(n!==body||k!==model){
+     if(body&&body.isConnected)body.style.removeProperty('transform');
+     body=n;model=k;metrics.rebinding++;
+     if(n){seed=SPEC.id.length+stage()*1.7;const nextImage=n.querySelector('image')?.getAttribute('href')||'';if(validImage&&nextImage!==validImage)metrics.sourceSwaps++;validImage=nextImage;writePose(n,current);}
+     else{current={...center};active=null;}
+   }
+   return !!n;
+ }
+ function canAnimate(){return !document.hidden&&!reduce.matches&&!!modelKey()&&anchor()}
+ function tick(now){
+   raf=0;metrics.activeRafs=0;
+   if(!canAnimate())return;
+   if(lastFrame&&now-lastFrame<31){raf=requestAnimationFrame(tick);metrics.activeRafs=1;return;}
+   const dt=lastFrame?Math.min(120,now-lastFrame):33;
+   if(lastFrame){const gap=now-lastFrame;metrics.maxGapMs=Math.max(metrics.maxGapMs,gap);if(gap>120)metrics.longGaps++}
+   lastFrame=now;metrics.ticks++;
+   const profile=profiles[SPEC.id]||profiles.griffin;
+   const resting=idlePose(now,profile);
+   const overlay=sampleAction(now,profile);
+   let target=add(resting,overlay);
+   if(active&&active.from){
+     const startBlend=smooth((now-active.start)/Math.min(155,active.duration*.22));
+     target=blend(active.from,target,startBlend);
+     if(startBlend>=1)active.from=null;
+   }
+   const alpha=1-Math.exp(-dt/74);
+   current=blend(current,target,alpha);
+   writePose(body,current);
+   metrics.frames++;
+   raf=requestAnimationFrame(tick);metrics.activeRafs=1;
+ }
+ function kick(){
+   if(raf||document.hidden||reduce.matches||!anchor())return;
+   lastFrame=0;raf=requestAnimationFrame(tick);metrics.activeRafs=1;
+ }
+ function stop(){if(raf)cancelAnimationFrame(raf);raf=0;metrics.activeRafs=0;lastFrame=0;active=null;
+   if(body?.isConnected)body.style.transform='none';current={...center};}
+ function play(name,duration=1300){
+   if(!modelKey()||S?.sleeping||reduce.matches)return false;
+   const n=anchor();if(!n)return false;
+   active={name,start:performance.now(),duration:Math.max(480,Number(duration)||1300),from:{...current}};
+   metrics.lastAction=name;metrics.actions++;kick();return true;
+ }
+ function fresh(){anchor();kick()}
+ const prevRender=renderGriffin;
+ renderGriffin=function(force){const ret=prevRender(force);fresh();return ret};
+ const prevFeed=feed;
+ feed=function(id){const hunger=S?.st.hunger??0,ret=prevFeed(id);if(S&&S.st.hunger>hunger)play('feed',1510);return ret};
+ const prevPet=pet;
+ pet=function(spot,e){const before=lastPet,ret=prevPet(spot,e);if(lastPet!==before)play('pet',1160);return ret};
+ const prevFinish=v21FinishCare;
+ v21FinishCare=function(id,cd,msg,fx){const ret=prevFinish(id,cd,msg,fx);
+  const types={playCare:'play',cuddleCare:'cuddle',washCare:'groom',drinkCare:'drink',stretchCare:'stretch',talkCare:'call',discoverCare:'play',forageCare:'play'};
+  play(types[id]||'play',id==='stretchCare'?1770:1480);return ret};
+ const prevPreen=startPreen;
+ startPreen=function(){const ret=prevPreen();if(preen)play('groom',1430);return ret};
+ const prevRest=doRest;
+ doRest=function(){const wasSleeping=!!S?.sleeping,ret=prevRest();
+   if(wasSleeping&&!S.sleeping)play('wake',1880);else if(S.sleeping)active=null;
+   fresh();return ret};
+ const prevGreet=doGreet;
+ doGreet=function(){const before=S?.cd?.greet||0,ret=prevGreet();if(S?.cd?.greet!==before)play('greet',1480);return ret};
+ // A trick is now only an FX overlay; the SAME live creature animates beneath it.
+ // No duplicated creature, adult/newborn size mismatch, pose-frame swapping or hide/show.
+ const prevStop=stopTrickStage;
+ stopTrickStage=function(){if(active?.name.startsWith('trick:'))active=null;return prevStop()};
+ startTrickStage=function(t,ms){
+   if(!t||!TRICK_CHOREO[t.id]||!S||S.phase!=='alive'||S.sleeping||S.exp||titleUp||tab!=='care')return false;
+   if(!wrap.querySelector('.growth-frame,.newborn-frame'))return false;
+   stopTrickStage();
+   const cfg=TRICK_CHOREO[t.id],kind=cfg[1];
+   const run={state:S,species:SPEC.id,coat:S.coat,stage:stage(),timer:0,frames:0};
+   trickRun=run;
+   trickStage.innerHTML=`<svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">${trickFX(kind)}</svg><div class="trick-banner"></div>`;
+   trickStage.querySelector('.trick-banner').textContent=t.n;
+   trickStage.classList.remove('v22-cinematic');trickStage.classList.add('on');scene.classList.add('trick-active');
+   const fx=trickStage.querySelector('.trick-fx');
+   if(!reduce.matches&&fx){fx.animate([
+     {opacity:0,transform:'scale(.8)'},{opacity:.9,transform:'scale(1)'},
+     {opacity:.7,transform:'scale(1.12)'},{opacity:0,transform:'scale(1.22)'}
+   ],{duration:ms,easing:'ease-in-out'});}
+   metrics.tricks++;metrics.lastTrick=t.id;
+   play('trick:'+t.id,ms);
+   run.timer=setTimeout(()=>{if(trickRun===run)stopTrickStage()},ms+70);
+   return true;
+ };
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else fresh()});
+ if(reduce.addEventListener)reduce.addEventListener('change',()=>{if(reduce.matches)stop();else fresh()});
+ else if(reduce.addListener)reduce.addListener(()=>{if(reduce.matches)stop();else fresh()});
+ window.EVERHATCH_ANIMATOR={version:'v36',mode:'single-SVG-continuous',
+   metrics:()=>({...metrics,model,href:validImage,action:active?.name||'idle',
+     bodyCount:wrap.querySelectorAll('.growth-body,.newborn-body,.care-sleep-body').length,
+     canvasCount:wrap.querySelectorAll('canvas').length,paused:reduce.matches||document.hidden}),
+   play,fresh,stop,previewTrick:(id,ms=1800)=>{const t=TRICK_BY_ID[id];return !!(t&&startTrickStage(t,ms));},profiles:Object.keys(profiles)};
+ window.EVERHATCH_STABILITY={version:'v36',mode:'single-SVG-continuous',
+   metrics:()=>window.EVERHATCH_ANIMATOR.metrics(),audit:fresh,stop};
 })();
 
 /* boot */
