@@ -571,7 +571,7 @@ window.EVERHATCH_SET_MOTION_MODE=function(mode){
   target.searchParams.set('motion',chosen);
   if(chosen==='live')for(const k of ['rig','anatomy','face','personality'])
     if(target.searchParams.get(k)==='0')target.searchParams.delete(k);
-  target.searchParams.set('v','45');
+  target.searchParams.set('v','46');
   location.assign(target.toString());
 };
 /* ============================ helpers ============================ */
@@ -4261,7 +4261,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
 })();
 
-/* v45 — Joint integrity: remove smeared cutout pixels, keep feet planted, constrain neck hinges.
+/* v46 — Wyvern screenshot-matched neck fix: curved soft ownership boundary and anchored throat backing.
  * Replaces v35's class-toggle motion. One state machine animates the ONE
  * illustrated companion in the live SVG; it never swaps age/coat images.
  * The legacy cutout, facial and mesh runtimes remain quarantined.
@@ -4334,7 +4334,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  const personalityEnabled=boneEnabled&&MOTION_QUERY.get('personality')!=='0';
  let boneDemo=null;
  const boneCounters={enabled:boneEnabled,binds:0,maps:0,steps:0,errors:0,disabled:false,reductions:0,
-   maskPixelsRejected:0,maskPixelsTrusted:0,plantedPixels:0,neckPixelsAnchored:0,
+   maskPixelsRejected:0,maskPixelsTrusted:0,plantedPixels:0,neckPixelsAnchored:0,neckBlendPixels:0,
    missingLandmarks:0,slowFrames:0,current:'',maxHead:0,maxWing:0,maxTail:0,prepared:0,
    failures:0,stageZeroFallbacks:0,loading:false,visible:false,controllerCount:1};
  const NS='http://www.w3.org/2000/svg',partNames=['tail','wing','core','head'];
@@ -4420,6 +4420,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      const imgLeft=rx0*scaleX+geometry.x,imgTop=ry0*scaleY+geometry.y,
        imgWidth=(rx1-rx0)*scaleX,imgHeight=(ry1-ry0)*scaleY;
      const neckPivotY=metadata.pivot.head[1]*scaleY+geometry.y;
+     const neckPivotX=metadata.pivot.head[0]*scaleX+geometry.x;
+     // v45 used one straight horizontal neck cutoff. The screenshot showed
+     // that flat edge opening during even tiny head rotations. Only Wyverns
+     // receive this curved neck contour until verified on the other species.
+     const wyvernNeck=sp==='wyvern';
      for(let i=0;i<SW*SH;i++){
        const a=raw[i*4+3];if(!a)continue;
        subjectPixels++;
@@ -4432,8 +4437,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
        if(lowerBodyFoot||legMask){
          alpha.core[i]=a;boneCounters.plantedPixels++;continue;
        }
-       // Anchor the lower neck in the core while the upper head responds.
-       const hh=y>neckPivotY+12*scaleY?0:alphas.head[i];
+       // The contour slopes gently from the shoulder into the throat. The
+       // former horizontal crop across the chest is no longer a hard seam.
+       const shoulder=wyvernNeck?clampBone((x-(neckPivotX-40*scaleX))/(85*scaleX),0,1):1;
+       const neckContour=neckPivotY+(wyvernNeck?3+9*shoulder:12)*scaleY;
+       const hh=y>neckContour?0:alphas.head[i];
        if(!hh&&alphas.head[i])boneCounters.neckPixelsAnchored++;
        const ww=alphas.wing[i];
        const tailAllowed=x<imgLeft+imgWidth*.56&&
@@ -4445,6 +4453,22 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
        mappedPixels++;
        const owner=cc>=max*.90&&cc>15?'core':
          hh===max?'head':ww===max?'wing':tt===max?'tail':'core';
+       if(wyvernNeck&&owner==='head'){
+         // Feather just the last ~12 source pixels of the moving head into a
+         // matching, stationary throat. At neutral pose, two identical RGB
+         // layers mathematically recompose to the original source alpha.
+         // As the head moves, the planted collar fills the vacated edge.
+         const band=12*scaleY;
+         const fraction=clampBone((neckContour-y)/band,0,1);
+         if(fraction<1){
+           const movingA=Math.round(a*fraction);
+           const coreA=movingA>=255?0:Math.round((a-movingA)*255/(255-movingA));
+           alpha.head[i]=movingA;
+           alpha.core[i]=clampBone(coreA,0,255);
+           boneCounters.neckBlendPixels++;
+           continue;
+         }
+       }
        alpha[owner][i]=a;
      }
      if(!subjectPixels||unmapped>subjectPixels*.5)throw Error('rig masks do not match this illustration');
@@ -4469,17 +4493,25 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
        const joints=slot==='bridgeBack'?['tail','wing']:['head'];
        for(const part of joints){
          const [px,py]=pivot[part],radii=family.socket[part];
-         const rx=radii[0]*life*scaleX,ry=radii[1]*life*scaleY;
-         if(!Number.isFinite(px+py+rx+ry)||rx<2||ry<2)continue;
-         const x0=Math.max(0,Math.floor(px-rx)),x1=Math.min(SW,Math.ceil(px+rx));
-         const y0=Math.max(0,Math.floor(py-ry)),y1=Math.min(SH,Math.ceil(py+ry));
+         const throat=slot==='bridgeHead'&&sp==='wyvern';
+         // Stationary Wyvern collar follows the actual throat, not just a
+         // little circle around the old head pivot.
+         const cx=px+(throat?9*scaleX:0),cy=py+(throat?7*scaleY:0);
+         const rx=radii[0]*life*scaleX*(throat?2.0:1);
+         const ry=radii[1]*life*scaleY*(throat?2.1:1);
+         if(!Number.isFinite(cx+cy+rx+ry)||rx<2||ry<2)continue;
+         const x0=Math.max(0,Math.floor(cx-rx)),x1=Math.min(SW,Math.ceil(cx+rx));
+         const y0=Math.max(0,Math.floor(cy-ry)),y1=Math.min(SH,Math.ceil(cy+ry));
          for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
-           const u=(x+.5-px)/rx,v=(y+.5-py)/ry,d=u*u+v*v;
+           const u=(x+.5-cx)/rx,v=(y+.5-cy)/ry,d=u*u+v*v;
            if(d>=1)continue;
+           // Only duplicate head-owned neck pixels under the moving head;
+           // never paste an entire still head or another chest on top.
+           if(throat&&!alpha.head[y*SW+x])continue;
            const k=(y*SW+x)*4,sourceA=raw[k+3];
            if(!sourceA)continue;
-           const feather=Math.pow(1-Math.sqrt(d),.7);
-           const paint=Math.round(sourceA*Math.min(1,feather*1.45));
+           const feather=throat?Math.pow(1-d,.40):Math.pow(1-Math.sqrt(d),.7);
+           const paint=Math.round(sourceA*Math.min(1,feather*(throat?1.65:1.45)));
            if(paint<=dst[k+3])continue;
            dst[k]=raw[k];dst[k+1]=raw[k+1];dst[k+2]=raw[k+2];dst[k+3]=paint;
          }
@@ -4554,7 +4586,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    loadFaceSet(sp,st,coat).then(assets=>{
      if(art!==bone||!art.root.isConnected||document.hidden||reduce.matches||
        !S||S.sleeping||S.exp||titleUp||SPEC.id!==sp||stage()!==st||Number(S.coat)!==coat)return;
-     const root=boneTag('g');root.setAttribute('class','eh-v45-face');
+     const root=boneTag('g');root.setAttribute('class','eh-v46-face');
      root.setAttribute('transform',`translate(${data.geometry.x} ${data.geometry.y}) scale(${data.geometry.scaleX} ${data.geometry.scaleY})`);
      root.setAttribute('pointer-events','none');
      // All facial features follow the identical head pivot and rotation.
@@ -4706,7 +4738,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      if(!Number.isFinite(x+y+w+h)||w<=0||h<=0)throw Error('bad illustration bounds');
      const fit=Math.min(w/data.SW,h/data.SH),vw=data.SW*fit,vh=data.SH*fit;
      const vx=x+(w-vw)/2,vy=y+(h-vh); // matches SVG xMidYMax meet
-     const root=boneTag('g');root.setAttribute('class','eh-v45-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
+     const root=boneTag('g');root.setAttribute('class','eh-v46-rig');root.setAttribute('aria-hidden','true');root.setAttribute('pointer-events','none');
      root.setAttribute('transform',`translate(${vx} ${vy}) scale(${fit})`);
      const parts={};
      // Exact source-colored wing/tail sockets below those joints, neck under head.
@@ -4818,7 +4850,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    // Feathered socket textures become visible only when a joint bends.
    // At rest all original colors AND alpha values remain unchanged.
    const backSeam=clampBone(Math.max(Math.abs(boneState.wing)/14,Math.abs(boneState.tail)/10),0,.90);
-   const neckSeam=clampBone(Math.abs(boneState.head)/7,0,.92);
+   const neckSeam=sp==='wyvern'?clampBone(Math.abs(boneState.head)/2.4,0,.98):clampBone(Math.abs(boneState.head)/7,0,.92);
    if(bone){
      bone.parts.bridgeBack?.setAttribute('opacity',backSeam.toFixed(3));
      bone.parts.bridgeHead?.setAttribute('opacity',neckSeam.toFixed(3));
@@ -5159,8 +5191,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      bySpecies[sp]={rig:rigOk,facial:faceOk,expected:30,newborn:stageZero,habits:personalities[sp]?.habits.length||0};
      if(!personalities[sp]||personalities[sp].habits.length!==3)issues.push(sp+':personality');
    }
-   const rigCount=wrap.querySelectorAll('.eh-v45-rig').length;
-   const faceCount=wrap.querySelectorAll('.eh-v45-face').length;
+   const rigCount=wrap.querySelectorAll('.eh-v46-rig').length;
+   const faceCount=wrap.querySelectorAll('.eh-v46-face').length;
    const proceduralJoints=!!body?.classList?.contains('eh-procedural-body');
    const rendering=classicMotion?'classic':
      rigCount?'illustrated separate joints':
@@ -5194,17 +5226,17 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
 
  if(motionLab){
    const css=document.createElement('style');
-   css.textContent=`#eh-v45-lab{position:fixed;z-index:60;bottom:max(12px,env(safe-area-inset-bottom));
+   css.textContent=`#eh-v46-lab{position:fixed;z-index:60;bottom:max(12px,env(safe-area-inset-bottom));
      left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;
      background:rgba(9,17,42,.92);border:1px solid #d0ae65;border-radius:13px;
      padding:7px 9px;box-shadow:0 6px 22px #05071b88;max-width:calc(100vw - 12px)}
-     #eh-v45-lab button{cursor:pointer;min-width:59px;min-height:46px;flex:1;border:1px solid #a99b70;
+     #eh-v46-lab button{cursor:pointer;min-width:59px;min-height:46px;flex:1;border:1px solid #a99b70;
        border-radius:8px;background:#273159;color:#f9e8bb;font-size:12px;font-weight:700}
-     #eh-v45-lab button:active{background:#43578c}
-     @media(max-width:350px){#eh-v45-lab button{min-width:54px}}
-     @media(prefers-reduced-motion:reduce){#eh-v45-lab{opacity:.75}}`;
+     #eh-v46-lab button:active{background:#43578c}
+     @media(max-width:350px){#eh-v46-lab button{min-width:54px}}
+     @media(prefers-reduced-motion:reduce){#eh-v46-lab{opacity:.75}}`;
    document.head.appendChild(css);
-   const lab=document.createElement('div');lab.id='eh-v45-lab';lab.setAttribute('role','group');
+   const lab=document.createElement('div');lab.id='eh-v46-lab';lab.setAttribute('role','group');
    lab.setAttribute('aria-label','Independent creature motion test controls');
    for(const [k,label] of [['head','Head'],['wing','Wing'],['tail','Tail'],['all','All 3']]){
      const b=document.createElement('button');b.type='button';b.textContent=label;
@@ -5243,14 +5275,14 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      qpanel.hidden=!qpanel.hidden;
      if(qpanel.hidden)return;
      const q=qaRoster(),d=q.live;
-     qpanel.textContent='v45 QA — '+(q.passed?'METADATA OK':'CHECK ISSUES')+
+     qpanel.textContent='v46 QA — '+(q.passed?'METADATA OK':'CHECK ISSUES')+
        '\nRig geometry '+q.validRig+'/'+q.checked+
        ' · Facial geometry '+q.validFace+'/'+q.checked+
        '\n'+Object.entries(q.bySpecies).map(([name,x])=>name+': '+x.rig+'/30').join(' | ')+
        '\nLive: '+(d.species||'none')+' / stage '+(d.stage??'-')+' / coat '+(d.coat??'-')+
        '\nRendering: '+d.rendering+
        '\nRigs '+d.rigCount+' · faces '+d.faceCount+' · failures '+(d.rigFailures+d.facialFailures)+
-       '\nMask pixels rejected '+boneCounters.maskPixelsRejected+' · feet anchored '+boneCounters.plantedPixels+
+       '\nMask pixels rejected '+boneCounters.maskPixelsRejected+' · feet anchored '+boneCounters.plantedPixels+' · neck overlap '+boneCounters.neckBlendPixels+
        '\n'+(q.issues.length?q.issues.join(', '):'No geometry/DOM warnings')+
        '\nVisual quality requires device testing.';
    };
@@ -5262,14 +5294,14 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else fresh()});
  if(reduce.addEventListener)reduce.addEventListener('change',()=>{if(reduce.matches)stop();else fresh()});
  else if(reduce.addListener)reduce.addListener(()=>{if(reduce.matches)stop();else fresh()});
- window.EVERHATCH_ANIMATOR={version:'v45',mode:'seam-safe-articulation-and-grounded-paws',
+ window.EVERHATCH_ANIMATOR={version:'v46',mode:'wyvern-soft-neck-collar-and-grounded-paws',
    metrics:()=>({...metrics,model,href:validImage,action:active?.name||'idle',
      bodyCount:wrap.querySelectorAll('.growth-body,.newborn-body,.care-sleep-body,.eh-procedural-body').length,
      renderMode:classicMotion?'classic':bone?.root?.isConnected?'illustrated-joints':body?.classList?.contains('eh-procedural-body')?'equipped-SVG-joints':'fallback',
      canvasCount:wrap.querySelectorAll('canvas').length,paused:reduce.matches||document.hidden,
-     face:{...faceStats,liveHeadLayers:wrap.querySelectorAll('.eh-v45-face').length},
+     face:{...faceStats,liveHeadLayers:wrap.querySelectorAll('.eh-v46-face').length},
      personality:{...personalityStats,model:persona.key,gesture:persona.active?.a?.[0]||null},
-     anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v45-rig').length,
+     anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v46-rig').length,
        roster:Object.fromEntries(Object.keys(familyBone).map(sp=>[sp,
          Object.keys(window.EVERHATCH_RIG_MANIFEST?.models||{}).filter(k=>k.startsWith(sp+'-')).length]))}}),
    qa:qaRoster,
@@ -5281,7 +5313,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      tone:p.tone,habits:p.habits.map(a=>a[0]),affection:p.affection[0],
      play:p.play[0],treat:p.treat[0],alert:p.alert[0]}])),
    previewFace:(name)=>{if(!bone?.face)return false;faceReact('preview:'+name,1250);kick();return true;},previewTrick:(id,ms=1800)=>{const t=TRICK_BY_ID[id];return !!(t&&startTrickStage(t,ms));},profiles:Object.keys(profiles)};
- window.EVERHATCH_STABILITY={version:'v45',mode:'seam-safe-articulation-and-grounded-paws',
+ window.EVERHATCH_STABILITY={version:'v46',mode:'wyvern-soft-neck-collar-and-grounded-paws',
    metrics:()=>window.EVERHATCH_ANIMATOR.metrics(),audit:fresh,stop};
 })();
 
