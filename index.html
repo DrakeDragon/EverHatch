@@ -4216,7 +4216,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
 })();
 
-/* v38 — One continuous animation director with true illustrated, detachable zones.
+/* v39 — Natural articulated motion with mobile-safe frame pacing.
  * Replaces v35's class-toggle motion. One state machine animates the ONE
  * illustrated companion in the live SVG; it never swaps age/coat images.
  * The legacy cutout, facial and mesh runtimes remain quarantined.
@@ -4265,7 +4265,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
   wyvern:   {breath:.005,sway:.45,idle:2.0,dip:1.14,hop:1.05,tail:1.2,tempo:.94}
  };
  const center={x:0,y:0,r:0,sx:1,sy:1};
- /* v38 preview: REAL, independently articulated illustrated parts.
+ /* v39 preview: REAL, independently articulated illustrated parts.
   * The existing 150-source rig masks are applied to the LIVE growth image,
   * preserving the correct species, stage and coat colors pixel-for-pixel.
   * The four cutouts are prepared ONCE on an offscreen canvas, and are then
@@ -4411,7 +4411,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
      if(ticket===boneTicket){bonePending='';bonePendingImage=null;boneCounters.loading=false;boneCounters.errors++;boneCounters.lastError=String(e).slice(0,180);boneDisabledModels.add(key);}
    });
  }
- function boneTick(now,activity){
+ function boneTick(now,activity,dt){
    if(!boneEnabled||!body||reduce.matches||document.hidden||boneCounters.disabled)return;
    if(!bone||!bone.image.isConnected||bone.image!==body.querySelector('.growth-frame,.newborn-frame'))boneBind();
    if(!bone)return;
@@ -4436,19 +4436,36 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    }
    if(!boneDemo&&activity){
      const p=clampBone((now-activity.start)/activity.duration,0,1);
-     const envelope=Math.pow(Math.sin(Math.PI*p),2),name=activity.name;
+     const name=activity.name;
      let reaction={head:6,wing:9,tail:11};
      if(name==='feed'||name==='drink')reaction={head:13,wing:-6,tail:5};
      else if(name==='pet'||name==='cuddle'||name==='greet')reaction={head:-11,wing:4,tail:16};
      else if(name==='groom')reaction={head:-3,wing:13,tail:9};
      else if(name==='stretch'||name==='wake')reaction={head:-10,wing:17,tail:10};
      else if(name==='call')reaction={head:-14,wing:9,tail:9};
-     else if(name==='play'||name.startsWith('trick:'))reaction={head:-8,wing:22,tail:20};
-     for(const part of ['head','wing','tail'])target[part]+=reaction[part]*envelope*juvenile;
+     else if(name==='play')reaction={head:-8,wing:22,tail:20};
+      else if(name.startsWith('trick:')){
+        const id=name.slice(6);
+        if(['hover','fetch','roll','spin','loop','ascend','starfall','canter','cloudtrot','stargallop'].includes(id))reaction={head:-7,wing:25,tail:22};
+        else if(['bow','sing','dawnsong','salute'].includes(id))reaction={head:17,wing:3,tail:10};
+        else if(['roar','thunder','rear','slam'].includes(id))reaction={head:-17,wing:12,tail:15};
+        else reaction={head:-8,wing:18,tail:16};
+      }
+     for(const part of ['head','wing','tail']){
+        // Head reacts first, wings answer, and tail follows through.
+        const lag=part==='head'?0:part==='wing'?.075:.16;
+        const phase=clampBone((p-lag)/(1-lag),0,1);
+        const envelope=Math.pow(Math.sin(Math.PI*phase),2);
+        const follow=part==='tail'?1+.12*Math.sin(3*Math.PI*phase):1;
+        target[part]+=reaction[part]*envelope*follow*juvenile;
+      }
    }
-   const timeAlpha=1-Math.exp(-32/130);
+   // Frame-rate-independent smoothing on slower mobile devices.
+    const timeAlpha=1-Math.exp(-clampBone(dt||33,16,120)/135);
    for(const part of ['head','wing','tail']){
-     const prev=boneState[part];boneState[part]+=(target[part]-prev)*timeAlpha;
+     const prev=boneState[part];boneState[part]=clampBone(prev+(target[part]-prev)*timeAlpha,
+        part==='head'?-24:part==='wing'?-29:-34,
+        part==='head'?24:part==='wing'?29:34);
      const pivot=bone.pivot[part];if(!pivot)continue;
      bone.parts[part].setAttribute('transform',`rotate(${boneState[part].toFixed(3)} ${pivot[0]} ${pivot[1]})`);
      boneCounters['max'+part[0].toUpperCase()+part.slice(1)]=Math.max(boneCounters['max'+part[0].toUpperCase()+part.slice(1)],Math.abs(boneState[part]));
@@ -4456,13 +4473,16 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    boneCounters.steps++;
  }
  function bonePerformance(gap){
-   if(!boneEnabled)return;
-   if(gap>95&&gap<2000){boneCounters.slowFrames++;
-     if(!boneFailureSince)boneFailureSince=performance.now();}
-   if(boneCounters.slowFrames>=12&&performance.now()-boneFailureSince<30000){
-     boneCounters.disabled=true;boneCounters.reductions++;boneClear();
-   }
- }
+    if(!boneEnabled||boneCounters.disabled||!bone?.root?.isConnected)return;
+    const now=performance.now();
+    // Sustained stutter in a 30-second window, not lifetime frame hiccups.
+    if(!boneFailureSince||now-boneFailureSince>30000){boneFailureSince=now;boneCounters.slowFrames=0;}
+    if(gap>95&&gap<2000)boneCounters.slowFrames++;
+    else if(gap<65&&boneCounters.slowFrames>0)boneCounters.slowFrames=Math.max(0,boneCounters.slowFrames-.12);
+    if(boneCounters.slowFrames>=12){
+      boneCounters.disabled=true;boneCounters.reductions++;boneCounters.lastError='Slow device: original illustration restored';boneClear();
+    }
+  }
 
  const metrics={ticks:0,frames:0,maxGapMs:0,longGaps:0,rebinding:0,actions:0,tricks:0,sourceSwaps:0,failures:0,frameBudget:33,activeRafs:0,lastAction:'idle',lastTrick:''};
  let body=null,model='',raf=0,lastFrame=0,startedAt=performance.now();
@@ -4576,7 +4596,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    const illustrated=boneEnabled&&bone?.root?.isConnected;
    writePose(body,boneDemo?asPose():illustrated?asPose(current.x*.55,current.y*.55,current.r*.32,
      1+(current.sx-1)*.48,1+(current.sy-1)*.48):current);
-   boneTick(now,boneAction);
+   boneTick(now,boneAction,dt);
    metrics.frames++;
    raf=requestAnimationFrame(tick);metrics.activeRafs=1;
  }
@@ -4666,13 +4686,13 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else fresh()});
  if(reduce.addEventListener)reduce.addEventListener('change',()=>{if(reduce.matches)stop();else fresh()});
  else if(reduce.addListener)reduce.addListener(()=>{if(reduce.matches)stop();else fresh()});
- window.EVERHATCH_ANIMATOR={version:'v38',mode:'single-SVG-true-articulated-preview',
+ window.EVERHATCH_ANIMATOR={version:'v39',mode:'single-SVG-staggered-articulated-preview',
    metrics:()=>({...metrics,model,href:validImage,action:active?.name||'idle',
      bodyCount:wrap.querySelectorAll('.growth-body,.newborn-body,.care-sleep-body').length,
      canvasCount:wrap.querySelectorAll('canvas').length,paused:reduce.matches||document.hidden,
      anatomy:{...boneCounters,values:{...boneState},rigCount:wrap.querySelectorAll('.eh-v38-rig').length}}),
    play,fresh,stop,previewPart,previewTrick:(id,ms=1800)=>{const t=TRICK_BY_ID[id];return !!(t&&startTrickStage(t,ms));},profiles:Object.keys(profiles)};
- window.EVERHATCH_STABILITY={version:'v38',mode:'single-SVG-true-articulated-preview',
+ window.EVERHATCH_STABILITY={version:'v39',mode:'single-SVG-staggered-articulated-preview',
    metrics:()=>window.EVERHATCH_ANIMATOR.metrics(),audit:fresh,stop};
 })();
 
