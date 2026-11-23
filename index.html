@@ -551,6 +551,8 @@ html[data-large-text] .focus-open-care small{display:none}
 <script src="assets/expressions/expression-runtime.js"></script>
 <script src="assets/faces-v33/manifest.js"></script><script src="assets/faces-v33/facial-runtime.js"></script>
 <script>
+// Everhatch v35: a single stable illustrated presentation system.
+window.EVERHATCH_STABILITY_MODE=true;
 (()=>{'use strict';
 /* ============================ helpers ============================ */
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -1177,7 +1179,8 @@ const CHORDS=[[146.83,174.61,220],[116.54,146.83,174.61],[174.61,220,261.63],[13
 const SCALE=[293.66,349.23,392,440,523.25,587.33,698.46,880];
 const musOn=()=>S?S.set.music:true, sfxOn=()=>S?S.set.sfx:true, volNow=()=>S?S.set.vol:.6;
 function auInit(){
-  // Never start an audio context while both sound settings are OFF.
+  // Never wake or create sound generators when both game sound switches are off.
+  // A context started on the title screen must not override loaded preferences.
   if(!musOn()&&!sfxOn()){if(AU.ready)auSet();return}
   if(AU.ctx){if(AU.ctx.state==='suspended')AU.ctx.resume().catch(()=>{});auSet();return}
   try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=AU.ctx=new C();
@@ -1193,9 +1196,10 @@ function auInit(){
 function auSet(){
   if(!AU.ready||!AU.ctx)return;
   const t=AU.ctx.currentTime,onMusic=!!musOn(),onSfx=!!sfxOn();
-  // Silence the entire channels including sustained tones and echo tails.
-  // Muting only padGain left other instruments audible when Music was OFF.
-  for(const [node,value] of [[AU.m,(onMusic||onSfx)?volNow():0],
+  // Mute at the MIXER, not just the background pad: old notes and the echo
+  // feedback circuit must become inaudible as soon as Music is switched OFF.
+  // This also guarantees silence when BOTH options are OFF.
+  for(const [node,value] of [[AU.m, (onMusic||onSfx)?volNow():0],
     [AU.mus,onMusic?.5:0],[AU.sfx,onSfx?.9:0],
     [AU.padGain,onMusic?.1:0]]){
     if(!node)continue;
@@ -2614,6 +2618,7 @@ function newbornKind(){
  return coatArtId(SPEC.id,S.coat);
 }
 function newbornSetPose(pose){
+ if(window.EVERHATCH_STABILITY_MODE)pose='idle';
  const img=document.querySelector('#gwrap .newborn-frame');if(!img)return;
  const id=img.dataset.animal;if(!newbornReady[id])return;
  if(newbornMotion.matches)pose='idle';
@@ -2899,9 +2904,9 @@ function trickFX(kind){const c=trickColors[kind], particles=Array.from({length:1
  const special=kind==='bolt'?`<path d="M210 35L181 91L209 87L162 159L177 105L151 109L180 35Z" fill="${c}"/>`:kind==='pillar'?`<path d="M105 245L135 20H185L215 245Z" fill="${c}" opacity=".2"/>`:kind==='shield'?`<path d="M160 65L246 101V169Q235 234 160 256Q85 234 74 169V101Z" stroke="${c}" stroke-width="3" fill="${c}" fill-opacity=".1"/>`:kind==='notes'?`<text x="200" y="110" fill="${c}" font-size="30">♪ ♫</text>`:kind==='smoke'?`<g fill="${c}" opacity=".5"><circle cx="243" cy="146" r="15"/><circle cx="269" cy="132" r="20"/><circle cx="290" cy="108" r="17"/></g>`:kind==='sun'?`<circle cx="160" cy="95" r="65" stroke="${c}" stroke-width="3" fill="${c}" fill-opacity=".15"/>`:'';
  return `<g class="trick-fx" opacity="0">${ring}${particles}${special}</g>`;}
 function startTrickStage(t,ms){const cfg=TRICK_CHOREO[t.id],w=$('#gwrap'),src=w.querySelector('.growth-frame,.newborn-frame');if(!cfg||!src||!S||S.sleeping||S.exp||Object.values(S.eq||{}).some(Boolean))return false;
- stopTrickStage();const [mode,kind,moves]=cfg,st=stage(),width=[188,208,246,284,310][st],height=width*310/370,href=src.getAttribute('href');
+ stopTrickStage();const [mode,kind,moves]=cfg,st=stage(),width=[188,208,246,284,310][st],height=st===0?213:width*310/370,href=src.getAttribute('href');
  const r={state:S,species:SPEC.id,coat:S.coat,stage:st,timer:0,frames:0};trickRun=r;
- trickStage.innerHTML=`<svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">${trickFX(kind)}<g class="trick-body"><image href="${href}" x="${(320-width)/2}" y="${267-height}" width="${width}" height="${height}" preserveAspectRatio="xMidYMax meet"/></g></svg><div class="trick-banner"></div>`;
+ trickStage.innerHTML=`<svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">${trickFX(kind)}<g class="trick-body"><image href="${href}" x="${st===0?66:(320-width)/2}" y="${st===0?58:267-height}" width="${width}" height="${height}" preserveAspectRatio="xMidYMax meet"/></g></svg><div class="trick-banner"></div>`;
  trickStage.querySelector('.trick-banner').textContent=t.n;trickStage.classList.add('on');$('#scene').classList.add('trick-active');
  const reduced=newbornMotion.matches,body=trickStage.querySelector('.trick-body'),fx=trickStage.querySelector('.trick-fx'),im=body.querySelector('image');
  if(!reduced){body.animate(moves.map(([x,y,a,z])=>({transform:`translate(${x}px,${y}px) rotate(${a}deg) scale(${z})`})),{duration:ms,easing:'ease-in-out'});fx.animate([{opacity:0,transform:'scale(.6)'},{opacity:.85,transform:'scale(1)'},{opacity:.65,transform:'scale(1.15)'},{opacity:0,transform:'scale(1.35)'}],{duration:ms,easing:'ease-out'});
@@ -2998,7 +3003,7 @@ function v21Vfx(t,ms,r){const canvas=document.createElement('canvas');canvas.cla
  v21FxRAF=requestAnimationFrame(frame);
 }
 const v21StartTrick=startTrickStage;
-startTrickStage=function(t,ms){const ok=v21StartTrick(t,ms);if(!ok)return false;const r=trickRun;v21Vfx(t,ms,r);if(t.id==='puff'&&SPEC.id==='wyvern'){const originalBody=trickStage.querySelector('.trick-body');if(originalBody)originalBody.style.visibility='hidden';const im=document.createElement('img');im.className='wyvern-frame';im.alt='';trickStage.appendChild(im);const coat=S.coat;let k=0;const frames=Array.from({length:12},(_,i)=>{const src=`assets/tricks/wyvern-puff-${coat}-${i}.webp`;const image=new Image();image.src=src;return src;});im.src=frames[0];v21FrameInterval=setInterval(()=>{if(trickRun!==r){clearInterval(v21FrameInterval);return}k=Math.min(11,k+1);im.src=frames[k];if(k===11)clearInterval(v21FrameInterval)},Math.max(95,Math.floor(ms/12)));}
+startTrickStage=function(t,ms){const ok=v21StartTrick(t,ms);if(!ok)return false;const r=trickRun;v21Vfx(t,ms,r);if(!window.EVERHATCH_STABILITY_MODE&&t.id==='puff'&&SPEC.id==='wyvern'){const originalBody=trickStage.querySelector('.trick-body');if(originalBody)originalBody.style.visibility='hidden';const im=document.createElement('img');im.className='wyvern-frame';im.alt='';trickStage.appendChild(im);const coat=S.coat;let k=0;const frames=Array.from({length:12},(_,i)=>{const src=`assets/tricks/wyvern-puff-${coat}-${i}.webp`;const image=new Image();image.src=src;return src;});im.src=frames[0];v21FrameInterval=setInterval(()=>{if(trickRun!==r){clearInterval(v21FrameInterval);return}k=Math.min(11,k+1);im.src=frames[k];if(k===11)clearInterval(v21FrameInterval)},Math.max(95,Math.floor(ms/12)));}
  return true;};
 
 /* v21.1 Companion View: text settings and pet interaction are independent. */
@@ -3144,12 +3149,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    const [mode,kind]=cfg, r={state:S,species:SPEC.id,coat:S.coat,stage:st,timer:0,frames:0,id:t.id}; trickRun=r;
    const pal=palette(kind,t.id); trickStage.style.setProperty('--v22bg1',pal[0]); trickStage.style.setProperty('--v22bg2',pal[1]); trickStage.style.setProperty('--v22a',pal[2]); trickStage.style.setProperty('--v22b',pal[3]);
    trickStage.classList.add('on','v22-cinematic'); $('#scene').classList.add('trick-active');
-   trickStage.innerHTML=`<div class="cinematic-bg"></div><svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg"><g class="trick-shadow"><ellipse cx="160" cy="255" rx="74" ry="18"/></g><g class="trick-ghost ghost-a"><image href="${href}" x="${(320-width)/2}" y="${267-height}" width="${width}" height="${height}" opacity="0" preserveAspectRatio="xMidYMax meet"/></g><g class="trick-ghost ghost-b"><image href="${href}" x="${(320-width)/2}" y="${267-height}" width="${width}" height="${height}" opacity="0" preserveAspectRatio="xMidYMax meet"/></g><g class="trick-body"><image href="${href}" x="${(320-width)/2}" y="${267-height}" width="${width}" height="${height}" preserveAspectRatio="xMidYMax meet"/></g></svg><div class="trick-banner"></div>`;
+   trickStage.innerHTML=`<div class="cinematic-bg"></div><svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg"><g class="trick-shadow"><ellipse cx="160" cy="255" rx="74" ry="18"/></g><g class="trick-ghost ghost-a"><image href="${href}" x="${(320-width)/2}" y="${267-height}" width="${width}" height="${height}" opacity="0" preserveAspectRatio="xMidYMax meet"/></g><g class="trick-ghost ghost-b"><image href="${href}" x="${(320-width)/2}" y="${267-height}" width="${width}" height="${height}" opacity="0" preserveAspectRatio="xMidYMax meet"/></g><g class="trick-body"><image href="${href}" x="${st===0?66:(320-width)/2}" y="${st===0?58:267-height}" width="${width}" height="${height}" preserveAspectRatio="xMidYMax meet"/></g></svg><div class="trick-banner"></div>`;
    trickStage.querySelector('.trick-banner').textContent=t.n;
    const reduced=newbornMotion.matches, svg=trickStage.querySelector('svg'), body=trickStage.querySelector('.trick-body'), im=body.querySelector('image'), shadow=trickStage.querySelector('.trick-shadow ellipse');
    const ghosts=[...trickStage.querySelectorAll('.trick-ghost')];
    v21Vfx(t,ms,r);
-   if(t.id==='puff'&&SPEC.id==='wyvern'){
+   if(!window.EVERHATCH_STABILITY_MODE&&t.id==='puff'&&SPEC.id==='wyvern'){
      body.style.visibility='hidden';
      const im2=document.createElement('img'); im2.className='wyvern-frame'; im2.alt=''; trickStage.appendChild(im2);
      const frames=Array.from({length:12},(_,i)=>`assets/tricks/wyvern-puff-${S.coat}-${i}.webp`); runFrameSequence(im2,frames,ms,r);
@@ -3337,7 +3342,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    return seq;
  }
  function startCareMotion(action='idle',duration=1200){
-   if(!canMotion()||newbornMotion.matches)return;
+   if(window.EVERHATCH_STABILITY_MODE||!canMotion()||newbornMotion.matches)return;
    const img=$('#gwrap').querySelector('.growth-frame,.newborn-frame');if(!img)return;
    clearCareMotion();
    const st=stage(),sp=SPEC.id,coat=Number(S.coat),seq=motionSequence(action);
@@ -3381,7 +3386,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  stopTrickStage=function(){clearInterval(trickPoseInterval);trickPoseInterval=0;return prevStop()};
  const prevTrick=startTrickStage;
  startTrickStage=function(t,ms){
-   const ok=prevTrick(t,ms);if(!ok||newbornMotion.matches)return ok;
+   const ok=prevTrick(t,ms);if(!ok||window.EVERHATCH_STABILITY_MODE||newbornMotion.matches)return ok;
    const r=trickRun;
    // The legacy Ember Puff sprite is based on one mature body and ignores life stage.
    // Replace it with our growth-specific pose sequence; the fire FX remains active.
@@ -3457,6 +3462,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    return seq;
  };
  function launchPremiumCare(action,duration){
+   if(window.EVERHATCH_STABILITY_MODE)return;
    const wrap=$('#gwrap'); if(!wrap||!S||!premiumSpecies(SPEC.id)||newbornMotion.matches) return;
    cleanupPremiumCare(); wrap.classList.add('premium-care-pass');
    const ov=document.createElement('canvas'); ov.className='premium-care-overlay'; ov.width=420; ov.height=360; wrap.appendChild(ov);
@@ -3486,6 +3492,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  const prevStop=stopTrickStage;
  stopTrickStage=function(){cancelAnimationFrame(premiumTrickRAF); premiumTrickRAF=0; trickStage?.querySelectorAll('.premium-pass-tag,.premium-stage-note,.premium-trick-canvas').forEach(n=>n.remove()); return prevStop()};
  function premiumTrickFX(t,ms,r){
+   if(window.EVERHATCH_STABILITY_MODE)return;
    if(!premiumSpecies(r.species)||!trickStage) return;
    const tag=document.createElement('div'); tag.className='premium-pass-tag'; tag.textContent='Premium Species Pass'; trickStage.appendChild(tag);
    const note=document.createElement('div'); note.className='premium-stage-note'; note.textContent=`${speciesLabel(r.species)} · ${stageLabel(r.stage)} · Coat ${r.coat+1}`; trickStage.appendChild(note);
@@ -3628,6 +3635,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  const previousCare=startCareMotion;
  startCareMotion=function(action='idle',duration=1300){
    const result=previousCare(action,duration);
+   if(window.EVERHATCH_STABILITY_MODE)return result;
    if(!S||!GROUP.includes(SPEC.id)||newbornMotion.matches||S.sleeping||S.exp)return result;
    const wrap=$('#gwrap');if(!wrap)return result;
    cleanCare();const canvas=document.createElement('canvas');canvas.className='v27-care-canvas';canvas.width=420;canvas.height=360;wrap.appendChild(canvas);
@@ -3645,7 +3653,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  stopTrickStage=function(){cleanCare();cleanTrick();return previousStop()};
  const previousTrick=startTrickStage;
  startTrickStage=function(t,ms){
-   const ok=previousTrick(t,ms);if(!ok||!trickRun||!GROUP.includes(trickRun.species)||newbornMotion.matches)return ok;
+   const ok=previousTrick(t,ms);if(window.EVERHATCH_STABILITY_MODE||!ok||!trickRun||!GROUP.includes(trickRun.species)||newbornMotion.matches)return ok;
    const r=trickRun,sp=r.species,st=r.stage;cleanTrick();
    const cvs=document.createElement('canvas');cvs.className='v27-cinematic-canvas';cvs.width=640;cvs.height=600;trickStage.appendChild(cvs);
    const ctx=cvs.getContext('2d');if(!ctx)return ok;
@@ -3817,6 +3825,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  function cleanupRest(){cancel(currentRest);currentRest=null;}
  function layoutCare(){return $('#gwrap .growth-frame,#gwrap .newborn-frame');}
  function beginCare(action,duration=1400){
+   if(window.EVERHATCH_STABILITY_MODE)return false;
    const request=++careRequest;cleanupCare();
    if(window.EVERHATCH_RIG?.supports(SPEC?.id)&&!window.EVERHATCH_RIG.suspended)return false;
    if(reduced.matches||!validCare())return false;
@@ -3856,6 +3865,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
    return {x:A[0]+(B[0]-A[0])*f,y:A[1]+(B[1]-A[1])*f,a:(A[2]+(B[2]-A[2])*f)*Math.PI/180,s:A[3]+(B[3]-A[3])*f};
  }
  function beginTrick(id,duration){
+   if(window.EVERHATCH_STABILITY_MODE)return false;
    const request=++trickRequest;cleanupTrick();if(window.EVERHATCH_RIG?.supports(SPEC?.id)&&!window.EVERHATCH_RIG.suspended)return; if(reduced.matches||!trickRun||!SPEC||S.sleeping)return;
    const r=trickRun,state=S,sp=SPEC.id,st=stage(),coat=S.coat;
    const body=trickStage.querySelector('.trick-body'),orig=body&&body.querySelector('image');if(!orig)return;
@@ -3883,6 +3893,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  // When sleeping, the game already has a dedicated curled-up illustration.
  // Animate its transition rather than replacing it with a fabricated adult pose.
  function beginRest(waking){
+   if(window.EVERHATCH_STABILITY_MODE)return false;
    const request=++restRequest;cleanupRest();if(reduced.matches||!S||S.phase!=='alive')return;
    const sp=SPEC.id,st=stage(),coat=S.coat,state=S;
    const orig=waking?$('#gwrap .growth-frame,#gwrap .newborn-frame'):$('#gwrap .care-sleep-frame');
@@ -3968,6 +3979,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
   function stopTrick(){trickRequest++;dispose(activeTrick);activeTrick=null;}
   function paintFrame(ctx,model,action,progress,rect,mode){ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,320,300);rig.draw(ctx,model,action,progress,rect,{mode});stats.frames++}
   function beginCare(action='play',duration=1550){
+    if(window.EVERHATCH_STABILITY_MODE)return false;
     const request=++careRequest;dispose(activeCare);activeCare=null;
     if(!safe())return false;
     const orig=$('#gwrap .growth-frame,#gwrap .newborn-frame');if(!orig)return false;
@@ -4008,6 +4020,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
     return {x:a[0]+(b[0]-a[0])*e,y:a[1]+(b[1]-a[1])*e,r:(a[2]+(b[2]-a[2])*e)*Math.PI/180,s:a[3]+(b[3]-a[3])*e};
   }
   function beginTrick(id,duration){
+    if(window.EVERHATCH_STABILITY_MODE)return false;
     const request=++trickRequest;dispose(activeTrick);activeTrick=null;
     if(!safe()||!trickRun)return false;
     const body=trickStage.querySelector('.trick-body'),im=body?.querySelector('image');if(!im)return false;
@@ -4057,7 +4070,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
 (function(){
  const f=window.EVERHATCH_FACE33;
  if(!f)return;
- f.start(()=>S&&S.phase==='alive'&&SPEC?{
+ if(!window.EVERHATCH_STABILITY_MODE)f.start(()=>S&&S.phase==='alive'&&SPEC?{
   state:S,species:SPEC.id,stage:stage(),coat:Number(S.coat),alive:true,
   sleeping:!!S.sleeping,away:!!S.exp,title:!!titleUp,
   equipped:Object.values(S.eq||{}).some(Boolean)}:null);
@@ -4111,7 +4124,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  doRest=function(){const was=S?.sleeping;const result=prevRest();if(was&&!S.sleeping)face.react('curious',1250);return result;};
  const prevStart=startTrickStage;
  startTrickStage=function(t,ms){const result=prevStart(t,ms);if(result)face.react((t?.aff==='fierce'?'wary':'curious'),Math.min(ms||2600,1600));return result;};
- face.start(reading);
+ if(!window.EVERHATCH_STABILITY_MODE)face.start(reading);
  window.EVERHATCH_FACE_GAME={version:'v32',mood,reading};
 })();
 
@@ -4143,7 +4156,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  const oldRender=renderGriffin;
  renderGriffin=function(force){
    const result=oldRender(force);
-   if(S&&SPEC&&S.phase==='alive'&&!S.exp&&!titleUp&&!Object.values(S.eq||{}).some(Boolean)){
+   if(!window.EVERHATCH_STABILITY_MODE&&S&&SPEC&&S.phase==='alive'&&!S.exp&&!titleUp&&!Object.values(S.eq||{}).some(Boolean)){
      const sp=SPEC.id,st=stage(),coat=Number(S.coat),key=sp+'-'+st+'-'+coat;
      if(warmKey!==key){
        warmKey=key;
@@ -4203,131 +4216,65 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&creatureViewOpen&&!
  window.EVERHATCH_REFINEMENT={version:'v34',get lastAction(){return lastAction},get recoveries(){return recoveries},get currentModel(){return S?`${SPEC.id}-${stage()}-${S.coat}`:null},clear:()=>{generation++}};
 })();
 
-/* v34.3 — persistent companion visibility safeguard.
- * A stale trick / cutout-animation state could hide the base creature after
- * the moving overlay ends, leaving only the sanctuary backdrop visible.
- * Idle never depends on a temporary rig canvas; original illustrations win.
- * Visual-only patch, no changes to save data, growth, or action rewards. */
+/* v35 — stable, single-owner creature renderer.
+ * The image rendered by the age/coat-aware original SVG is authoritative.
+ * No permanent duplicate image, repeated DOM rewrites, or competing canvases.
+ * Existing save IDs, effects, artworks and game mechanics remain unchanged. */
 (function(){
-  'use strict';
-  const scene=$('#scene'),wrap=$('#gwrap'),stageEl=$('#trick-stage');
-  const tracked=new WeakMap();
-  const counters={staleTricks:0,staleRigs:0,staleMeshes:0,staleTrickStages:0};
-  function repair(){
-    if(!S||S.phase!=='alive'||titleUp||!scene||!wrap)return;
-    const playing=!!(trickRun&&stageEl?.classList.contains('on'));
-    // This class hides the base image with visibility:hidden. It must never
-    // survive the end of a trick, even when a previous animation was canceled.
-    if(!playing&&scene.classList.contains('trick-active')){
-      scene.classList.remove('trick-active');counters.staleTricks++;
-    }
-    if(!playing&&stageEl?.classList.contains('v30-active')&&!stageEl.querySelector('.v30-rig-trick')){
-      stageEl.classList.remove('v30-active');counters.staleTrickStages++;
-    }
-    const rigCanvas=wrap.querySelector('canvas.v30-rig-care');
-    if(rigCanvas){
-      let since=tracked.get(rigCanvas);
-      if(!since){since=performance.now();tracked.set(rigCanvas,since);}
-      // Care actions are under two seconds. Recover from a leaked, frozen
-      // canvas after a conservative timeout; never interrupt a normal action.
-      if(performance.now()-since>6000){
-        rigCanvas.remove();wrap.classList.remove('v30-active');counters.staleRigs++;
-      }
-    } else if(wrap.classList.contains('v30-active')){
-      wrap.classList.remove('v30-active');counters.staleRigs++;
-    }
-    const base=wrap.querySelector('.growth-frame,.newborn-frame');
-    if(base&&!wrap.querySelector('canvas.v29-mesh-care,canvas.v30-rig-care')){
-      // The v29 mesh replacement temporarily uses inline opacity:0.
-      // Restore that base opacity if its replacement canvas is gone.
-      if(base.style.opacity==='0'){
-        base.style.removeProperty('opacity');counters.staleMeshes++;
-      }
-      if(base.style.visibility==='hidden'){
-        base.style.removeProperty('visibility');counters.staleMeshes++;
-      }
-    }
-  }
-  setInterval(repair,300);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)repair()});
-  window.EVERHATCH_IDLE_GUARD={version:'v34.3',repair,metrics:()=>({...counters})};
-})();
-
-/* Everhatch v34.4 — persistent, browser-native illustrated companion.
- * Repairs disappearance after animation by making the resting creature image
- * independent of the SVG image element and the temporary cutout canvas.
- * No save-data or gameplay changes. */
-(function(){
-  'use strict';
-  const wrap=$('#gwrap'),scene=$('#scene'),trick=$('#trick-stage');
-  if(!wrap||!scene)return;
-  const style=document.createElement('style');
-  style.textContent=`
-  #eh-companion-permanent{position:absolute;z-index:6;object-fit:contain;object-position:center bottom;pointer-events:none;display:block;opacity:0;filter:drop-shadow(0 5px 8px #10162770);transform-origin:50% 92%;animation:ehCompanionBreath 4s ease-in-out infinite}
-  @keyframes ehCompanionBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.007,1.017)}}
-  #gwrap.eh-companion-ready .growth-frame,#gwrap.eh-companion-ready .newborn-frame,#gwrap.eh-companion-ready .care-sleep-frame{opacity:0!important}
-  @media (prefers-reduced-motion:reduce){#eh-companion-permanent{animation:none!important}}
-  `;document.head.appendChild(style);
-  const image=document.createElement('img');
-  image.id='eh-companion-permanent';image.alt='';image.setAttribute('aria-hidden','true');image.decoding='async';image.draggable=false;
-  let lastKey='',candidateIndex=0,failedKey='',attempt=0;
-  const metrics={ready:0,failed:0,repairs:0,assetSwitches:0,lastArt:'',visible:false};
-  function model(){
-    if(!S||S.phase!=='alive'||!SPEC||titleUp||S.exp)return null;
-    const sp=SPEC.id,st=stage(),coat=Number(S.coat),id=coatArtId(sp,coat);
-    if(!id)return null;
-    const sleep=!!S.sleeping;
-    const width=sleep?[178,208,246,284,310][st]:[188,208,246,284,310][st];
-    const height=sleep?width*240/370:st===0?213:width*310/370;
-    const x=sleep?(320-width)/2:st===0?66:(320-width)/2;
-    const y=sleep?265-height:st===0?58:267-height;
-    const file=sleep?`assets/sleep/${id}-${st}.webp`:st===0?`assets/newborn/${id}-idle.webp`:`assets/growth/${id}-${st}.webp`;
-    return {key:`${sp}/${st}/${coat}/${sleep}`,sp,st,coat,x,y,width,height,sources:[file,`assets/motion/${sp}-${st}-${coat}-0.webp`,`assets/${sp}.webp`]};
-  }
-  function ensureAttached(){if(image.parentNode!==wrap){wrap.appendChild(image);metrics.repairs++;}}
-  function sourceFor(m,index){return m.sources[index]}
-  function startSource(m,ix){
-    if(ix>=m.sources.length){failedKey=m.key;wrap.classList.remove('eh-companion-ready');image.style.opacity='0';metrics.failed++;return;}
-    candidateIndex=ix;metrics.assetSwitches++;
-    image.dataset.loaded='';image.src=sourceFor(m,ix)+'?eh=34.4';
-  }
-  image.onload=()=>{
-    if(!image.naturalWidth)return;
-    image.dataset.loaded='yes';metrics.ready++;
-    sync();
-  };
-  image.onerror=()=>{
-    const m=model();
-    if(!m||lastKey!==m.key)return;
-    startSource(m,candidateIndex+1);
-  };
-  function sync(){
-    const m=model();
-    if(!m){image.style.opacity='0';wrap.classList.remove('eh-companion-ready');return;}
-    ensureAttached();
-    if(lastKey!==m.key){lastKey=m.key;failedKey='';candidateIndex=0;attempt++;image.style.opacity='0';wrap.classList.remove('eh-companion-ready');startSource(m,0);}
-    if(failedKey===m.key)return;
-    image.style.left=(100*m.x/320)+'%';image.style.top=(100*m.y/300)+'%';image.style.width=(100*m.width/320)+'%';image.style.height=(100*m.height/300)+'%';
-    const ready=image.complete&&image.naturalWidth>0&&image.dataset.loaded==='yes';
-    if(!ready){wrap.classList.remove('eh-companion-ready');image.style.opacity='0';metrics.visible=false;return;}
-    // Trust a real painted animation canvas only while it actually exists.
-    // Stale classes and old trick flags must NEVER make the companion disappear.
-    const animated=!!wrap.querySelector('canvas.v30-rig-care,canvas.v29-mesh-care');
-    const onStage=!!(trick&&trick.classList.contains('on')&&trickRun);
-    const show=!animated&&!onStage;
-    wrap.classList.toggle('eh-companion-ready',true);
-    image.style.opacity=show?'1':'0';
-    metrics.visible=show;metrics.lastArt=image.getAttribute('src')||'';
-  }
-  const oldRender=renderGriffin;
-  renderGriffin=function(force){const r=oldRender(force);sync();return r};
-  const observer=new MutationObserver(()=>sync());
-  observer.observe(wrap,{childList:true,attributes:true,attributeFilter:['class']});
-  if(trick)observer.observe(trick,{attributes:true,attributeFilter:['class']});
-  // Backstop if a browser suspends an animation callback or swaps SVG content.
-  setInterval(sync,220);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
-  window.EVERHATCH_COMPANION_VISIBILITY={version:'v34.4',sync,metrics:()=>({...metrics,model:model()?.key||null,attached:image.isConnected})};
+ 'use strict';
+ const wrap=$('#gwrap'),scene=$('#scene');
+ const reduce=window.matchMedia('(prefers-reduced-motion:reduce)');
+ const stats={actions:0,visualResets:0,assetRepairs:0,staleRemoved:0};
+ let visualTimer=0,actionGeneration=0,validKey='',lastImage='';
+ const uiStyle=document.createElement('style');
+ uiStyle.textContent=`
+ #gwrap .growth-frame,#gwrap .newborn-frame,#gwrap .care-sleep-frame{opacity:1!important;visibility:visible!important}
+ #gwrap .growth-body,#gwrap .newborn-body,#gwrap .growth-reaction{will-change:transform}
+ #gwrap[data-stable-action=feed] .growth-body,#gwrap[data-stable-action=feed] .newborn-body{animation:ehStableFeed .95s ease-in-out 1!important}
+ #gwrap[data-stable-action=pet] .growth-body,#gwrap[data-stable-action=pet] .newborn-body,
+ #gwrap[data-stable-action=cuddle] .growth-body,#gwrap[data-stable-action=cuddle] .newborn-body{animation:ehStableNuzzle 1.15s ease-in-out 1!important}
+ #gwrap[data-stable-action=play] .growth-body,#gwrap[data-stable-action=play] .newborn-body,
+ #gwrap[data-stable-action=trick] .growth-body,#gwrap[data-stable-action=trick] .newborn-body{animation:ehStablePlay 1.15s ease-in-out 1!important}
+ #gwrap[data-stable-action=wake] .growth-body,#gwrap[data-stable-action=wake] .newborn-body{animation:ehStableWake 1.15s ease-in-out 1!important}
+ #gwrap[data-stable-action=groom] .growth-body,#gwrap[data-stable-action=groom] .newborn-body{animation:ehStableNuzzle 1.15s ease-in-out 1!important}
+ @keyframes ehStableFeed{0%,100%{transform:translate(0,0) rotate(0) scale(1)}28%{transform:translate(0,3px) rotate(-1.2deg) scale(1.006,.994)}57%{transform:translate(0,6px) rotate(1deg) scale(1.002,.994)}78%{transform:translate(0,2px) rotate(-.35deg) scale(1)}}
+ @keyframes ehStableNuzzle{0%,100%{transform:translate(0,0) rotate(0) scale(1)}30%{transform:translate(5px,0) rotate(1.9deg) scale(1.009)}67%{transform:translate(3px,1px) rotate(1deg) scale(1.012)}}
+ @keyframes ehStablePlay{0%,100%{transform:translate(0,0) rotate(0) scale(1)}30%{transform:translate(-3px,-5px) rotate(-1.5deg) scale(1.005)}65%{transform:translate(2px,-9px) rotate(1.5deg) scale(1.008)}}
+ @keyframes ehStableWake{0%,100%{transform:scale(1)}45%{transform:translateY(-3px) scale(1.01,1.025)}75%{transform:translateY(-1px) scale(1.015,1.01)}}
+ #gwrap .v29-mesh-canvas,#gwrap .v30-rig-care,#gwrap .v27-care-canvas,#gwrap .premium-care-overlay,#gwrap .v32-eye-layer,#gwrap .v33-face-idle{display:none!important}
+ @media(prefers-reduced-motion:reduce){#gwrap[data-stable-action] .growth-body,#gwrap[data-stable-action] .newborn-body{animation:none!important}}
+ `;document.head.appendChild(uiStyle);
+ function active(){return !!(S&&S.phase==='alive'&&!S.exp&&!titleUp&&SPEC)}
+ function key(){return active()?`${SPEC.id}/${stage()}/${S.coat}/${S.sleeping}/${Object.values(S.eq||{}).join(',')}`:null}
+ function announceVisual(kind,ms=1100){
+   if(!active()||S.sleeping||reduce.matches)return;
+   const serial=++actionGeneration;stats.actions++;clearTimeout(visualTimer);
+   wrap.removeAttribute('data-stable-action');void wrap.offsetWidth;
+   wrap.dataset.stableAction=kind;
+   visualTimer=setTimeout(()=>{if(serial===actionGeneration){wrap.removeAttribute('data-stable-action');}},ms);
+ }
+ function reset(){clearTimeout(visualTimer);actionGeneration++;wrap.removeAttribute('data-stable-action');stats.visualResets++;}
+ function visualCheck(){
+   if(!active()){reset();return;}
+   const k=key();if(validKey!==k){validKey=k;reset();}
+   // Let the stable SVG be authoritative; no stale overrides may hide it.
+   wrap.classList.remove('v30-active','eh-companion-ready');
+   // A trick's temporary class is handled by its own timer, not by another renderer.
+   const base=wrap.querySelector('.growth-frame,.newborn-frame,.care-sleep-frame');
+   if(base){if(base.style.opacity==='0')base.style.removeProperty('opacity');if(base.style.visibility==='hidden')base.style.removeProperty('visibility');lastImage=base.getAttribute('href')||'';}
+ }
+ const oldRender=renderGriffin;
+ renderGriffin=function(force){const result=oldRender(force);visualCheck();return result};
+ const oldFeed=feed;
+ feed=function(id){const hunger=S?.st?.hunger??0,result=oldFeed(id);if(S&&S.st.hunger>hunger)announceVisual('feed',950);return result};
+ const oldPet=pet;
+ pet=function(spot,e){const before=lastPet,result=oldPet(spot,e);if(before!==lastPet)announceVisual('pet',1150);return result};
+ const oldFinish=v21FinishCare;
+ v21FinishCare=function(id,cd,msg,fx){const result=oldFinish(id,cd,msg,fx);const type={playCare:'play',cuddleCare:'cuddle',washCare:'groom',stretchCare:'wake',drinkCare:'feed'}[id]||'play';announceVisual(type,1150);return result};
+ const oldRest=doRest;
+ doRest=function(){const sleeping=!!S?.sleeping,result=oldRest();if(sleeping&&!S.sleeping)announceVisual('wake',1150);else reset();return result};
+ // No recurring repairs or DOM observers; one art source and one action timer.
+ window.EVERHATCH_STABILITY={version:'v35',mode:'single-illustration',metrics:()=>({...stats,model:key(),image:lastImage,duplicateSprites:wrap.querySelectorAll('#eh-companion-permanent,.v30-rig-care,.v29-mesh-care').length,oldIdleTimers:false}),audit:visualCheck,stop:reset};
 })();
 
 /* boot */
